@@ -1,4 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import { botOfCard, waitsForUser } from '@fewmail/shared/agent'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection, useLiveQuery } from '@tanstack/react-db'
 import { useQuery } from '@tanstack/react-query'
@@ -13,6 +14,20 @@ export const queueCards = listCollection({
   queryFn: () => client.today.queue(),
   queryKey: orpc.today.queue.key(),
 })
+
+/**
+ * What waits for the user, the one count every place says ("4 things need you"): every card but Tidy's proposals, all
+ * of them or one bot's. The chat's bar, the bot's profile, Fewmail's headline and the tab's title all read it here.
+ */
+export const useWaiting = (bot?: string) =>
+  useLiveQuery((query) => query.from({ card: queueCards })).data.filter(
+    (card) =>
+      waitsForUser(card.action.kind) && (!bot || botOfCard(card) === bot)
+  )
+
+/** The ids of what waits, for a report to say which of its cards still do. */
+export const useWaitingIds = (): ReadonlySet<string> =>
+  new Set(useWaiting().map(({ action }) => action.id))
 
 /** Home's bots with their latest line and how much is new: muted or read at once (`showUntilSettled`). */
 export const botChats = listCollection({

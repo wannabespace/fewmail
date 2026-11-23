@@ -30,7 +30,7 @@ const ItemSeparator = ({
 )
 
 // Keep these two in step: the bleed pulls a card out by exactly its rows' inset. A phone has no margin to bleed into,
-// and a chat's message (`data-flush`) none either: there the column's edge is the bubbles', and a card past it read as broken.
+// and a chat's message (`data-flush`) none either: there the column's edge is the bot's words', and a card past it read as broken.
 const smallItemInsetClassName = 'px-3.5'
 const smallItemBleedClassName = 'md:-mx-3.5 md:[[data-flush]_&]:mx-0'
 

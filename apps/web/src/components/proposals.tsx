@@ -2,16 +2,17 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import { botOfCard, PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import type { ProposalKind } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
-import { Mail01Icon } from '@hugeicons/core-free-icons'
+import { Mail01Icon, NextIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { NowMessage } from '~/components/bot-chat'
+import { NowPart } from '~/components/bot-chat'
 import { confirm } from '~/components/confirm-dialog'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
 import { PaneRows } from '~/components/pane-rows'
@@ -261,7 +262,7 @@ export const ProposalsReview = ({
 
   return (
     <>
-      <NowMessage isWide={false}>
+      <NowPart>
         <p>{t.today.tidy.reviewLead}</p>
         <Button
           size="sm"
@@ -272,8 +273,8 @@ export const ProposalsReview = ({
           {t.today.tidy.run}
           <span className="tabular-nums">{all.length}</span>
         </Button>
-      </NowMessage>
-      <NowMessage>
+      </NowPart>
+      <NowPart>
         {groups.map((group) => (
           <Tool key={group.kind} open>
             <ToolHeader
@@ -343,22 +344,22 @@ export const ProposalsReview = ({
                         </span>
                       }
                     >
-                      <Button
-                        size="sm"
+                      <IconButton
+                        icon={NextIcon}
+                        label={t.today.tidy.keep}
+                        size="icon-sm"
                         variant="ghost-tint-muted"
-                        onClick={() => proposals.keep(proposal)}
                         shortcut={isActive ? <Kbd>S</Kbd> : undefined}
-                      >
-                        {t.today.tidy.keep}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => proposals.approve([proposal])}
+                        onClick={() => proposals.keep(proposal)}
+                      />
+                      <IconButton
+                        icon={Tick02Icon}
+                        label={t.actionKind[proposal.kind]}
+                        size="icon-sm"
+                        variant="ghost-tint-muted"
                         shortcut={isActive ? <Kbd>⏎</Kbd> : undefined}
-                      >
-                        {t.actionKind[proposal.kind]}
-                      </Button>
+                        onClick={() => proposals.approve([proposal])}
+                      />
                     </SettingsRow>
                   )
                 }}
@@ -366,7 +367,7 @@ export const ProposalsReview = ({
             </ToolContent>
           </Tool>
         ))}
-      </NowMessage>
+      </NowPart>
     </>
   )
 }

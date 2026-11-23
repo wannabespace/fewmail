@@ -40,7 +40,6 @@ import { writeReadingIssue } from './reading'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
 import { getSettings } from './settings'
-import { applySimpleBots } from './simple-bots'
 import { applySpamShield } from './spam'
 import { forget, insertMessages } from './stored-mail'
 import { catchZombies, recordListReaders } from './zombies'
@@ -182,15 +181,9 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   await measureBulk(userId, inserted)
   const zombies = await catchZombies(userId, inserted)
   await recordListReaders(userId, inserted)
-  const spam = await applySpamShield(
+  await applySpamShield(
     userId,
     inserted.filter((message) => !zombies.has(message.id))
-  )
-  await applySimpleBots(
-    userId,
-    inserted.filter(
-      (message) => !zombies.has(message.id) && !spam.has(message.id)
-    )
   )
   await analyzePending(userId, inserted)
   await Promise.all(

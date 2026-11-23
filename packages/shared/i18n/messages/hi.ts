@@ -40,11 +40,11 @@ export const hi: Messages = {
     unsubscribe: 'अनसब्सक्राइब करें',
   },
   actionStatus: {
-    auto_done: 'एजेंट ने कर दिया',
+    auto_done: 'अपने आप कर दिया',
     dismissed: 'छोड़ा गया',
     done: 'हो गया',
     failed: 'विफल',
-    pending: 'होम पर इंतज़ार में',
+    pending: 'आपका इंतज़ार',
   },
   byBot: 'एक बॉट से',
   agent: {
@@ -765,6 +765,7 @@ export const hi: Messages = {
     noPlan:
       'मैं आपको जवाब नहीं दे सकता: मुफ़्त प्लान पर मेरे पास बातचीत के लिए टोकन नहीं हैं। सब्सक्राइब करें, फिर मैं पूरी तरह आपका हूँ।',
     now: 'अभी इंतज़ार में',
+    suggestions: 'सुझाव',
     nudge: {
       noReply: 'उस बातचीत में अभी तक कोई जवाब नहीं।',
       replied: 'तब से उस बातचीत में जवाब आ गया है।',

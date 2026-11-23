@@ -2,32 +2,31 @@ import { cn } from '@fewmail/ui/lib/utils'
 import { createContext, use } from 'react'
 import type { ComponentProps } from 'react'
 
-const MessageContext = createContext<{
-  from: 'assistant' | 'user'
-  isWide: boolean
-}>({ from: 'assistant', isWide: false })
+const MessageContext = createContext<{ from: 'assistant' | 'user' }>({
+  from: 'assistant',
+})
 
 /**
- * One turn of a chat, as a messenger draws it: the assistant's bubble at the left, the user's at the right. `isWide`
- * is a message that is lists of its own cards: no bubble, the cards across the whole column, as a messenger sends
- * a photo without one; a bubble around cards read as a card in a card.
+ * One turn of a chat, as Grok or ChatGPT draws it: the assistant's words straight on the page across the column, the
+ * user's in a bubble at the right. Everything the assistant sends (its text, tool blocks, lists) shares that one
+ * column, so a reply and a list of its cards read as one voice; a bubble around cards read as a card in a card.
  */
 const Message = ({
   children,
   className,
   from,
-  isWide = false,
   ...props
 }: ComponentProps<'div'> & {
   from: 'assistant' | 'user'
-  isWide?: boolean
 }) => (
   <div
     data-slot="message"
     data-from={from}
     className={cn(
-      'group/message flex w-full flex-col has-data-[slot=message-reactions]:mb-3',
-      from === 'user' ? 'items-end' : 'items-start',
+      'group/message flex w-full flex-col',
+      from === 'user'
+        ? 'items-end has-data-[slot=message-reactions]:mb-3'
+        : 'items-start',
       className
     )}
     {...props}
@@ -35,32 +34,26 @@ const Message = ({
     <div
       className={cn(
         'flex min-w-0 flex-col',
-        isWide ? 'w-full' : 'max-w-[85%]',
-        from === 'user' && 'items-end'
+        from === 'user' ? 'max-w-[85%] items-end' : 'w-full'
       )}
     >
-      <MessageContext value={{ from, isWide }}>{children}</MessageContext>
+      <MessageContext value={{ from }}>{children}</MessageContext>
     </div>
   </div>
 )
 
-const BUBBLES = {
-  assistant: 'bg-card ring-foreground/6 rounded-bl-md ring',
-  user: 'bg-secondary rounded-br-md whitespace-pre-line',
-}
-
 const MessageContent = ({ className, ...props }: ComponentProps<'div'>) => {
-  const { from, isWide } = use(MessageContext)
+  const { from } = use(MessageContext)
   return (
     <div
       data-slot="message-content"
-      data-flush={isWide || undefined}
+      // Cards inside read it to stop bleeding past the column (`smallItemBleedClassName`).
+      data-flush={from === 'assistant' || undefined}
       className={cn(
-        'flex max-w-full min-w-0 flex-col text-sm/relaxed',
-        'relative rounded-2xl',
-        isWide
-          ? 'w-full gap-3'
-          : ['w-fit gap-2.5 px-3.5 py-2.5', BUBBLES[from]],
+        'relative flex max-w-full min-w-0 flex-col text-sm/relaxed',
+        from === 'user'
+          ? 'bg-secondary w-fit gap-2.5 rounded-2xl rounded-br-md px-3.5 py-2.5 whitespace-pre-line'
+          : 'w-full gap-3',
         className
       )}
       {...props}
@@ -68,17 +61,21 @@ const MessageContent = ({ className, ...props }: ComponentProps<'div'>) => {
   )
 }
 
-/** When it was written, at the bubble's end as a messenger puts it. */
-const MessageTime = ({ className, ...props }: ComponentProps<'time'>) => (
-  <time
-    data-slot="message-time"
-    className={cn(
-      'text-muted-foreground -mt-1 self-end text-xs tabular-nums',
-      className
-    )}
-    {...props}
-  />
-)
+/** When it was written: at the bubble's end on the user's, under the words on the assistant's. */
+const MessageTime = ({ className, ...props }: ComponentProps<'time'>) => {
+  const { from } = use(MessageContext)
+  return (
+    <time
+      data-slot="message-time"
+      className={cn(
+        'text-muted-foreground text-xs tabular-nums',
+        from === 'user' ? '-mt-1 self-end' : 'self-start',
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
 /** The day the messages under it were written, a chip across the chat. */
 const MessageDay = ({ className, ...props }: ComponentProps<'p'>) => (
@@ -92,29 +89,36 @@ const MessageDay = ({ className, ...props }: ComponentProps<'p'>) => (
   />
 )
 
-/** shadcn's `BubbleReactions`: reactions over the bubble's edge, ringed in the chat's own background. Goes inside `MessageContent`. */
+/**
+ * shadcn's `BubbleReactions`: on the user's bubble, over its edge, ringed in the chat's own background; on the
+ * assistant's words, which have no bubble, in the line under them. Goes inside `MessageContent`.
+ */
 const MessageReactions = ({
   align = 'end',
   className,
-  side = 'bottom',
   ...props
 }: ComponentProps<'div'> & {
   align?: 'end' | 'start'
-  side?: 'bottom' | 'top'
-}) => (
-  <div
-    data-slot="message-reactions"
-    data-align={align}
-    data-side={side}
-    className={cn(
-      'bg-popover ring-body inset-ring-foreground/10 absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full px-1.5 py-0.5 text-sm shadow-sm ring-3 inset-ring has-[button]:p-0 [&>button]:rounded-full',
-      side === 'top' ? 'top-0 -translate-y-3/4' : 'bottom-0 translate-y-3/4',
-      align === 'start' ? 'left-3' : 'right-3',
-      className
-    )}
-    {...props}
-  />
-)
+}) => {
+  const { from } = use(MessageContext)
+  return (
+    <div
+      data-slot="message-reactions"
+      data-align={align}
+      className={cn(
+        'bg-popover inset-ring-foreground/10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full px-1.5 py-0.5 text-sm shadow-sm inset-ring has-[button]:p-0 [&>button]:rounded-full',
+        from === 'user'
+          ? [
+              'ring-body absolute bottom-0 z-10 translate-y-3/4 ring-3',
+              align === 'start' ? 'left-3' : 'right-3',
+            ]
+          : 'self-start',
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
 const MessageActions = ({ className, ...props }: ComponentProps<'div'>) => (
   <div

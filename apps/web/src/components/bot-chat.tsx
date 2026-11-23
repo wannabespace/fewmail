@@ -1,17 +1,6 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import {
-  BOARD_EFFECT,
-  BOT_MESSAGE_CHARS,
-  BOT_PRESETS,
-  BOT_REACTIONS,
-  botOfCard,
-  cardPayload,
-} from '@fewmail/shared/agent'
-import type {
-  BotReaction,
-  MailBotEffect,
-  DigestCounts,
-} from '@fewmail/shared/agent'
+import { BOT_REACTIONS, cardPayload } from '@fewmail/shared/agent'
+import type { BotReaction, DigestCounts } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { Button } from '@fewmail/ui/components/button'
@@ -29,35 +18,6 @@ import {
   ContextMenuTrigger,
 } from '@fewmail/ui/components/context-menu'
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@fewmail/ui/components/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from '@fewmail/ui/components/dropdown-menu'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from '@fewmail/ui/components/field'
-import { Input } from '@fewmail/ui/components/input'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupTextarea,
-} from '@fewmail/ui/components/input-group'
-import { Kbd } from '@fewmail/ui/components/kbd'
-import {
   Message,
   MessageActions,
   MessageContent,
@@ -72,9 +32,6 @@ import {
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
-import { Spinner } from '@fewmail/ui/components/spinner'
-import { Switch } from '@fewmail/ui/components/switch'
-import { Textarea } from '@fewmail/ui/components/textarea'
 import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
 import {
   Trace,
@@ -85,18 +42,13 @@ import {
 } from '@fewmail/ui/components/trace'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  ArrowUp02Icon,
   Cancel01Icon,
   Clock01Icon,
   Copy01Icon,
   DashboardSquare01Icon,
   Mail01Icon,
   NextIcon,
-  Notification01Icon,
-  NotificationOff01Icon,
-  PinIcon,
   ReplyIcon,
-  SidebarRight01Icon,
   SmilePlusIcon,
   Tick02Icon,
   Wrench01Icon,
@@ -104,41 +56,16 @@ import {
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useLiveQuery } from '@tanstack/react-db'
-import { useHotkey } from '@tanstack/react-hotkeys'
-import {
-  skipToken,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-} from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import type { InfiniteData } from '@tanstack/react-query'
 import { isSameDay, isToday } from 'date-fns'
-import {
-  createContext,
-  Fragment,
-  use,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { createContext, Fragment, use, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { createDebouncedFn, createStore } from 'seitu'
-import { useSubscription } from 'seitu/react'
+import { createStore } from 'seitu'
 import { toast } from 'sonner'
 
-import {
-  BotAvatar,
-  BotMenuItems,
-  cardsLine,
-  digestHeadline,
-  isBoardBot,
-  ownName,
-  pausedUntilOf,
-} from '~/components/bot-list'
-import type { HomeBot, OwnBot } from '~/components/bot-list'
-import { confirm } from '~/components/confirm-dialog'
+import { cardsLine, digestHeadline, isBoardBot } from '~/components/bot-list'
+import type { HomeBot } from '~/components/bot-list'
 import { ConsentDetails } from '~/components/consent-details'
 import { expandRow } from '~/components/expand-row'
 import {
@@ -148,34 +75,42 @@ import {
   whoOf,
 } from '~/components/queue-card'
 import { upgradeStore } from '~/components/upgrade-dialog'
-import { botChats, ownBots, queueCards, useToday } from '~/lib/home-db'
+import { botChats, useWaitingIds } from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
-import { useHasAgent, useMe } from '~/lib/me'
+import { useMe } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
-import { queryClient, showUntilSettled, useRanked } from '~/lib/query-client'
+import { queryClient, showUntilSettled } from '~/lib/query-client'
 
 type ChatPage = RouterOutputs['bots']['chat']
 type Entry = ChatPage['entries'][number]
 type Post = Extract<Entry, { type: 'post' }>
 type Card = Extract<Entry, { type: 'cards' }>['cards'][number]
-type Quote = NonNullable<Post['replyTo']>
+export type Quote = NonNullable<Post['replyTo']>
 type BotStep =
   RouterOutputs['bots']['ask'] extends AsyncIterable<infer Step> ? Step : never
 
-const refreshBots = () =>
+export const refreshBots = () =>
   queryClient.invalidateQueries({ queryKey: orpc.bots.key() })
 
 /** The open chat's bot, for what its messages need of it: its name on a quote, its id on a reply. */
 const ChatBot = createContext<HomeBot | null>(null)
 
 /** The message the user is replying to, in the composer of its bot's chat. */
-const replyStore = createStore<{ bot: string; quote: Quote } | null>(null)
+export const replyStore = createStore<{ bot: string; quote: Quote } | null>(
+  null
+)
 
 const anchorOf = (id: string) => `bot-post-${id}`
 
 /** The message a reply answers: whose it is and its first line; a click goes to it. */
-const ReplyQuote = ({ botName, quote }: { botName: string; quote: Quote }) => {
+export const ReplyQuote = ({
+  botName,
+  quote,
+}: {
+  botName: string
+  quote: Quote
+}) => {
   const t = useT()
   return (
     <button
@@ -256,7 +191,9 @@ const STATUS_ICONS: Record<Card['action']['status'], IconSvgElement> = {
   pending: Clock01Icon,
 }
 
-const Speech = ({ children }: { children: ReactNode }) => <p>{children}</p>
+/** What the bot says in words; nothing to say draws nothing. */
+const Speech = ({ children }: { children: ReactNode }) =>
+  children ? <p>{children}</p> : null
 
 /** The digest's one sentence, computed from its counts (no model text). */
 export const digestLead = (t: Messages, counts: DigestCounts) =>
@@ -312,34 +249,39 @@ export const DigestLead = ({ children }: { children: ReactNode }) => (
   <p>{children}</p>
 )
 
-/** When a message was written, in its bubble. */
+/** When a message was written. */
 const TimeOf = ({ at }: { at?: Date }) => {
   const dates = useDates()
   return at && <MessageTime>{dates.format(at, 'p')}</MessageTime>
 }
 
-/** A bot's bubble: what it says and what it did or offers, then when. The chat's header names the bot, so no bubble does. */
+/**
+ * A bot's message: what it says and what it did or offers, straight on the page, then a line with the user's reaction
+ * and when. The chat's bar names the bot, so no message does.
+ */
 const BotMessage = ({
   at,
   children,
-  isWide,
   post,
 }: {
   /** None while it is being written. */
   at?: Date
   children: ReactNode
-  isWide?: boolean
   /** What it said in words: it can be reacted on, replied to and copied. */
   post?: Post
 }) => (
-  <Message from="assistant" isWide={isWide} id={post && anchorOf(post.id)}>
+  <Message from="assistant" id={post && anchorOf(post.id)}>
     <MessageMenu
       post={post}
       quote={post && { from: 'bot', id: post.id, text: post.text ?? '' }}
     >
       {children}
-      <TimeOf at={at} />
-      {post && <ReactionPicker post={post} />}
+      {(at || post) && (
+        <div className="flex h-6 items-center gap-2">
+          {post && <ReactionPicker post={post} />}
+          <TimeOf at={at} />
+        </div>
+      )}
     </MessageMenu>
   </Message>
 )
@@ -756,6 +698,7 @@ const DigestView = ({
   entry: Extract<Entry, { type: 'digest' }>
 }) => {
   const t = useT()
+  const waiting = useWaitingIds()
   return (
     <>
       {entry.counts && (
@@ -764,7 +707,7 @@ const DigestView = ({
           lead={<DigestLead>{digestLead(t, entry.counts)}</DigestLead>}
         />
       )}
-      {entry.cards.length > 0 && <Speech>{cardsLine(t, entry.cards)}</Speech>}
+      {!entry.counts && <Speech>{cardsLine(t, entry.cards, waiting)}</Speech>}
       <CardsTrace cards={entry.cards} />
     </>
   )
@@ -814,6 +757,7 @@ const PostView = ({ entry }: { entry: Post }) => {
 
 const EntryView = ({ entry }: { entry: Entry }) => {
   const t = useT()
+  const waiting = useWaitingIds()
   if (entry.type === 'post' && entry.kind === 'message') {
     return (
       <UserMessage
@@ -832,7 +776,7 @@ const EntryView = ({ entry }: { entry: Entry }) => {
     >
       {entry.type === 'cards' && (
         <>
-          <Speech>{cardsLine(t, entry.cards)}</Speech>
+          <Speech>{cardsLine(t, entry.cards, waiting)}</Speech>
           <CardsTrace cards={entry.cards} />
         </>
       )}
@@ -848,31 +792,19 @@ const EntryView = ({ entry }: { entry: Entry }) => {
   )
 }
 
-/** What the bot waits on now, after its last report: a run of its messages, `NowMessage` each, as a messenger sends them. */
+/** What the bot waits on now, after its last report: one more message of its own, its parts (`NowPart`) one under another. */
 export const BotNow = ({ children }: { children: ReactNode }) => {
   const t = useT()
   return (
-    <section aria-label={t.bots.now} className="flex flex-col gap-3">
-      {children}
-    </section>
+    <Message from="assistant" aria-label={t.bots.now}>
+      <MessageContent>{children}</MessageContent>
+    </Message>
   )
 }
 
-/** One of them, as wide as its lists; a part with nothing to show draws no empty bubble. */
-export const NowMessage = ({
-  children,
-  isWide = true,
-}: {
-  children: ReactNode
-  isWide?: boolean
-}) => (
-  <Message
-    from="assistant"
-    isWide={isWide}
-    className="has-[[data-slot=message-content]:empty]:hidden has-[[data-slot=message-content]>:only-child:empty]:hidden"
-  >
-    <MessageContent>{children}</MessageContent>
-  </Message>
+/** One part of it: words, a tool block, a list; a part with nothing to show takes no room. */
+export const NowPart = ({ children }: { children: ReactNode }) => (
+  <div className="flex flex-col gap-2.5 empty:hidden">{children}</div>
 )
 
 /** A day's chip over the first message of that day. */
@@ -975,14 +907,11 @@ const BotIntro = ({ bot }: { bot: HomeBot }) => {
   )
 }
 
-/** Which mail is the bot's and what it does with it, in its own words. */
+/** Which mail is the bot's and what it does with it, quoted in its own words, in the chat's type like any quote. */
 export const BotJob = ({ bot }: { bot: HomeBot }) => (
-  <p
-    data-mask
-    className="bg-background ring-foreground/6 rounded-xl px-3.5 py-2.5 font-serif text-base/relaxed ring"
-  >
+  <blockquote data-mask className="border-foreground/20 border-l-2 pl-3">
     {bot.job}
-  </p>
+  </blockquote>
 )
 
 /**
@@ -999,8 +928,20 @@ export const BotTimeline = ({
   children?: ReactNode
 }) => {
   const t = useT()
-  const { data, entries, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useBotChat(bot.bot)
+  const chat = useBotChat(bot.bot)
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = chat
+  const waiting = useWaitingIds()
+  // A report whose cards all wait no more (their email binned) has nothing left to say.
+  const entries = chat.entries.filter(
+    (entry) =>
+      !(
+        (entry.type === 'cards' ||
+          (entry.type === 'digest' && !entry.counts)) &&
+        entry.cards.every(
+          ({ action }) => action.status === 'pending' && !waiting.has(action.id)
+        )
+      )
+  )
   // What it waits on now follows its latest report, and the talk since comes under it, so a new answer lands at the end.
   const lastReport = entries.findLastIndex(({ type }) => type !== 'post')
   // Fewmail's latest digest, while no report came after it, is drawn live as the head of what it waits on now, never twice.
@@ -1087,7 +1028,7 @@ const stepInto = (current: Asking, step: BotStep): Asking => {
     : { ...current, tools: [...current.tools, step.tool] }
 }
 
-interface Ask {
+export interface Ask {
   bot: string
   replyTo?: Quote
   text: string
@@ -1123,606 +1064,6 @@ export const useAskBot = () => {
     },
   })
   return { ask, asking }
-}
-
-/** What the user may send the open bot in a tap, written by the agent for its chat as it stands; none without the agent or past the allowance, none while it answers. */
-const useSuggestions = (bot: string, isSending: boolean) => {
-  const hasAgent = useHasAgent()
-  const { data } = useQuery(
-    orpc.bots.suggestions.queryOptions({
-      input: hasAgent && !isSending ? { bot } : skipToken,
-    })
-  )
-  return data ?? []
-}
-
-/** Where the user writes to the open bot: ⏎ sends, ⇧⏎ breaks the line, `/` comes here and esc drops the reply, then leaves. */
-export const BotComposer = ({
-  bot,
-  isActive,
-  onSend,
-  isSending,
-}: {
-  bot: HomeBot
-  isActive: boolean
-  isSending: boolean
-  onSend: (message: Omit<Ask, 'bot'>) => void
-}) => {
-  const t = useT()
-  const ref = useRef<HTMLTextAreaElement>(null)
-  const [text, setText] = useState('')
-  const reply = useSubscription(replyStore)
-  const replyTo = reply?.bot === bot.bot ? reply.quote : undefined
-  const suggestions = useSuggestions(bot.bot, isSending)
-  useHotkey('/', () => ref.current?.focus(), { enabled: isActive })
-  useEffect(() => {
-    if (replyTo) {
-      ref.current?.focus()
-    }
-  }, [replyTo])
-  const send = () => {
-    const message = text.trim()
-    if (!message || isSending) {
-      return
-    }
-    onSend({ replyTo, text: message })
-    setText('')
-    replyStore.set(null)
-  }
-  return (
-    <form
-      className="flex flex-col gap-2"
-      onSubmit={(event) => {
-        event.preventDefault()
-        send()
-      }}
-    >
-      {!text && !replyTo && !isSending && suggestions.length > 0 && (
-        <div className="flex flex-wrap gap-1.5" data-mask>
-          {suggestions.map((suggestion) => (
-            <Button
-              key={suggestion}
-              size="sm"
-              variant="secondary"
-              onClick={() => {
-                posthog.capture('bot_suggestion_asked', {
-                  system: bot.bot === 'fewmail',
-                })
-                onSend({ text: suggestion })
-              }}
-            >
-              {suggestion}
-            </Button>
-          ))}
-        </div>
-      )}
-      <InputGroup variant="composer">
-        {replyTo && (
-          <InputGroupAddon align="block-start">
-            <div className="bg-muted flex w-full min-w-0 items-center gap-2.5 rounded-2xl py-2 ps-3 pe-2">
-              <HugeiconsIcon
-                icon={ReplyIcon}
-                strokeWidth={2}
-                className="text-primary size-4 shrink-0"
-              />
-              <ReplyQuote botName={bot.name} quote={replyTo} />
-              <InputGroupButton
-                size="icon-xs"
-                aria-label={t.bots.cancelReply}
-                className="ml-auto"
-                onClick={() => replyStore.set(null)}
-              >
-                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
-              </InputGroupButton>
-            </div>
-          </InputGroupAddon>
-        )}
-        <InputGroupTextarea
-          ref={ref}
-          aria-label={t.bots.composer(bot.name)}
-          placeholder={t.bots.composer(bot.name)}
-          maxLength={BOT_MESSAGE_CHARS}
-          rows={1}
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
-              event.preventDefault()
-              send()
-            }
-            if (event.key === 'Escape' && replyTo) {
-              replyStore.set(null)
-            } else if (event.key === 'Escape') {
-              ref.current?.blur()
-            }
-          }}
-        />
-        <InputGroupAddon align="inline-end">
-          <InputGroupButton
-            type="submit"
-            size="icon-sm"
-            variant="default"
-            aria-label={t.compose.send}
-            disabled={!text.trim() || isSending}
-          >
-            <HugeiconsIcon icon={ArrowUp02Icon} strokeWidth={2} />
-          </InputGroupButton>
-        </InputGroupAddon>
-      </InputGroup>
-    </form>
-  )
-}
-
-/** What the bot is doing now, in the chat's bar and its profile: reading, paused, waiting on the user, or how it works and when it last wrote. */
-export const BotStatus = ({ bot }: { bot: HomeBot }) => {
-  const t = useT()
-  const dates = useDates()
-  const { data: today } = useToday()
-  const { data: cards } = useLiveQuery((query) =>
-    query.from({ card: queueCards })
-  )
-  const pending = cards.filter((card) => botOfCard(card) === bot.bot).length
-  const reading = bot.bot === 'fewmail' ? (today?.reading ?? 0) : 0
-  const pausedUntil = pausedUntilOf(bot)
-  if (reading > 0) {
-    return (
-      <span className="text-primary flex items-center gap-1.5">
-        <Spinner />
-        {t.bots.status.reading(reading)}
-      </span>
-    )
-  }
-  if (pausedUntil) {
-    return t.bots.status.paused(dates.format(pausedUntil, 'd MMM p'))
-  }
-  if (pending > 0) {
-    return (
-      <span className="text-primary font-medium">
-        {t.bots.status.waiting(pending)}
-      </span>
-    )
-  }
-  const how =
-    bot.own && !isBoardBot(bot)
-      ? t.bots.status[bot.own.enabled ? 'acts' : 'asks']
-      : t.bots.status.watching
-  return [
-    how,
-    bot.last &&
-      t.bots.status.last(
-        dates.format(bot.last.at, isToday(bot.last.at) ? 'p' : 'd MMM')
-      ),
-  ]
-    .filter(Boolean)
-    .join(' · ')
-}
-
-/** The chat's bar, as a messenger's: the open bot's face, its name and what it is doing now, the whole of it one button opening its profile, mute and chat actions; under it, pinned, what it looks after. */
-export const BotHeader = ({
-  bot,
-  isProfileOpen,
-  onProfile,
-}: {
-  bot: HomeBot
-  isProfileOpen: boolean
-  onProfile: () => void
-}) => {
-  const t = useT()
-  const mute = useMute(bot)
-  return (
-    <>
-      <header className="flex h-14 shrink-0 border-b">
-        <div className="mx-auto flex w-full max-w-3xl items-center px-8 max-md:px-2 @max-xl:px-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="hover:bg-accent data-popup-open:bg-accent focus-visible:focus-ring flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-xl px-2 py-1 text-left outline-none">
-              <BotAvatar bot={bot} size="md" />
-              <span className="flex min-w-0 flex-1 flex-col">
-                <h1
-                  data-mask={!!bot.own}
-                  className="truncate text-sm font-medium"
-                >
-                  {bot.name}
-                </h1>
-                <span className="text-muted-foreground truncate text-xs">
-                  <BotStatus bot={bot} />
-                </span>
-              </span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={onProfile}>
-                <HugeiconsIcon icon={SidebarRight01Icon} strokeWidth={2} />
-                {t.bots.profile}
-                <DropdownMenuShortcut>P</DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={mute}>
-                <HugeiconsIcon
-                  icon={bot.muted ? Notification01Icon : NotificationOff01Icon}
-                  strokeWidth={2}
-                />
-                {bot.muted ? t.bots.unmute : t.bots.mute}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <BotMenuItems bot={bot} isOpen />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-      <div className="bg-body flex h-9 shrink-0 border-b">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-10 max-md:px-4 @max-xl:px-4">
-          <HugeiconsIcon
-            icon={PinIcon}
-            strokeWidth={2}
-            className="text-muted-foreground size-3.5 shrink-0"
-          />
-          <p
-            data-mask={!!bot.own}
-            className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
-          >
-            {bot.job}
-          </p>
-          {!isProfileOpen && (
-            <Button size="xs" variant="link-muted" onClick={onProfile}>
-              {t.bots.change}
-            </Button>
-          )}
-        </div>
-      </div>
-    </>
-  )
-}
-
-/** Mutes the bot or lets it notify again, shown at once. */
-export const useMute = (bot: HomeBot) => {
-  const { mutate } = useMutation(
-    orpc.bots.mute.mutationOptions({
-      onMutate: ({ bot: id, muted }) =>
-        showUntilSettled(() => {
-          if (botChats.has(id)) {
-            botChats.update(id, (row) => {
-              row.muted = muted
-            })
-          }
-        }),
-      onSettled: (_, __, ___, settle) => settle?.(refreshBots()),
-    })
-  )
-  return () => mutate({ bot: bot.bot, muted: !bot.muted })
-}
-
-interface BotDraft {
-  enabled: boolean
-  name: string
-  /** Which mail is its and what it does with it; a simple bot's keeps its match, so its text only says what it does. */
-  text: string
-}
-
-const draftOf = (bot: OwnBot | null, t: Messages): BotDraft => ({
-  enabled: bot?.enabled ?? true,
-  name: bot?.name ?? '',
-  text: bot?.match ? t.bots.effect[bot.effect] : (bot?.instruction ?? ''),
-})
-
-const READ_PAUSE_MS = 500
-const READ_CHARS = 2000
-
-/** Jev reads the text once typing pauses, so saving rarely waits on it; changed words that do not say what to do only collect. */
-const useReadEffect = (text: string, bot: OwnBot | null, t: Messages) => {
-  const [typed, setTyped] = useState(text)
-  const afterTyping = useMemo(
-    () => createDebouncedFn(setTyped, READ_PAUSE_MS),
-    []
-  )
-  useEffect(() => {
-    afterTyping(text)
-  }, [afterTyping, text])
-  useEffect(() => afterTyping.cancel, [afterTyping])
-  const asked = (value: string) => {
-    const words = value.trim()
-    return words !== draftOf(bot, t).text.trim() && words.length > 2
-      ? { simple: !!bot?.match, text: words.slice(0, READ_CHARS) }
-      : null
-  }
-  useQuery(
-    orpc.bots.readEffect.queryOptions({
-      input: asked(typed) ?? skipToken,
-      staleTime: Number.POSITIVE_INFINITY,
-    })
-  )
-  /** Saving right after a keystroke reads the words as they stand, never the read from before the pause. */
-  return async (): Promise<MailBotEffect> => {
-    const latest = asked(text)
-    if (!latest) {
-      return bot && bot.effect !== BOARD_EFFECT ? bot.effect : 'collect'
-    }
-    return (
-      (await queryClient.fetchQuery(
-        orpc.bots.readEffect.queryOptions({
-          input: latest,
-          staleTime: Number.POSITIVE_INFINITY,
-        })
-      )) ?? 'collect'
-    )
-  }
-}
-
-/** The bot's name, which mail is its and what it does with it in one text (a sender's bot keeps its match), and whether it acts alone. */
-const BotFields = ({
-  draft,
-  hasMatch,
-  isBoard,
-  onChange,
-}: {
-  draft: BotDraft
-  hasMatch: boolean
-  /** It takes no mail and moves none: only its name is the user's to change. */
-  isBoard: boolean
-  onChange: (change: Partial<BotDraft>) => void
-}) => {
-  const t = useT()
-  return (
-    <FieldGroup>
-      <Field>
-        <FieldLabel htmlFor="bot-name">{t.bots.name}</FieldLabel>
-        <Input
-          id="bot-name"
-          data-mask
-          maxLength={60}
-          placeholder={t.bots.namePlaceholder}
-          value={draft.name}
-          onChange={(event) => onChange({ name: event.target.value })}
-        />
-      </Field>
-      {!isBoard && (
-        <BotMailFields draft={draft} hasMatch={hasMatch} onChange={onChange} />
-      )}
-    </FieldGroup>
-  )
-}
-
-/** Which mail is its and what it does with it, and whether it acts alone. */
-const BotMailFields = ({
-  draft,
-  hasMatch,
-  onChange,
-}: {
-  draft: BotDraft
-  hasMatch: boolean
-  onChange: (change: Partial<BotDraft>) => void
-}) => {
-  const t = useT()
-  return (
-    <>
-      <Field>
-        <FieldLabel htmlFor="bot-text">
-          {hasMatch ? t.bots.whatItDoes : t.bots.instruction}
-        </FieldLabel>
-        <Textarea
-          id="bot-text"
-          data-mask
-          placeholder={hasMatch ? undefined : t.bots.instructionPlaceholder}
-          value={draft.text}
-          onChange={(event) => onChange({ text: event.target.value })}
-        />
-      </Field>
-      <Field orientation="horizontal">
-        <Switch
-          id="bot-enabled"
-          checked={draft.enabled}
-          onCheckedChange={(enabled) => onChange({ enabled })}
-        />
-        <div className="flex flex-col">
-          <FieldLabel htmlFor="bot-enabled">{t.bots.enabled}</FieldLabel>
-          <FieldDescription>
-            {t.bots.enabledHint[draft.enabled ? 'on' : 'off']}
-          </FieldDescription>
-        </div>
-      </Field>
-    </>
-  )
-}
-
-/** New bot's ready-made ones, in the user's language; the Board only while the user has none. */
-const BotPresets = ({ onCreated }: { onCreated: (id: string) => void }) => {
-  const t = useT()
-  const { data: own = [] } = useRanked(ownBots)
-  const add = useMutation(
-    orpc.bots.addPreset.mutationOptions({
-      onSettled: refreshBots,
-      onSuccess: ({ id }) => onCreated(id),
-    })
-  )
-  const hasBoard = own.some(({ effect }) => effect === BOARD_EFFECT)
-  return (
-    <Field>
-      <FieldLabel>{t.bots.presets}</FieldLabel>
-      <div className="flex flex-wrap gap-2">
-        {BOT_PRESETS.filter(
-          ({ effect }) => effect !== BOARD_EFFECT || !hasBoard
-        ).map(({ key }) => (
-          <Button
-            key={key}
-            size="sm"
-            variant="secondary"
-            disabled={add.isPending}
-            onClick={() => add.mutate({ preset: key })}
-          >
-            {t.starterBots[key].name}
-          </Button>
-        ))}
-      </div>
-    </Field>
-  )
-}
-
-/** The form of a new bot (`bot` null) or one of the user's; mounted afresh each time the dialog opens. */
-export const BotForm = ({
-  bot,
-  onClose,
-  onCreated,
-}: {
-  bot: OwnBot | null
-  /** None in the bot's profile, which stays open after a save and never makes a bot. */
-  onClose?: () => void
-  onCreated?: (id: string) => void
-}) => {
-  const t = useT()
-  const [draft, setDraft] = useState(() => draftOf(bot, t))
-  const readEffect = useReadEffect(draft.text, bot, t)
-  const done = (message: string) => {
-    toast.success(message)
-    onClose?.()
-  }
-  const create = useMutation(
-    orpc.bots.create.mutationOptions({
-      onSettled: refreshBots,
-      onSuccess: ({ id }) => {
-        onCreated?.(id)
-        done(t.bots.created)
-      },
-    })
-  )
-  const update = useMutation(
-    orpc.bots.update.mutationOptions({
-      onMutate: ({ id, ...change }) => {
-        done(t.bots.saved)
-        return showUntilSettled(() => {
-          if (ownBots.has(id)) {
-            ownBots.update(id, (row) => Object.assign(row, change))
-          }
-        })
-      },
-      onSettled: (_, __, ___, settle) => settle?.(refreshBots()),
-    })
-  )
-  const remove = useMutation(
-    orpc.bots.delete.mutationOptions({
-      onMutate: ({ id }) => {
-        done(t.bots.deleted)
-        return showUntilSettled(() => {
-          for (const rows of [ownBots, botChats]) {
-            if (rows.has(id)) {
-              rows.delete(id)
-            }
-          }
-        })
-      },
-      onSettled: (_, __, ___, settle) => settle?.(refreshBots()),
-    })
-  )
-  const isBoard = bot?.effect === BOARD_EFFECT
-  const canSave =
-    !!draft.name.trim() &&
-    (isBoard || !!bot?.match || draft.text.trim().length > 2)
-  const save = async () => {
-    if (bot && isBoard) {
-      update.mutate({ id: bot.id, name: draft.name.trim() })
-      return
-    }
-    const fields = {
-      effect: await readEffect(),
-      enabled: draft.enabled,
-      name: draft.name.trim(),
-    }
-    if (!bot) {
-      create.mutate({ ...fields, instruction: draft.text.trim() })
-      return
-    }
-    update.mutate({
-      id: bot.id,
-      ...fields,
-      ...(bot.match ? {} : { instruction: draft.text.trim() }),
-    })
-  }
-  const askToDelete = (own: OwnBot) =>
-    confirm({
-      action: t.bots.delete,
-      description: t.bots.deleteHint,
-      onConfirm: () => remove.mutate({ id: own.id }),
-      title: t.bots.deleteConfirm(ownName(own)),
-      variant: 'destructive',
-    })
-  return (
-    <form
-      className="contents"
-      onSubmit={(event) => {
-        event.preventDefault()
-        if (canSave) {
-          void save()
-        }
-      }}
-    >
-      {!bot && (
-        <BotPresets
-          onCreated={(id) => {
-            onCreated?.(id)
-            done(t.bots.created)
-          }}
-        />
-      )}
-      <BotFields
-        draft={draft}
-        hasMatch={!!bot?.match}
-        isBoard={isBoard}
-        onChange={(change) =>
-          setDraft((current) => ({ ...current, ...change }))
-        }
-      />
-      <DialogFooter>
-        {bot && (
-          <Button
-            variant="ghost-destructive"
-            className="mr-auto"
-            onClick={() => askToDelete(bot)}
-          >
-            {t.bots.delete}
-          </Button>
-        )}
-        <Button
-          type="submit"
-          disabled={!canSave || create.isPending || update.isPending}
-          shortcut={<Kbd>⏎</Kbd>}
-        >
-          {bot ? t.bots.save : t.bots.add}
-        </Button>
-      </DialogFooter>
-    </form>
-  )
-}
-
-/** A new bot (`bot` null) or one of the user's to change; `editing` stays set through the fade-out (`onClosed` clears it). */
-export const BotSettingsDialog = ({
-  editing,
-  onClose,
-  onClosed,
-  onCreated,
-}: {
-  editing: { bot: OwnBot | null; isOpen: boolean } | null
-  onClose: () => void
-  onClosed: () => void
-  onCreated: (id: string) => void
-}) => {
-  const t = useT()
-  return (
-    <Dialog
-      open={!!editing?.isOpen}
-      onOpenChange={(open) => !open && onClose()}
-      onOpenChangeComplete={(open) => !open && onClosed()}
-    >
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{editing?.bot ? t.bots.edit : t.bots.add}</DialogTitle>
-        </DialogHeader>
-        {editing && (
-          <BotForm
-            key={editing.bot?.id ?? 'new'}
-            bot={editing.bot}
-            onClose={onClose}
-            onCreated={onCreated}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  )
 }
 
 /** Opening a bot reads its chat; a bot left open reads what comes while it is open. */

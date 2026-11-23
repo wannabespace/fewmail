@@ -29,7 +29,7 @@ import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { newSenders, botSuggestions } from './cleanup'
 import {
-  countImportant,
+  countWaiting,
   freshCodes,
   handledSince,
   listHandled,
@@ -221,19 +221,32 @@ export const getToday = async (userId: string) => {
   }
 }
 
+/** Fewmail says the day's mail at most this often: the first read and the next morning are one report, not two. */
+const DIGEST_GAP_HOURS = 12
+
 /**
- * Each bot's report of the day, after the first read and every morning: Fewmail's always, with its headline's counts,
- * another bot's only while cards of its own wait. The cards are kept as ids, so the chat reads them as they are now.
+ * Each bot's report, after the first read and every morning, only when it has news: a bot of the user's while cards
+ * of its own wait that its last report did not have; Fewmail's with its headline's counts when one of its own is new,
+ * or once mail came and its last report is old enough. The cards are kept as ids, so the chat reads them as they are now.
  */
 export const writeDigests = async (userId: string) => {
   const settings = await getSettings(userId)
   const { days, since } = catchUp(settings)
-  const [queue, own, decisions, handled, pulse] = await Promise.all([
+  const [queue, own, decisions, handled, pulse, previous] = await Promise.all([
     listQueue(userId),
     db.select({ id: bots.id }).from(bots).where(eq(bots.userId, userId)),
-    countImportant(userId),
+    countWaiting(userId),
     handledSince(userId, since),
     mailPulse(userId, since),
+    db
+      .selectDistinctOn([botPosts.bot], {
+        actionIds: botPosts.actionIds,
+        bot: botPosts.bot,
+        createdAt: botPosts.createdAt,
+      })
+      .from(botPosts)
+      .where(and(eq(botPosts.userId, userId), eq(botPosts.kind, 'digest')))
+      .orderBy(botPosts.bot, desc(botPosts.createdAt)),
   ])
   const waiting = queue.filter(
     ({ action }) => !(PROPOSAL_KINDS as readonly string[]).includes(action.kind)
@@ -242,25 +255,46 @@ export const writeDigests = async (userId: string) => {
     waiting
       .filter((card) => botOfCard(card) === bot)
       .map(({ action }) => action.id)
-  await db.insert(botPosts).values([
-    {
-      actionIds: idsOf('fewmail'),
-      bot: 'fewmail',
-      counts: {
-        days,
-        decisions,
-        handled: handled.total,
-        people: pulse.people,
-        total: pulse.total,
-      },
-      kind: 'digest',
-      userId,
-    },
+  const lastOf = (bot: string) => previous.find((post) => post.bot === bot)
+  const hasNew = (bot: string) =>
+    idsOf(bot).some((id) => !lastOf(bot)?.actionIds.includes(id))
+  const fewmailLast = lastOf('fewmail')
+  const isFewmailDue =
+    !fewmailLast ||
+    hasNew('fewmail') ||
+    (pulse.total > 0 &&
+      fewmailLast.createdAt < subHours(new Date(), DIGEST_GAP_HOURS))
+  const posts = [
+    ...(isFewmailDue
+      ? [
+          {
+            actionIds: idsOf('fewmail'),
+            bot: 'fewmail',
+            counts: {
+              days,
+              decisions,
+              handled: handled.total,
+              people: pulse.people,
+              total: pulse.total,
+            },
+            kind: 'digest' as const,
+            userId,
+          },
+        ]
+      : []),
     ...own
-      .map(({ id }) => ({ actionIds: idsOf(id), bot: id }))
-      .filter(({ actionIds }) => actionIds.length > 0)
-      .map((post) => ({ ...post, kind: 'digest' as const, userId })),
-  ])
+      .filter(({ id }) => hasNew(id))
+      .map(({ id }) => ({
+        actionIds: idsOf(id),
+        bot: id,
+        kind: 'digest' as const,
+        userId,
+      })),
+  ]
+  if (posts.length === 0) {
+    return
+  }
+  await db.insert(botPosts).values(posts)
   await announceChange(userId, ['bots'])
 }
 

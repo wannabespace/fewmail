@@ -788,11 +788,11 @@ export const de: Messages = {
     unsubscribe: 'Abmelden',
   },
   actionStatus: {
-    auto_done: 'vom Agenten erledigt',
+    auto_done: 'von selbst erledigt',
     dismissed: 'übersprungen',
     done: 'erledigt',
     failed: 'fehlgeschlagen',
-    pending: 'wartet auf der Startseite',
+    pending: 'wartet auf dich',
   },
   byBot: 'per Bot',
   calendar: {
@@ -1381,6 +1381,7 @@ export const de: Messages = {
     noPlan:
       'Ich kann dir nicht antworten: Im kostenlosen Plan habe ich keine Tokens für ein Gespräch. Abonniere, und ich bin ganz für dich da.',
     now: 'Wartet jetzt',
+    suggestions: 'Vorschläge',
     nudge: {
       noReply: 'In dieser Unterhaltung gibt es noch keine Antwort.',
       replied: 'In dieser Unterhaltung kam seitdem eine Antwort.',

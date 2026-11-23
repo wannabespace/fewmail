@@ -797,11 +797,11 @@ export const it: Messages = {
     unsubscribe: 'Disiscriviti',
   },
   actionStatus: {
-    auto_done: 'fatto dall’agente',
+    auto_done: 'fatto da solo',
     dismissed: 'saltato',
     done: 'fatto',
     failed: 'non riuscito',
-    pending: 'in attesa in Home',
+    pending: 'ti aspetta',
   },
   byBot: 'da un bot',
   calendar: {
@@ -1396,6 +1396,7 @@ export const it: Messages = {
     noPlan:
       'Non posso risponderti: con il piano gratuito non ho token per una conversazione. Abbonati e sono tutto tuo.',
     now: 'In attesa ora',
+    suggestions: 'Suggerimenti',
     nudge: {
       noReply: 'Ancora nessuna risposta in quella conversazione.',
       replied: 'Da allora è arrivata una risposta in quella conversazione.',

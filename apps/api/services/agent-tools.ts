@@ -1,6 +1,5 @@
 import {
   AGENT_TOOLS,
-  BOARD_EFFECT,
   COMMITMENT_STATUSES,
   EVENT_SCOPES,
   MAIL_CATEGORIES,
@@ -39,7 +38,6 @@ import {
   snoozeMessage,
   trashMessage,
 } from './mail'
-import { NotFoundError } from './mail-errors'
 import { scheduleMail } from './outbox'
 import { findContacts, getPerson } from './people'
 import { getReadingDay } from './reading'
@@ -399,22 +397,13 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       name: z.string().min(1).max(60).optional(),
       pausedUntil: z.iso.datetime({ offset: true }).nullable().optional(),
     },
-    run: async ({ id, pausedUntil, ...change }) => {
-      const own = await listBots(userId)
-      const bot = own.find((each) => each.id === id)
-      if (!bot) {
-        throw new NotFoundError('Bot not found')
-      }
-      if (bot.effect === BOARD_EFFECT) {
-        return updateBot(userId, id, { name: change.name })
-      }
-      return updateBot(userId, id, {
+    run: ({ id, pausedUntil, ...change }) =>
+      updateBot(userId, id, {
         ...change,
         ...(pausedUntil === undefined
           ? {}
           : { pausedUntil: pausedUntil ? new Date(pausedUntil) : null }),
-      })
-    },
+      }),
   }),
   refresh: define({
     description:

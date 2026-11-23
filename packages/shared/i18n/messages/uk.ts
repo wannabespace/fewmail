@@ -651,7 +651,7 @@ export const uk: Messages = {
       points: [
         {
           description:
-            'Кожен лист потрапляє до бота, чия це робота: «Важливе», «Почекає», «Швидко» або того, якого створив ти. Що не бере жоден бот, лишається у Fewmail Bot.',
+            'Кожен лист потрапляє до бота, чия це робота: «Важливе», «Почекає», «Швидке» або того, якого створив ти. Що не бере жоден бот, лишається у Fewmail Bot.',
           title: 'Сортують, щойно приходить пошта.',
         },
         {
@@ -789,11 +789,11 @@ export const uk: Messages = {
     unsubscribe: 'Відписатися',
   },
   actionStatus: {
-    auto_done: 'зроблено агентом',
+    auto_done: 'зроблено самостійно',
     dismissed: 'пропущено',
     done: 'зроблено',
     failed: 'не вдалося',
-    pending: 'чекає на «Головній»',
+    pending: 'чекає на тебе',
   },
   byBot: 'ботом',
   calendar: {
@@ -860,7 +860,7 @@ export const uk: Messages = {
   errors: {
     crashTitle: 'Fewmail спіткнувся на цій сторінці',
     crashLead:
-      'Твоя пошта в безпеці, у Gmail нічого не змінилося. Перезавантаж, а якщо повториться — ми вже знаємо.',
+      'Твоя пошта в безпеці, у Gmail нічого не змінилося. Перезавантаж, а якщо повториться, ми вже знаємо.',
     missingTitle: 'За цією адресою нічого немає',
     calendarAccess:
       'Fewmail не має доступу до цього календаря. Дозволь його на сторінці «Календар».',
@@ -1239,7 +1239,7 @@ export const uk: Messages = {
     status: {
       acts: 'Діє сам',
       asks: 'Питає перед кожним листом',
-      last: (time: string) => `останнє — ${time}`,
+      last: (time: string) => `останнє: ${time}`,
       paused: (date: string) => `На паузі до ${date}`,
       reading: (n: number) =>
         plural('uk', n, {
@@ -1269,7 +1269,7 @@ export const uk: Messages = {
     },
     pause: {
       day: 'До завтра',
-      hint: 'На паузі бот не бере листів — їх бере Fewmail Bot.',
+      hint: 'На паузі бот не бере листів, їх бере Fewmail Bot.',
       month: 'На місяць',
       resume: 'Відновити',
       title: 'Призупинити',
@@ -1316,38 +1316,38 @@ export const uk: Messages = {
     cards: {
       autoDone: (n: number) =>
         plural('uk', n, {
-          one: (count) => `${count} я зробив сам.`,
-          few: (count) => `${count} я зробив сам.`,
-          many: (count) => `${count} я зробив сам.`,
-          other: (count) => `${count} я зробив сам.`,
+          one: () => 'Одну справу я зробив сам.',
+          few: (count) => `${count} справи я зробив сам.`,
+          many: (count) => `${count} справ я зробив сам.`,
+          other: (count) => `${count} справи я зробив сам.`,
         }),
       dismissed: (n: number) =>
         plural('uk', n, {
-          one: (count) => `${count} ти пропустив.`,
-          few: (count) => `${count} ти пропустив.`,
-          many: (count) => `${count} ти пропустив.`,
-          other: (count) => `${count} ти пропустив.`,
+          one: () => 'Одну справу ти пропустив.',
+          few: (count) => `${count} справи ти пропустив.`,
+          many: (count) => `${count} справ ти пропустив.`,
+          other: (count) => `${count} справи ти пропустив.`,
         }),
       done: (n: number) =>
         plural('uk', n, {
-          one: (count) => `${count} зроблено з твого дозволу.`,
-          few: (count) => `${count} зроблено з твого дозволу.`,
-          many: (count) => `${count} зроблено з твого дозволу.`,
-          other: (count) => `${count} зроблено з твого дозволу.`,
+          one: () => 'Одну справу я зробив з твого дозволу.',
+          few: (count) => `${count} справи я зробив з твого дозволу.`,
+          many: (count) => `${count} справ я зробив з твого дозволу.`,
+          other: (count) => `${count} справи я зробив з твого дозволу.`,
         }),
       failed: (n: number) =>
         plural('uk', n, {
-          one: (count) => `${count} Gmail не прийняв.`,
-          few: (count) => `${count} Gmail не прийняв.`,
-          many: (count) => `${count} Gmail не прийняв.`,
-          other: (count) => `${count} Gmail не прийняв.`,
+          one: () => 'Одну справу Gmail не прийняв.',
+          few: (count) => `${count} справи Gmail не прийняв.`,
+          many: (count) => `${count} справ Gmail не прийняв.`,
+          other: (count) => `${count} справи Gmail не прийняв.`,
         }),
       pending: (n: number) =>
         plural('uk', n, {
-          one: (count) => `${count} чекає на тебе.`,
-          few: (count) => `${count} чекають на тебе.`,
-          many: (count) => `${count} чекають на тебе.`,
-          other: (count) => `${count} чекає на тебе.`,
+          one: () => 'Одна справа чекає на тебе.',
+          few: (count) => `${count} справи чекають на тебе.`,
+          many: (count) => `${count} справ чекають на тебе.`,
+          other: (count) => `${count} справи чекають на тебе.`,
         }),
     },
     composer: (name: string) => `Напиши боту «${name}» про його листи`,
@@ -1380,7 +1380,7 @@ export const uk: Messages = {
     },
     instruction: 'Які листи й що з ними робити',
     instructionPlaceholder:
-      'напр. Рахунки від Hetzner позначати прочитаними, а сповіщення LinkedIn — в архів',
+      'напр. Рахунки від Hetzner позначати прочитаними, а сповіщення LinkedIn в архів',
     mute: 'Вимкнути сповіщення',
     muted: 'Сповіщення від цього бота вимкнені',
     name: 'Назва',
@@ -1388,6 +1388,7 @@ export const uk: Messages = {
     noPlan:
       'Не можу відповісти: на безкоштовному плані в мене немає токенів на розмову. Оформи підписку, і я весь твій.',
     now: 'Чекає зараз',
+    suggestions: 'Пропозиції',
     nudge: {
       noReply: 'Відповіді в тому листуванні поки немає.',
       replied: 'Відтоді в тому листуванні прийшла відповідь.',
@@ -1580,7 +1581,7 @@ export const uk: Messages = {
     quick: {
       instruction:
         'Шум, який я прибрав би не читаючи: сповіщення, чеки, розсилки, акції й холодні продажі. Прибирати: в архів, позначити прочитаним або відписатися, що краще пасує',
-      name: 'Швидко',
+      name: 'Швидке',
     },
   },
   telegram: {
@@ -1706,7 +1707,7 @@ export const uk: Messages = {
         }),
       title: 'Агент пропонує',
     },
-    quick: 'Швидко',
+    quick: 'Швидке',
     needsLook: 'Чекає на тебе',
     tidy: {
       failed: (emails: string) =>
@@ -1717,7 +1718,7 @@ export const uk: Messages = {
         'Серед них є розсилки, від яких Fewmail відпишеться, а відписку не можна скасувати.',
       review: 'Подивитись',
       reviewLead:
-        'Ці листи пропоную прибрати, біля кожного — чому. Погодь усі разом або залиш ті, що мають лишитися.',
+        'Ці листи пропоную прибрати, біля кожного пояснюю чому. Погодь усі разом або залиш ті, що мають лишитися.',
       reviewTitle: 'Перевір, що пропонує агент',
       done: (n: number) => `Прибрано: ${n}`,
       keep: 'Залишити',

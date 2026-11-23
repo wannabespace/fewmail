@@ -52,7 +52,7 @@ import {
   GUIDE_IN_RAIL,
   RailTip,
 } from '~/components/sidebar-rail'
-import { botChats, ownBots } from '~/lib/home-db'
+import { botChats, ownBots, useWaitingIds } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { queryClient, showUntilSettled, useRanked } from '~/lib/query-client'
@@ -62,10 +62,21 @@ type Chat = RouterOutputs['bots']['chats'][number]
 type Entry = NonNullable<Chat['last']>
 type Card = Extract<Entry, { type: 'cards' }>['cards'][number]
 
-/** What a card burst says in its bot's words: what waits, what was done, by whom. */
-export const cardsLine = (t: Messages, cards: Card[]) => {
+/**
+ * What a card burst says in its bot's words: what waits, what was done, by whom. What waits is what the queue holds
+ * now (`waiting`), so a card whose email went to the trash is not said to wait anywhere.
+ */
+export const cardsLine = (
+  t: Messages,
+  cards: Card[],
+  waiting: ReadonlySet<string>
+) => {
   const count = (status: Card['action']['status']) =>
-    cards.filter(({ action }) => action.status === status).length
+    cards.filter(
+      ({ action }) =>
+        action.status === status &&
+        (status !== 'pending' || waiting.has(action.id))
+    ).length
   return [
     count('pending') > 0 && t.bots.cards.pending(count('pending')),
     count('auto_done') > 0 && t.bots.cards.autoDone(count('auto_done')),
@@ -81,9 +92,13 @@ export const digestHeadline = (t: Messages, decisions: number) =>
   decisions === 0 ? t.today.allDone : t.today.headline(decisions)
 
 /** A bot's latest message in one line, as a messenger's list shows it under the chat's name. */
-const lastLineOf = (t: Messages, entry: Entry) => {
+const lastLineOf = (
+  t: Messages,
+  entry: Entry,
+  waiting: ReadonlySet<string>
+) => {
   if (entry.type === 'cards') {
-    return cardsLine(t, entry.cards)
+    return cardsLine(t, entry.cards, waiting)
   }
   if (entry.type === 'promises') {
     return t.bots.promises(entry.promises.length)
@@ -91,13 +106,21 @@ const lastLineOf = (t: Messages, entry: Entry) => {
   if (entry.type === 'digest') {
     return entry.counts
       ? digestHeadline(t, entry.counts.decisions)
-      : cardsLine(t, entry.cards)
+      : cardsLine(t, entry.cards, waiting)
   }
   if (entry.kind === 'no_plan') {
     return t.bots.noPlan
   }
   const text = (entry.text ?? '').replaceAll('**', '')
   return entry.kind === 'message' ? `${t.bots.you}: ${text}` : text
+}
+
+/** A bot's row line: its latest message; Fewmail's latest digest is drawn live in its chat, so its row says the count as it is now, never as that morning. */
+const lineOf = (t: Messages, bot: HomeBot, waiting: ReadonlySet<string>) => {
+  if (bot.bot === 'fewmail' && bot.last?.type === 'digest') {
+    return digestHeadline(t, waiting.size)
+  }
+  return bot.last && lastLineOf(t, bot.last, waiting)
 }
 
 /** Until when a bot of the user's takes no mail; null while it works. */
@@ -421,9 +444,9 @@ export const BotListRow = ({
   const t = useT()
   const dates = useDates()
   const pausedUntil = pausedUntilOf(bot)
-  const line = pausedUntil
-    ? t.bots.status.paused(dates.format(pausedUntil, 'd MMM'))
-    : bot.last && lastLineOf(t, bot.last)
+  const line = lineOf(t, bot, useWaitingIds())
+  const pausedLine =
+    pausedUntil && t.bots.status.paused(dates.format(pausedUntil, 'd MMM'))
   return (
     // No ⋯ on a chat row, as in a messenger: over every row it read as one more ellipsis beside the cut preview. Its menu is the right click here and the ⋯ in the chat's bar.
     <ContextMenu>
@@ -488,7 +511,7 @@ export const BotListRow = ({
                   data-mask
                   className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
                 >
-                  {line ?? bot.job}
+                  {pausedLine || line || bot.job}
                 </span>
                 {bot.unread > 0 && (
                   <span

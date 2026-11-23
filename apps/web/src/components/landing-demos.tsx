@@ -19,7 +19,6 @@ import {
   ArrowUp02Icon,
   McpServerIcon,
   MinusSignIcon,
-  PinIcon,
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -1151,12 +1150,7 @@ export const BotDesk = () => {
               </span>
             </span>
           </div>
-          <p className="text-muted-foreground flex h-9 shrink-0 items-center gap-2 border-b px-4 text-xs">
-            <HugeiconsIcon
-              icon={PinIcon}
-              strokeWidth={2}
-              className="size-3.5 shrink-0"
-            />
+          <p className="text-muted-foreground flex h-9 shrink-0 items-center border-b px-4 text-xs">
             <span className="truncate">{jobs[open]}</span>
           </p>
           <motion.div

@@ -163,7 +163,7 @@ export type BotPreset = (typeof BOT_PRESETS)[number]['key']
 export const SIMPLE_MATCH_FIELDS = ['from', 'subject', 'mailingList'] as const
 export type SimpleMatchField = (typeof SIMPLE_MATCH_FIELDS)[number]
 
-/** Effects that change Gmail; a simple bot may only use these and always acts on its own. */
+/** Effects that change Gmail; a simple bot may only use these, on its own below importance 2 or asking for each email. */
 export const GMAIL_EFFECTS = [
   'archive',
   'mark_read',
@@ -369,9 +369,6 @@ export const IMPORTANCE = {
   normal: 1,
 } as const
 
-/** Cards that only ask to read or notice something: Home leaves them for Later unless the email is urgent. */
-export const LATER_KINDS = ['read', 'heads_up'] as const
-
 /** A promise, a nudge and an agent's request outlive their email: archiving it skips the thread's other cards (`archiveMessage`), never these. */
 export const OUTLIVE_ARCHIVE_KINDS = [
   'commitment',
@@ -379,15 +376,12 @@ export const OUTLIVE_ARCHIVE_KINDS = [
   'follow_up',
 ] as const
 
-/** What Home lists first and counts (`countImportant` counts the same in SQL): a card that asks for a step, urgent mail, or a person waiting for an answer the agent could not draft. */
-export const isImportant = (
-  kind: ActionKind,
-  analysis: { importance: number; needsReply: boolean } | null | undefined
-) =>
-  !(PROPOSAL_KINDS as readonly string[]).includes(kind) &&
-  (!(LATER_KINDS as readonly string[]).includes(kind) ||
-    !!analysis?.needsReply ||
-    (analysis?.importance ?? 0) >= IMPORTANCE.critical)
+/**
+ * A card that waits for the user's decision, the one thing every count says ("4 things need you": a chat's bar, Fewmail's
+ * headline, the tab's title, `countWaiting` in SQL): every pending card but a tidy proposal, which waits in Tidy.
+ */
+export const waitsForUser = (kind: ActionKind) =>
+  !(PROPOSAL_KINDS as readonly string[]).includes(kind)
 
 /** Whose chat a card is in: the bot that made it, else the bot its email matched, else Fewmail's. */
 export const botOfCard = (card: {

@@ -1,10 +1,9 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
-import {
-  SettingsGroup,
-  SettingsRow,
-} from '@fewmail/ui/components/custom/settings-group'
+import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
+import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
+import { Cancel01Icon, TaskDone01Icon } from '@hugeicons/core-free-icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format, isToday } from 'date-fns'
 import { useState } from 'react'
@@ -203,40 +202,61 @@ export const Journal = ({
   if (rows.length === 0) {
     return null
   }
+  const dayTitle = (day: Date) => (
+    <span className="inline-block first-letter:uppercase">
+      {isToday(day) ? t.calendar.today : dates.format(day, 'EEEE, d MMMM')}
+    </span>
+  )
   return (
-    <section aria-label={t.today.journal.title} className="flex flex-col gap-4">
-      <p className="text-muted-foreground px-1 text-sm">
-        {t.today.journal.lead}
-      </p>
+    <section
+      aria-label={t.today.journal.title}
+      className="flex flex-col gap-2.5"
+    >
+      <p className="text-muted-foreground text-sm">{t.today.journal.lead}</p>
       {failed.length > 0 && (
-        <SettingsGroup title={t.today.journal.failed}>
-          {failed.map(row)}
-        </SettingsGroup>
+        <Tool open>
+          <ToolHeader
+            icon={Cancel01Icon}
+            isOpenable={false}
+            title={
+              <>
+                {t.today.journal.failed}
+                <span className="text-muted-foreground ml-1.5 tabular-nums">
+                  {failed.length}
+                </span>
+              </>
+            }
+          />
+          <ToolContent variant="rows">{failed.map(row)}</ToolContent>
+        </Tool>
       )}
       {days.map(({ day, isOpen, key, rows: dayRows, shown }) => (
-        <div key={key} className="flex flex-col gap-2">
-          <SettingsGroup
+        <Tool key={key} open>
+          <ToolHeader
+            icon={TaskDone01Icon}
+            isOpenable={false}
             title={
-              <span className="inline-block first-letter:uppercase">
-                {isToday(day)
-                  ? t.calendar.today
-                  : dates.format(day, 'EEEE, d MMMM')}
-              </span>
+              <>
+                {dayTitle(day)}
+                <span className="text-muted-foreground ml-1.5 tabular-nums">
+                  {dayRows.length}
+                </span>
+              </>
             }
-          >
-            {shown.map(row)}
-          </SettingsGroup>
-          {dayRows.length > ROWS_PER_DAY && (
-            <Button
-              size="sm"
-              variant="ghost-muted"
-              className="self-start"
-              onClick={() => toggleDay(key)}
-            >
-              {isOpen ? t.mail.showFewer : t.mail.showAll(dayRows.length)}
-            </Button>
-          )}
-        </div>
+            action={
+              dayRows.length > ROWS_PER_DAY && (
+                <Button
+                  size="xs"
+                  variant="link-muted"
+                  onClick={() => toggleDay(key)}
+                >
+                  {isOpen ? t.mail.showFewer : t.mail.showAll(dayRows.length)}
+                </Button>
+              )
+            }
+          />
+          <ToolContent variant="rows">{shown.map(row)}</ToolContent>
+        </Tool>
       ))}
     </section>
   )

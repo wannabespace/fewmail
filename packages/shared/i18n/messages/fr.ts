@@ -800,11 +800,11 @@ export const fr: Messages = {
     unsubscribe: 'Se désabonner',
   },
   actionStatus: {
-    auto_done: 'fait par l’agent',
+    auto_done: 'fait tout seul',
     dismissed: 'ignoré',
     done: 'fait',
     failed: 'échec',
-    pending: 'en attente dans Accueil',
+    pending: 't’attend',
   },
   byBot: 'par un bot',
   calendar: {
@@ -1404,6 +1404,7 @@ export const fr: Messages = {
     noPlan:
       'Je ne peux pas vous répondre : avec le forfait gratuit, je n’ai pas de jetons pour une conversation. Abonnez-vous, et je suis tout à vous.',
     now: 'En attente',
+    suggestions: 'Suggestions',
     nudge: {
       noReply: 'Pas encore de réponse dans cette conversation.',
       replied: 'Une réponse est arrivée depuis dans cette conversation.',

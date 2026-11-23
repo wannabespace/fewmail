@@ -35,6 +35,8 @@ import {
   agentInstructions,
   BOT_REACT_TOOL,
   botScope,
+  REPORT_LINE_CHARS,
+  REPORT_LINES,
   MAX_STEPS,
   SUGGEST_INSTRUCTIONS,
   SUGGEST_LINE_CHARS,
@@ -391,9 +393,12 @@ const chatCost = (use: Use) => {
     match: null,
     name: 'x'.repeat(60),
   })
+  // What the chat reported lately rides with every step, its lines at their cap.
+  const reports = mailTokens(REPORT_LINES * REPORT_LINE_CHARS)
   const perStep =
     instructionTokens(instructions.length + scope.length + toolsChars) +
-    use.chatHistoryTokens
+    use.chatHistoryTokens +
+    reports
   const growth = use.toolResultTokens + CHAT_STEP_OUTPUT_TOKENS
   const steps = use.chatSteps
   const written = perStep + growth * (steps - 1)

@@ -40,11 +40,11 @@ export const ja: Messages = {
     unsubscribe: '配信停止',
   },
   actionStatus: {
-    auto_done: 'エージェントが対応済み',
+    auto_done: '自動で対応済み',
     dismissed: 'スキップ',
     done: '完了',
     failed: '失敗',
-    pending: '「ホーム」で待機中',
+    pending: 'あなたの確認待ち',
   },
   byBot: 'ボットによる',
   agent: {
@@ -731,6 +731,7 @@ export const ja: Messages = {
     noPlan:
       'お返事できません。無料プランでは会話に使うトークンがないためです。登録してもらえれば、いつでもお相手します。',
     now: '対応待ち',
+    suggestions: '提案',
     nudge: {
       noReply: 'そのスレッドにはまだ返信がありません。',
       replied: 'その後、そのスレッドに返信が届きました。',

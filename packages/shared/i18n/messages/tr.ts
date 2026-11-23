@@ -40,11 +40,11 @@ export const tr: Messages = {
     unsubscribe: 'Abonelikten çık',
   },
   actionStatus: {
-    auto_done: 'ajan halletti',
+    auto_done: 'kendiliğinden yapıldı',
     dismissed: 'atlandı',
     done: 'tamam',
     failed: 'başarısız',
-    pending: 'Ana Sayfa’da bekliyor',
+    pending: 'seni bekliyor',
   },
   agent: {
     decideOnHome: 'Ana sayfada karar ver',
@@ -920,6 +920,7 @@ export const tr: Messages = {
     noPlan:
       'Sana yanıt veremem: ücretsiz planda sohbet için tokenim yok. Abone ol, tamamen seninim.',
     now: 'Şimdi bekleyenler',
+    suggestions: 'Öneriler',
     nudge: {
       noReply: 'O yazışmada henüz yanıt yok.',
       replied: 'O zamandan beri o yazışmaya bir yanıt geldi.',

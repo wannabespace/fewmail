@@ -106,7 +106,7 @@ import {
   dismissAction,
   getThread,
   listMail,
-  countImportant,
+  countWaiting,
   countInboxInGmail,
   countUnread,
   markThreadRead,
@@ -695,7 +695,7 @@ export const router = {
   },
   today: {
     banner: authed.handler(({ context }) => listBanner(context.user.id)),
-    count: authed.handler(({ context }) => countImportant(context.user.id)),
+    count: authed.handler(({ context }) => countWaiting(context.user.id)),
     dismissBanner: authed.input(id).handler(async ({ context, input }) => {
       await dismissBanner(context.user.id, input.id)
     }),

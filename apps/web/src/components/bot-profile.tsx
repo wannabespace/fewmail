@@ -21,17 +21,12 @@ import {
 } from 'date-fns'
 import type { ReactNode } from 'react'
 
-import {
-  BotForm,
-  BotJob,
-  BotStatus,
-  CardsTrace,
-  useBotChat,
-  useMute,
-} from '~/components/bot-chat'
+import { BotJob, CardsTrace, useBotChat } from '~/components/bot-chat'
+import { BotForm } from '~/components/bot-form'
+import { BotStatus, useMute } from '~/components/bot-header'
 import { BotAvatar, isBoardBot, pausedUntilOf } from '~/components/bot-list'
 import type { HomeBot, OwnBot } from '~/components/bot-list'
-import { ownBots } from '~/lib/home-db'
+import { ownBots, useWaiting } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { queryClient, showUntilSettled } from '~/lib/query-client'
@@ -52,7 +47,7 @@ const Section = ({
   </section>
 )
 
-/** The cards the bot made or took over the last 7 days, each once: a digest repeats the cards it counted. */
+/** The cards the bot made or took over the last 7 days, each once (a digest repeats the cards it counted); what waits is what its bar says. */
 const useWeek = (bot: string) => {
   const { dataUpdatedAt, entries } = useBotChat(bot)
   const since = subDays(dataUpdatedAt, 7)
@@ -72,7 +67,7 @@ const useWeek = (bot: string) => {
     lately: cards
       .filter(({ action }) => action.status !== 'pending')
       .slice(-LATELY_SHOWN),
-    waiting: count('pending'),
+    waiting: useWaiting(bot).length,
   }
 }
 

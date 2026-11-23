@@ -21,7 +21,6 @@ import {
   asc,
   desc,
   eq,
-  exists,
   gt,
   inArray,
   isNotNull,
@@ -371,13 +370,19 @@ const cardOf = (commitment: Commitment, t: Messages) => {
  * (`trackCommitments` moves it only on evidence), so "thanks, we are looking into it" still gets chased.
  */
 export const processDueCommitments = async () => {
+  // Without the Board the user asked for no promises, so what it wrote down before never comes back as a card; with it, the card waits in its chat.
   const candidates = await db
     .select({
+      board: bots.id,
       commitment: commitments,
       language: userSettings.language,
       timezone: userSettings.timezone,
     })
     .from(commitments)
+    .innerJoin(
+      bots,
+      and(eq(bots.userId, commitments.userId), eq(bots.effect, BOARD_EFFECT))
+    )
     .leftJoin(userSettings, eq(userSettings.userId, commitments.userId))
     .where(
       and(
@@ -390,19 +395,7 @@ export const processDueCommitments = async () => {
             DEADLINE_LEAD_DAYS
           )
         ),
-        hasAgentSql(commitments.userId),
-        // Without the Board the user asked for no promises, so what it wrote down before never comes back as a card.
-        exists(
-          db
-            .select({ id: bots.id })
-            .from(bots)
-            .where(
-              and(
-                eq(bots.userId, commitments.userId),
-                eq(bots.effect, BOARD_EFFECT)
-              )
-            )
-        )
+        hasAgentSql(commitments.userId)
       )
     )
   await Promise.all(
@@ -410,7 +403,7 @@ export const processDueCommitments = async () => {
       .filter(({ commitment, timezone }) =>
         isDueMorning(surfacesOn(commitment), timezone ?? 'UTC')
       )
-      .map(async ({ commitment, language }) => {
+      .map(async ({ board, commitment, language }) => {
         // Claim before inserting: a failure after the insert must not surface it again next minute.
         const [claimed] = await db
           .update(commitments)
@@ -425,9 +418,10 @@ export const processDueCommitments = async () => {
         if (!claimed) {
           return
         }
-        await db
-          .insert(actions)
-          .values(cardOf(commitment, dictionaries[language ?? 'en']))
+        await db.insert(actions).values({
+          ...cardOf(commitment, dictionaries[language ?? 'en']),
+          botId: board,
+        })
         await announceChange(commitment.userId, ['actions', 'today'])
       })
   )

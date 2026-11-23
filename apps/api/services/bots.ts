@@ -171,15 +171,18 @@ export const updateBot = async (
   }>
 ) => {
   await requireAgentFor(userId, input.effect)
-  const [bot] = await db
-    .update(bots)
-    .set(input)
-    .where(and(eq(bots.id, id), eq(bots.userId, userId)))
-    .returning()
-  if (!bot) {
+  const own = and(eq(bots.id, id), eq(bots.userId, userId))
+  const [current] = await db.select().from(bots).where(own)
+  if (!current) {
     throw new NotFoundError('Bot not found')
   }
-  return bot
+  // The Board takes no mail: words or an effect would make Jev hand it mail and stop it being the Board.
+  const change = current.effect === BOARD_EFFECT ? { name: input.name } : input
+  if (Object.values(change).every((value) => value === undefined)) {
+    return current
+  }
+  const [bot] = await db.update(bots).set(change).where(own).returning()
+  return expectRow(bot)
 }
 
 export const createBot = async (

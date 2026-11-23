@@ -40,11 +40,11 @@ export const en = {
     unsubscribe: 'Unsubscribe',
   },
   actionStatus: {
-    auto_done: 'done by the agent',
+    auto_done: 'done on its own',
     dismissed: 'skipped',
     done: 'done',
     failed: 'failed',
-    pending: 'waiting on Home',
+    pending: 'waiting for you',
   },
   agent: {
     decideOnHome: 'Decide on Home',
@@ -933,6 +933,7 @@ export const en = {
     noPlan:
       'I can’t answer you: on the free plan I have no tokens for a conversation. Subscribe and I’m all yours.',
     now: 'Waiting now',
+    suggestions: 'Suggestions',
     nudge: {
       noReply: 'No answer in that thread yet.',
       replied: 'An answer came in that thread since.',

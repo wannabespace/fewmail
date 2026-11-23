@@ -40,11 +40,11 @@ export const pl: Messages = {
     unsubscribe: 'Wypisz się',
   },
   actionStatus: {
-    auto_done: 'zrobione przez agenta',
+    auto_done: 'zrobione samodzielnie',
     dismissed: 'pominięte',
     done: 'zrobione',
     failed: 'nie udało się',
-    pending: 'czeka na stronie głównej',
+    pending: 'czeka na ciebie',
   },
   agent: {
     decideOnHome: 'Zdecyduj na stronie głównej',
@@ -975,6 +975,7 @@ export const pl: Messages = {
     noPlan:
       'Nie mogę ci odpowiedzieć: w darmowym planie nie mam tokenów na rozmowę. Wykup subskrypcję, a jestem cały twój.',
     now: 'Czeka teraz',
+    suggestions: 'Propozycje',
     nudge: {
       noReply: 'W tym wątku nie ma jeszcze odpowiedzi.',
       replied: 'Od tamtej pory w tym wątku przyszła odpowiedź.',

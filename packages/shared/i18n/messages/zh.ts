@@ -40,11 +40,11 @@ export const zh: Messages = {
     unsubscribe: '退订',
   },
   actionStatus: {
-    auto_done: '已由助手完成',
+    auto_done: '已自动完成',
     dismissed: '已跳过',
     done: '已完成',
     failed: '失败',
-    pending: '在“首页”中等待',
+    pending: '等你处理',
   },
   byBot: '按机器人',
   agent: {
@@ -715,6 +715,7 @@ export const zh: Messages = {
     noPlan:
       '我没法回复你：免费方案下我没有用于对话的额度。订阅后，我随时为你效劳。',
     now: '正在等待',
+    suggestions: '建议',
     nudge: {
       noReply: '那个会话里还没有回复。',
       replied: '那之后，那个会话里有了回复。',

@@ -12,7 +12,6 @@ import {
   GMAIL_EFFECTS,
   IMPORTANCE,
   isMassMail,
-  LATER_KINDS,
   LIST_CATEGORIES,
   OUTLIVE_ARCHIVE_KINDS,
   PEOPLE_CATEGORIES,
@@ -128,7 +127,7 @@ export const selectCards = () =>
         isFromMe: messages.isFromMe,
         to: messages.to,
       },
-      bot: bots.instruction,
+      bot: bots.name,
     })
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
@@ -152,24 +151,18 @@ export const listQueue = (userId: string) =>
       actions.createdAt
     )
 
-/** Pending cards Home counts as important, as `isImportant` decides in the browser. */
-export const countImportant = async (userId: string) => {
+/** Pending cards waiting for the user, as `waitsForUser` decides in the browser. */
+export const countWaiting = async (userId: string) => {
   const [row] = await db
     .select({ total: sql<number>`count(*)::int` })
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
-    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
     .where(
       and(
         eq(actions.userId, userId),
         eq(actions.status, 'pending'),
         notBinned,
-        notInArray(actions.kind, [...PROPOSAL_KINDS]),
-        or(
-          notInArray(actions.kind, [...LATER_KINDS]),
-          eq(analyses.needsReply, true),
-          gte(analyses.importance, IMPORTANCE.critical)
-        )
+        notInArray(actions.kind, [...PROPOSAL_KINDS])
       )
     )
   return expectRow(row).total
@@ -259,7 +252,7 @@ export const listHandled = (
         status: actions.status,
         title: actions.title,
       },
-      bot: bots.instruction,
+      bot: bots.name,
       message: {
         fromEmail: messages.fromEmail,
         fromName: messages.fromName,

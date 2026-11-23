@@ -28,17 +28,7 @@ import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { Result } from 'better-result'
 import { addDays } from 'date-fns'
-import {
-  and,
-  arrayContains,
-  desc,
-  eq,
-  gt,
-  inArray,
-  isNotNull,
-  lt,
-  or,
-} from 'drizzle-orm'
+import { and, arrayContains, desc, eq, gt, inArray, lt, or } from 'drizzle-orm'
 
 import {
   FAST_MODEL_ID,
@@ -53,7 +43,7 @@ import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
 import { oneTimeCode } from '../lib/one-time-code'
 import { attachmentText, worthReading } from './attachments'
-import { isWorking, keepsPromises } from './bots'
+import { BOT_ORDER, isWorking, keepsPromises } from './bots'
 import { BULK_THRESHOLD } from './bulk'
 import { hasMailboxCalendar } from './calendar'
 import {
@@ -69,6 +59,7 @@ import { applyAgentLabel } from './labels'
 import { listMailboxes } from './mailboxes'
 import type { EmailAllowance } from './plan'
 import { getSettings } from './settings'
+import { matchesSimple } from './simple-bots'
 import { applyThreadEffect } from './thread-effects'
 
 export const BODY_LIMIT = 4000
@@ -466,6 +457,17 @@ const extractLater = async (input: {
   return written.value.output.later
 }
 
+/** Mail the agent writes no text for: noise, or mail a simple bot moves away on its own. */
+const isNoiseFor = (
+  decisions: { importance: number; needsReply: boolean },
+  bot: Bot | undefined,
+  simple: Bot | null | undefined
+) =>
+  (!!simple?.enabled && decisions.importance < IMPORTANCE.high) ||
+  (decisions.importance === 0 &&
+    !decisions.needsReply &&
+    (!bot || movesMail(bot)))
+
 /**
  * Jev decides for every plan; the LLM writes text only for the agent and only for mail that
  * matters, while the month's allowance lasts. When Jev fails the LLM does both, never for free.
@@ -478,6 +480,8 @@ const analyze = async (input: {
   prompt: string
   bots: Bot[]
   settings: Settings
+  /** The simple bot whose match took the email, which no text is written for while it moves it on its own. */
+  simple?: Bot | null
   userEmail: string
 }) => {
   const { allowance, prompt } = input
@@ -521,11 +525,11 @@ const analyze = async (input: {
   }
 
   const decisions = withNetworkFacts(decided, input.message, t)
-  const bot = input.bots.find(({ id }) => id === decisions.botId)
-  const isNoise =
-    decisions.importance === 0 &&
-    !decisions.needsReply &&
-    (!bot || movesMail(bot))
+  const isNoise = isNoiseFor(
+    decisions,
+    input.simple ?? input.bots.find(({ id }) => id === decisions.botId),
+    input.simple
+  )
   const agent =
     !!allowance &&
     (isNoise || allowance.take(decisions.importance >= IMPORTANCE.critical))
@@ -917,27 +921,46 @@ export const recordNewsletter = async (message: Message, userEmail: string) => {
     .onConflictDoNothing()
 }
 
+/** A simple bot's match needs no model and wins over Jev's pick; Jev still judges the email, so what needs the user waits for a yes. */
+const simpleBotOf = (working: Bot[], message: Message) =>
+  working.find(
+    ({ match }) => match !== null && matchesSimple(match, message)
+  ) ?? null
+
+/** Without Jev's word a simple bot still does its job, as it did before Jev read anything. */
+const actUnjudged = async (
+  message: Message,
+  simple: Bot | null,
+  settings: Settings
+) => {
+  if (simple?.enabled && actsOnGmail(simple)) {
+    await recordBotAction(message, simple, {
+      messageId: message.id,
+      threadId: message.threadId,
+      title: dictionaries[settings.language].bots.effect[simple.effect],
+      userId: message.userId,
+    })
+  }
+}
+
 export const analyzeMessage = async (
   message: Message,
   userEmail: string,
   allowance: EmailAllowance | null
 ) => {
-  const [settings, userBots] = await Promise.all([
+  const [settings, working] = await Promise.all([
     getSettings(message.userId),
     db
       .select()
       .from(bots)
-      .where(
-        and(
-          eq(bots.userId, message.userId),
-          isNotNull(bots.instruction),
-          isWorking
-        )
-      ),
+      .where(and(eq(bots.userId, message.userId), isWorking))
+      .orderBy(...BOT_ORDER),
   ])
   if (!settings) {
     return
   }
+  const userBots = working.filter(({ instruction }) => instruction !== null)
+  const simple = simpleBotOf(working, message)
   const thread = await threadPrompt(message, settings.timezone)
 
   const analysis = await analyze({
@@ -946,14 +969,17 @@ export const analyzeMessage = async (
     prompt: thread,
     bots: allowance ? userBots : userBots.filter(runsFree),
     settings,
+    simple,
     userEmail,
   })
   if (!analysis) {
+    await actUnjudged(message, simple, settings)
     return
   }
   const { agent, model, output } = analysis
 
-  const matched = userBots.find(({ id }) => id === output.botId) ?? null
+  const matched =
+    simple ?? userBots.find(({ id }) => id === output.botId) ?? null
   const bot = matched && (allowance || runsFree(matched)) ? matched : null
   const importance = botImportance(bot, output.importance)
 

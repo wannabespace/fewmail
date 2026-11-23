@@ -40,11 +40,11 @@ export const nl: Messages = {
     unsubscribe: 'Afmelden',
   },
   actionStatus: {
-    auto_done: 'gedaan door de agent',
+    auto_done: 'vanzelf gedaan',
     dismissed: 'overgeslagen',
     done: 'gedaan',
     failed: 'mislukt',
-    pending: 'wacht op Home',
+    pending: 'wacht op jou',
   },
   agent: {
     decideOnHome: 'Beslis op Home',
@@ -939,6 +939,7 @@ export const nl: Messages = {
     noPlan:
       'Ik kan je niet antwoorden: met het gratis abonnement heb ik geen tokens voor een gesprek. Neem een abonnement en ik ben helemaal van jou.',
     now: 'Wacht nu',
+    suggestions: 'Suggesties',
     nudge: {
       noReply: 'Nog geen antwoord in dat gesprek.',
       replied: 'Sindsdien kwam er een antwoord in dat gesprek.',

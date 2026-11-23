@@ -125,22 +125,24 @@ const botsOf = async (userId: string) => {
   }
 }
 
-/** A user's bot or Fewmail's; anything else is not theirs to read. */
+/** `board` names the user's Board: the agent and MCP clients know it by that word, never by its row's id. */
+const BOARD_ALIAS = 'board'
+
+/** A user's bot or Fewmail's, `board` read as their Board's id; anything else is not theirs to read. */
 const requireBot = async (userId: string, bot: string) => {
   const found = await botsOf(userId)
-  if (!found.ids.includes(bot)) {
+  const id = bot === BOARD_ALIAS ? found.board : bot
+  if (!id || !found.ids.includes(id)) {
     throw new NotFoundError('Bot not found')
   }
-  return found
+  return { ...found, id }
 }
 
 /** Fewmail Bot stays first in the list, pinned for good and in no folder. */
-const requireMovable = async (userId: string, bot: string) => {
-  if (bot === 'fewmail') {
-    throw new NotFoundError('Fewmail Bot stays on top')
-  }
-  await requireBot(userId, bot)
-}
+const requireMovable = (userId: string, bot: string) =>
+  bot === 'fewmail'
+    ? Promise.reject(new NotFoundError('Fewmail Bot stays on top'))
+    : requireBot(userId, bot)
 
 const cardsBetween = (userId: string, from: Date, to: Date, where?: SQL) =>
   selectCards()
@@ -296,22 +298,21 @@ const entriesBetween = async (
   from: Date,
   to: Date
 ) => {
-  const cardBots = ids.filter((bot) => bot !== board)
   const [cards, promises, posts] = await Promise.all([
-    cardBots.length > 0
-      ? cardsBetween(userId, from, to, or(...cardBots.map(cardsOf)))
-      : [],
+    cardsBetween(userId, from, to, or(...ids.map(cardsOf))),
     board && ids.includes(board) ? promisesBetween(userId, from, to) : [],
     postsBetween(userId, ids, from, to),
   ])
   const said = await postEntries(userId, posts)
+  // A card an answer asked for is in that answer: a report of its own would say it twice.
+  const answered = new Set(posts.flatMap(({ actionIds }) => actionIds))
+  const reported = cards.filter(({ action }) => !answered.has(action.id))
   return new Map(
     ids.map((bot) => [
       bot,
       [
-        ...(bot === board
-          ? promiseEntries(promises)
-          : cardEntries(cards.filter((card) => botOfCard(card) === bot))),
+        ...(bot === board ? promiseEntries(promises) : []),
+        ...cardEntries(reported.filter((card) => botOfCard(card) === bot)),
         ...said.filter((entry) => entry.bot === bot),
       ].toSorted(byTime),
     ])
@@ -325,28 +326,27 @@ const earlierAt = async (
   before: Date,
   isBoard: boolean
 ) => {
-  const reported = isBoard
-    ? db
-        .select({ at: commitments.createdAt })
-        .from(commitments)
-        .where(
-          and(eq(commitments.userId, userId), lt(commitments.createdAt, before))
-        )
-        .orderBy(desc(commitments.createdAt))
-        .limit(1)
-    : db
-        .select({ at: actions.createdAt })
-        .from(actions)
-        .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
-        .where(
-          and(
-            eq(actions.userId, userId),
-            lt(actions.createdAt, before),
-            cardsOf(bot)
-          )
-        )
-        .orderBy(desc(actions.createdAt))
-        .limit(1)
+  const promised = db
+    .select({ at: commitments.createdAt })
+    .from(commitments)
+    .where(
+      and(eq(commitments.userId, userId), lt(commitments.createdAt, before))
+    )
+    .orderBy(desc(commitments.createdAt))
+    .limit(1)
+  const reported = db
+    .select({ at: actions.createdAt })
+    .from(actions)
+    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .where(
+      and(
+        eq(actions.userId, userId),
+        lt(actions.createdAt, before),
+        cardsOf(bot)
+      )
+    )
+    .orderBy(desc(actions.createdAt))
+    .limit(1)
   const said = db
     .select({ at: botPosts.dueAt })
     .from(botPosts)
@@ -359,25 +359,27 @@ const earlierAt = async (
     )
     .orderBy(desc(botPosts.dueAt))
     .limit(1)
-  const newest = await Promise.all([reported, said])
+  const newest = await Promise.all(
+    isBoard ? [promised, reported, said] : [reported, said]
+  )
   const found = newest.flatMap(([row]) => (row ? [row.at.getTime()] : []))
   return found.length > 0 ? new Date(Math.max(...found) + 1) : null
 }
 
 /** One bot's chat, `WINDOW_DAYS` back from `before` (now by default); `earlier` is where the page before ends, null when nothing is older. */
 export const botChat = async (userId: string, bot: string, before?: Date) => {
-  const { board } = await requireBot(userId, bot)
+  const { board, id } = await requireBot(userId, bot)
   const until = before ?? addDays(new Date(), 1)
   const from = subDays(until, WINDOW_DAYS)
   const [entries, earlier, settings] = await Promise.all([
-    entriesBetween(userId, { board, ids: [bot] }, from, until),
-    earlierAt(userId, bot, from, bot === board),
+    entriesBetween(userId, { board, ids: [id] }, from, until),
+    earlierAt(userId, id, from, id === board),
     getSettings(userId),
   ])
-  const isKept = keptAfter(settings?.botsClearedAt[bot])
+  const isKept = keptAfter(settings?.botsClearedAt[id])
   return {
     earlier: earlier && isKept({ at: earlier }) ? earlier : null,
-    entries: (entries.get(bot) ?? []).filter(isKept),
+    entries: (entries.get(id) ?? []).filter(isKept),
   }
 }
 
@@ -430,8 +432,8 @@ export const listBotChats = async (userId: string) => {
   })
 }
 
-export const markBotRead = async (userId: string, bot: string) => {
-  await requireBot(userId, bot)
+export const markBotRead = async (userId: string, asked: string) => {
+  const { id: bot } = await requireBot(userId, asked)
   await db
     .update(userSettings)
     .set({
@@ -443,10 +445,10 @@ export const markBotRead = async (userId: string, bot: string) => {
 
 export const setBotMuted = async (
   userId: string,
-  bot: string,
+  asked: string,
   muted: boolean
 ) => {
-  await requireBot(userId, bot)
+  const { id: bot } = await requireBot(userId, asked)
   const without = sql`array_remove(${userSettings.mutedBots}, ${bot}::text)`
   await db
     .update(userSettings)
@@ -459,10 +461,10 @@ export const setBotMuted = async (
 
 export const setBotPinned = async (
   userId: string,
-  bot: string,
+  asked: string,
   pinned: boolean
 ) => {
-  await requireMovable(userId, bot)
+  const { id: bot } = await requireMovable(userId, asked)
   const without = sql`array_remove(${userSettings.pinnedBots}, ${bot}::text)`
   await db
     .update(userSettings)
@@ -476,8 +478,8 @@ export const setBotPinned = async (
 }
 
 /** Its messages go for good and its older cards leave the chat; nudges still to come stay, and so does what it did in the mail. */
-export const clearBotChat = async (userId: string, bot: string) => {
-  await requireBot(userId, bot)
+export const clearBotChat = async (userId: string, asked: string) => {
+  const { id: bot } = await requireBot(userId, asked)
   await db.transaction(async (tx) => {
     await tx
       .delete(botPosts)
@@ -742,9 +744,9 @@ export const remindLater = async (
       status: 'not_scheduled',
     }
   }
-  await requireBot(userId, bot)
+  const { id } = await requireBot(userId, bot)
   await db.insert(botPosts).values({
-    bot,
+    bot: id,
     dueAt: at,
     kind: 'nudge',
     text: note,

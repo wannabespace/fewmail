@@ -40,11 +40,11 @@ export const id: Messages = {
     unsubscribe: 'Berhenti langganan',
   },
   actionStatus: {
-    auto_done: 'diselesaikan agen',
+    auto_done: 'diselesaikan sendiri',
     dismissed: 'dilewati',
     done: 'selesai',
     failed: 'gagal',
-    pending: 'menunggu di Beranda',
+    pending: 'menunggumu',
   },
   agent: {
     decideOnHome: 'Putuskan di Beranda',
@@ -928,6 +928,7 @@ export const id: Messages = {
     noPlan:
       'Aku tidak bisa menjawabmu: di paket gratis aku tidak punya token untuk percakapan. Berlanggananlah, dan aku sepenuhnya untukmu.',
     now: 'Menunggu sekarang',
+    suggestions: 'Saran',
     nudge: {
       noReply: 'Belum ada balasan di percakapan itu.',
       replied: 'Sejak itu sudah ada balasan di percakapan itu.',

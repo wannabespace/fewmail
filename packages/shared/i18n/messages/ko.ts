@@ -40,11 +40,11 @@ export const ko: Messages = {
     unsubscribe: '구독 취소',
   },
   actionStatus: {
-    auto_done: '에이전트가 처리함',
+    auto_done: '스스로 처리함',
     dismissed: '건너뜀',
     done: '완료',
     failed: '실패',
-    pending: '홈에서 대기 중',
+    pending: '확인을 기다림',
   },
   byBot: '봇에 따라',
   agent: {
@@ -731,6 +731,7 @@ export const ko: Messages = {
     noPlan:
       '답할 수 없어요. 무료 요금제에서는 대화에 쓸 토큰이 없거든요. 구독하면 언제든 이야기할 수 있어요.',
     now: '지금 기다리는 중',
+    suggestions: '제안',
     nudge: {
       noReply: '그 스레드에는 아직 답장이 없어요.',
       replied: '그 뒤로 그 스레드에 답장이 왔어요.',

@@ -3,12 +3,17 @@ import { ACTIVE_COMMITMENT_STATUSES } from '@fewmail/shared/agent'
 import type { CommitmentStatus } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
-import {
-  SettingsGroup,
-  SettingsRow,
-} from '@fewmail/ui/components/custom/settings-group'
+import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
+import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import {
+  Agreement01Icon,
+  ArrowDownLeft01Icon,
+  Cancel01Icon,
+  Clock01Icon,
+  Tick02Icon,
+} from '@hugeicons/core-free-icons'
+import type { IconSvgElement } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation } from '@tanstack/react-query'
 import { startOfToday, subDays } from 'date-fns'
@@ -16,7 +21,7 @@ import { useEffect, useState } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
-import { DigestLead, NowMessage } from '~/components/bot-chat'
+import { NowPart } from '~/components/bot-chat'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
 import { PaneRows } from '~/components/pane-rows'
 import type { RowPlace } from '~/components/pane-rows'
@@ -43,6 +48,11 @@ const commitments = listCollection({
 type Section = 'owed' | 'promised' | 'coming'
 
 const SECTIONS: Section[] = ['owed', 'promised', 'coming']
+const SECTION_ICONS: Record<Section, IconSvgElement> = {
+  coming: Clock01Icon,
+  owed: ArrowDownLeft01Icon,
+  promised: Agreement01Icon,
+}
 /** What was settled stays in its list this long, marked so: a promise the agent closed on its own never vanishes unseen. */
 const SETTLED_DAYS = 14
 
@@ -183,7 +193,7 @@ export const useBoard = (isOpen = true) => {
   }
 }
 
-/** What the Board waits on, as any bot's messages: the sentence, then a message per list. */
+/** What the Board waits on, as any bot's: its sentence, then a tool block per list, like every bot's cards. */
 export const BoardPane = ({ isActive }: { isActive: boolean }) => {
   const t = useT()
   const dates = useDates()
@@ -317,19 +327,31 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
     !isPending &&
     ordered.length > 0 && (
       <>
-        <NowMessage isWide={false}>
-          <DigestLead>{leadOf(t, locale, sections)}</DigestLead>
-        </NowMessage>
+        <NowPart>
+          <p>{leadOf(t, locale, sections)}</p>
+        </NowPart>
         {SECTIONS.map(
           (section) =>
             sections[section].length > 0 && (
-              <NowMessage key={section}>
-                <SettingsGroup title={t.board.section[section]}>
+              <Tool key={section} open>
+                <ToolHeader
+                  icon={SECTION_ICONS[section]}
+                  isOpenable={false}
+                  title={
+                    <>
+                      {t.board.section[section]}
+                      <span className="text-muted-foreground ml-1.5 tabular-nums">
+                        {sections[section].length}
+                      </span>
+                    </>
+                  }
+                />
+                <ToolContent variant="rows">
                   <PaneRows rowKey={({ id }) => id} rows={sections[section]}>
                     {rowOf}
                   </PaneRows>
-                </SettingsGroup>
-              </NowMessage>
+                </ToolContent>
+              </Tool>
             )
         )}
       </>

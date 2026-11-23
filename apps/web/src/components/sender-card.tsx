@@ -1,7 +1,4 @@
-import {
-  SettingsGroup,
-  SettingsRow,
-} from '@fewmail/ui/components/custom/settings-group'
+import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
 import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -46,10 +43,10 @@ export const useIsSenderShown = (sender?: StackSender) => {
 export const useShownSender = () => useSubscription(shownStore)
 
 /**
- * A Home card about a sender (a new one, a suggested bot): the whole card opens its emails beside the chat, so the
- * user sees what they decide on; its answers stay buttons of their own.
+ * A question about a sender (a new one, a suggested bot), one row of a list: the whole row opens its emails beside the
+ * chat, so the user sees what they decide on; its answers stay buttons of their own.
  */
-export const SenderCard = ({
+export const SenderRow = ({
   children,
   isShowable = true,
   label,
@@ -66,32 +63,30 @@ export const SenderCard = ({
   const t = useT()
   const isShown = useIsSenderShown(sender)
   return (
-    <SettingsGroup>
-      <SettingsRow
-        icon={<SenderAvatar sender={sender} size="sm" />}
-        iconVariant="avatar"
-        title={
-          <span className="flex flex-wrap items-baseline gap-x-2">
-            <span data-mask>{sender.fromName ?? sender.fromEmail}</span>
-            <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
-              {label}
-            </span>
+    <SettingsRow
+      icon={<SenderAvatar sender={sender} size="sm" />}
+      iconVariant="avatar"
+      title={
+        <span className="flex flex-wrap items-baseline gap-x-2">
+          <span data-mask>{sender.fromName ?? sender.fromEmail}</span>
+          <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
+            {label}
           </span>
-        }
-        description={lead}
-        trigger={
-          isShowable ? (
-            <button
-              type="button"
-              aria-label={t.nav.personMail}
-              aria-expanded={isShown}
-              onClick={() => showSender(sender)}
-            />
-          ) : undefined
-        }
-      >
-        {children}
-      </SettingsRow>
-    </SettingsGroup>
+        </span>
+      }
+      description={lead}
+      trigger={
+        isShowable ? (
+          <button
+            type="button"
+            aria-label={t.nav.personMail}
+            aria-expanded={isShown}
+            onClick={() => showSender(sender)}
+          />
+        ) : undefined
+      }
+    >
+      {children}
+    </SettingsRow>
   )
 }

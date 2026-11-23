@@ -508,7 +508,7 @@ const MailFolders = ({ isCollapsed }: { isCollapsed: boolean }) => {
 
 // The bot chat and its form stay in Home's chunk; the sidebar only borrows the dialog once a bot is being made.
 const BotSettingsDialog = lazy(() =>
-  import('./bot-chat').then((module) => ({
+  import('./bot-form').then((module) => ({
     default: module.BotSettingsDialog,
   }))
 )

@@ -797,11 +797,11 @@ export const es: Messages = {
     unsubscribe: 'Darse de baja',
   },
   actionStatus: {
-    auto_done: 'hecho por el agente',
+    auto_done: 'hecho por su cuenta',
     dismissed: 'omitido',
     done: 'hecho',
     failed: 'falló',
-    pending: 'esperando en Inicio',
+    pending: 'te espera',
   },
   byBot: 'por un bot',
   calendar: {
@@ -1401,6 +1401,7 @@ export const es: Messages = {
     noPlan:
       'No puedo responderte: en el plan gratuito no tengo tokens para una conversación. Suscríbete y soy todo tuyo.',
     now: 'Esperando ahora',
+    suggestions: 'Sugerencias',
     nudge: {
       noReply: 'Aún no hay respuesta en esa conversación.',
       replied: 'Desde entonces llegó una respuesta en esa conversación.',

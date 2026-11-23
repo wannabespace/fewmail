@@ -1,11 +1,12 @@
 import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
+import { SettingsGroup } from '@fewmail/ui/components/custom/settings-group'
 import { useMutation } from '@tanstack/react-query'
 import { AnimatePresence } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { SenderCard } from '~/components/sender-card'
+import { SenderRow } from '~/components/sender-card'
 import { useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { pendingToast } from '~/lib/undo'
@@ -21,8 +22,8 @@ export interface BotSuggestion {
 
 const refetch = () => refetchChanged(['today', 'mail', 'bots'])
 
-/** A sender whose every email of the month the agent would archive or mark read: asked once, on Home and in their mail alike. */
-export const BotSuggestionCard = ({
+/** A sender whose every email of the month the agent would archive or mark read: asked once, in Fewmail's chat and in their mail alike, a row of a list. */
+export const BotSuggestionRow = ({
   isShowable = false,
   onAnswer,
   suggestion,
@@ -56,7 +57,7 @@ export const BotSuggestionCard = ({
     <AnimatePresence initial={false}>
       {!isAnswered && (
         <MotionCollapse initial={false}>
-          <SenderCard
+          <SenderRow
             isShowable={isShowable}
             label={t.today.botSuggestion.label}
             lead={t.today.botSuggestion.lead(
@@ -88,7 +89,30 @@ export const BotSuggestionCard = ({
             >
               {t.today.botSuggestion.yes[suggestion.effect]}
             </Button>
-          </SenderCard>
+          </SenderRow>
+        </MotionCollapse>
+      )}
+    </AnimatePresence>
+  )
+}
+
+/** In the sender's own email the question is a card of its own, folding away once answered. */
+export const BotSuggestionCard = ({
+  suggestion,
+}: {
+  suggestion: BotSuggestion
+}) => {
+  const [isAnswered, setIsAnswered] = useState(false)
+  return (
+    <AnimatePresence initial={false}>
+      {!isAnswered && (
+        <MotionCollapse initial={false}>
+          <SettingsGroup>
+            <BotSuggestionRow
+              suggestion={suggestion}
+              onAnswer={() => setIsAnswered(true)}
+            />
+          </SettingsGroup>
         </MotionCollapse>
       )}
     </AnimatePresence>

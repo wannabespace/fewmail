@@ -40,11 +40,11 @@ export const pt: Messages = {
     unsubscribe: 'Cancelar inscrição',
   },
   actionStatus: {
-    auto_done: 'feito pelo agente',
+    auto_done: 'feito sozinho',
     dismissed: 'pulado',
     done: 'feito',
     failed: 'falhou',
-    pending: 'aguardando no Início',
+    pending: 'aguarda você',
   },
   agent: {
     decideOnHome: 'Decida no Início',
@@ -958,6 +958,7 @@ export const pt: Messages = {
     noPlan:
       'Não consigo responder: no plano gratuito não tenho tokens para uma conversa. Assine e fico todo seu.',
     now: 'Esperando agora',
+    suggestions: 'Sugestões',
     nudge: {
       noReply: 'Ainda não há resposta nessa conversa.',
       replied: 'Desde então chegou uma resposta nessa conversa.',
