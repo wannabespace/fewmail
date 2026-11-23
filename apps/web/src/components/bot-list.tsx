@@ -40,7 +40,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence } from 'motion/react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -445,19 +445,12 @@ export const BotListRow = ({
   const line = lineOf(t, bot, useWaitingIds())
   const pausedLine =
     pausedUntil && t.bots.status.paused(dates.format(pausedUntil, 'd MMM'))
-  const preview = pausedLine || line || bot.job
-  const previewRef = useRef<HTMLSpanElement>(null)
   return (
     // No ⋯ on a chat row, as in a messenger: over every row it read as one more ellipsis beside the cut preview. Its menu is the right click here and the ⋯ in the chat's bar.
     <ContextMenu>
       <ContextMenuTrigger render={<div />}>
         <RailTip
           isCollapsed={isCollapsed}
-          cut={<span data-mask>{preview}</span>}
-          isCut={() => {
-            const shown = previewRef.current
-            return !!shown && shown.scrollWidth > shown.clientWidth
-          }}
           label={
             <>
               <span data-mask={!!bot.own}>{bot.name}</span>
@@ -513,11 +506,10 @@ export const BotListRow = ({
               </span>
               <span className="flex items-center gap-1.5">
                 <span
-                  ref={previewRef}
                   data-mask
                   className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
                 >
-                  {preview}
+                  {pausedLine || line || bot.job}
                 </span>
                 {bot.unread > 0 && (
                   <span
