@@ -6,6 +6,7 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from '@fewmail/ui/components/input-group'
+import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import {
   ArrowUp02Icon,
   Cancel01Icon,
@@ -14,6 +15,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import { useLocation } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 
@@ -24,6 +26,13 @@ import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
+
+declare module '@tanstack/react-router' {
+  interface HistoryState {
+    writeToBot?: true
+  }
+}
+
 /** What the user may send the open bot in a tap, written by the agent for its chat as it stands; none without the agent or past the allowance, none while it answers. */
 const useSuggestions = (bot: string, isSending: boolean) => {
   const hasAgent = useHasAgent()
@@ -35,7 +44,7 @@ const useSuggestions = (bot: string, isSending: boolean) => {
   return data ?? []
 }
 
-/** Where the user writes to the open bot: ⏎ sends, ⇧⏎ breaks the line, `/` comes here and esc drops the reply, then leaves. */
+/** Where the user writes to the open bot: ⏎ sends, ⇧⏎ breaks the line, `/` comes here and esc drops the reply, then leaves. A bot opened with a click (`writeToBot`) comes here at once, never one stepped to with `[ ]`, whose next key would be typed. */
 export const BotComposer = ({
   bot,
   isActive,
@@ -54,6 +63,15 @@ export const BotComposer = ({
   const replyTo = reply?.bot === bot.bot ? reply.quote : undefined
   const suggestions = useSuggestions(bot.bot, isSending)
   useHotkey('/', () => ref.current?.focus(), { enabled: isActive })
+  const isMobile = useIsMobile()
+  const clickedAt = useLocation({
+    select: ({ state }) => (state.writeToBot ? state.__TSR_key : undefined),
+  })
+  useEffect(() => {
+    if (clickedAt && !isMobile) {
+      ref.current?.focus()
+    }
+  }, [clickedAt, isMobile])
   useEffect(() => {
     if (replyTo) {
       ref.current?.focus()

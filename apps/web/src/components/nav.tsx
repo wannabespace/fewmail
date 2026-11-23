@@ -526,7 +526,8 @@ const SidebarBots = ({ isCollapsed }: { isCollapsed: boolean }) => {
     null
   )
   const openId = isOnHome ? openBotIdOf(bots, picked) : undefined
-  const open = (bot: string) => navigate({ search: { bot }, to: '/home' })
+  const open = (bot: string) =>
+    navigate({ search: { bot }, state: { writeToBot: true }, to: '/home' })
   const { data: folders = [] } = useQuery(orpc.bots.folders.queryOptions())
   const pinned = bots.filter(({ pinned: isPinned }) => isPinned)
   const loose = bots.filter((bot) => !pinned.includes(bot))

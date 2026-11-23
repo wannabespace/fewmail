@@ -844,13 +844,14 @@ export const pl: Messages = {
       watching: 'Pilnuje twojej poczty',
     },
     intro: {
-      acts: 'Działam sam: wszystko, co robię, widać tutaj i możesz to cofnąć.',
-      asks: 'Zanim ruszę maila, zapytam cię tutaj.',
+      acts: 'Działam sam, bez ciebie: wszystko, co robię, widać tutaj i możesz to cofnąć.',
+      asks: 'Zanim ruszę maila, zapytam cię tutaj. Pozwól mi działać samemu, a zajmę się tym bez ciebie.',
       board:
-        'Cześć! Pilnuję obietnic i terminów z twojej poczty: co ci są winni, co obiecałeś i co niedługo mija. Zapytaj mnie, kto ci co jest winien.',
-      change: 'Żeby zmienić to, co robię, po prostu do mnie napisz.',
+        'Cześć! Pilnuję obietnic i terminów z twojej poczty: co ci są winni, co obiecałeś i co niedługo mija, i przypominam, gdy nadchodzi termin. Zapytaj mnie, kto ci co jest winien.',
+      change:
+        'Napisz do mnie, żeby zmienić to, co robię, albo żebym ci o czymś przypomniał.',
       fewmail:
-        'Cześć, jestem Fewmail Bot. Czytam całą pocztę, której nie bierze żaden z twoich botów, i pokazuję tylko to, co wymaga ciebie. W Gmailu nic się nie zmienia bez twojej zgody. Pytaj mnie o pocztę albo poproś o nowego bota.',
+        'Cześć, jestem Fewmail Bot. Czytam całą pocztę, której nie bierze żaden z twoich botów, i pokazuję tylko to, co wymaga ciebie. W Gmailu nic się nie zmienia bez twojej zgody. Pytaj mnie o pocztę, poproś, żebym o czymś przypomniał, albo o bota, który zajmie się częścią poczty bez ciebie.',
       own: (name: string) => `Cześć, jestem ${name}. Pilnuję tego:`,
     },
     pause: {

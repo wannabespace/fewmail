@@ -819,13 +819,14 @@ export const nl: Messages = {
       watching: 'Houdt je mail in de gaten',
     },
     intro: {
-      acts: 'Ik handel zelf: alles wat ik doe staat hier, en je kunt het ongedaan maken.',
-      asks: 'Voordat ik een e-mail aanraak, vraag ik het je hier.',
+      acts: 'Ik handel zelf, zonder jou: alles wat ik doe staat hier, en je kunt het ongedaan maken.',
+      asks: 'Voordat ik een e-mail aanraak, vraag ik het je hier. Laat me zelf handelen, dan regel ik het zonder jou.',
       board:
-        'Hoi! Ik houd de beloftes en deadlines uit je mail bij: wat je nog krijgt, wat je hebt beloofd en wat binnenkort moet. Vraag me wie je wat schuldig is.',
-      change: 'Wil je dat ik iets anders doe? Schrijf me gewoon.',
+        'Hoi! Ik houd de beloftes en deadlines uit je mail bij: wat je nog krijgt, wat je hebt beloofd en wat binnenkort moet, en herinner je eraan als het zover is. Vraag me wie je wat schuldig is.',
+      change:
+        'Schrijf me om te veranderen wat ik doe of om je ergens aan te herinneren.',
       fewmail:
-        'Hoi, ik ben Fewmail Bot. Ik lees alle mail die geen van je bots oppakt en laat je alleen zien wat jou nodig heeft. In Gmail verandert niets zonder je goedkeuring. Vraag me alles over je mail, of vraag me een bot te maken.',
+        'Hoi, ik ben Fewmail Bot. Ik lees alle mail die geen van je bots oppakt en laat je alleen zien wat jou nodig heeft. In Gmail verandert niets zonder je goedkeuring. Vraag me alles over je mail, vraag me je ergens aan te herinneren of een bot te maken die een deel ervan zonder jou regelt.',
       own: (name: string) => `Hoi, ik ben ${name}. Hier let ik op:`,
     },
     pause: {

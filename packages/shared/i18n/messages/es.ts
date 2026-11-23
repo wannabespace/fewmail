@@ -1274,13 +1274,13 @@ export const es: Messages = {
       watching: 'Vigila tu correo',
     },
     intro: {
-      acts: 'Actúo por mi cuenta: todo lo que hago aparece aquí y puedes deshacerlo.',
-      asks: 'Antes de tocar un correo, te pregunto aquí.',
+      acts: 'Actúo por mi cuenta, sin ti: todo lo que hago aparece aquí y puedes deshacerlo.',
+      asks: 'Antes de tocar un correo, te pregunto aquí. Déjame actuar por mi cuenta y me encargaré sin ti.',
       board:
-        '¡Hola! Llevo las promesas y fechas límite de tu correo: lo que te deben, lo que prometiste y lo que vence pronto. Pregúntame quién te debe qué.',
-      change: 'Para cambiar lo que hago, solo escríbeme.',
+        '¡Hola! Llevo las promesas y fechas límite de tu correo: lo que te deben, lo que prometiste y lo que vence pronto, y te lo recuerdo cuando llega la fecha. Pregúntame quién te debe qué.',
+      change: 'Escríbeme para cambiar lo que hago o para que te recuerde algo.',
       fewmail:
-        'Hola, soy Fewmail Bot. Leo todo el correo que no toma ninguno de tus bots y te muestro solo lo que te necesita. Nada cambia en Gmail sin tu aprobación. Pregúntame lo que quieras sobre tu correo o pídeme que cree un bot.',
+        'Hola, soy Fewmail Bot. Leo todo el correo que no toma ninguno de tus bots y te muestro solo lo que te necesita. Nada cambia en Gmail sin tu aprobación. Pregúntame lo que quieras sobre tu correo, pídeme que te recuerde algo o que cree un bot que se encargue de parte de él sin ti.',
       own: (name: string) => `Hola, soy ${name}. Esto es lo que cuido:`,
     },
     pause: {

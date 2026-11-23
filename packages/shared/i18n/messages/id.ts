@@ -814,13 +814,14 @@ export const id: Messages = {
       watching: 'Memantau emailmu',
     },
     intro: {
-      acts: 'Aku bertindak sendiri: semua yang kulakukan tampil di sini, dan kamu bisa membatalkannya.',
-      asks: 'Sebelum menyentuh email, aku bertanya dulu di sini.',
+      acts: 'Aku bertindak sendiri, tanpa kamu: semua yang kulakukan tampil di sini, dan kamu bisa membatalkannya.',
+      asks: 'Sebelum menyentuh email, aku bertanya dulu di sini. Biarkan aku bertindak sendiri, dan aku akan mengurusnya tanpa kamu.',
       board:
-        'Hai! Aku mencatat janji dan tenggat dari emailmu: apa yang jadi hakmu, apa yang kamu janjikan, dan apa yang segera jatuh tempo. Tanya aku siapa berutang apa padamu.',
-      change: 'Untuk mengubah yang kulakukan, tulis saja padaku.',
+        'Hai! Aku mencatat janji dan tenggat dari emailmu: apa yang jadi hakmu, apa yang kamu janjikan, dan apa yang segera jatuh tempo, lalu mengingatkanmu saat waktunya tiba. Tanya aku siapa berutang apa padamu.',
+      change:
+        'Tulis padaku untuk mengubah yang kulakukan atau untuk mengingatkanmu soal sesuatu.',
       fewmail:
-        'Hai, aku Fewmail Bot. Aku membaca semua email yang tidak diambil bot-botmu dan hanya menunjukkan yang perlu kamu urus. Tidak ada yang berubah di Gmail tanpa persetujuanmu. Tanyakan apa saja soal emailmu, atau minta aku membuat bot.',
+        'Hai, aku Fewmail Bot. Aku membaca semua email yang tidak diambil bot-botmu dan hanya menunjukkan yang perlu kamu urus. Tidak ada yang berubah di Gmail tanpa persetujuanmu. Tanyakan apa saja soal emailmu, minta aku mengingatkanmu soal sesuatu, atau membuat bot yang mengurus sebagian emailmu tanpa kamu.',
       own: (name: string) => `Hai, aku ${name}. Ini yang kujaga:`,
     },
     pause: {

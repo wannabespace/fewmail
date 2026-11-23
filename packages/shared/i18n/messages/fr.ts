@@ -1275,13 +1275,14 @@ export const fr: Messages = {
       watching: 'Surveille votre courrier',
     },
     intro: {
-      acts: 'J’agis seul : tout ce que je fais s’affiche ici, et vous pouvez l’annuler.',
-      asks: 'Avant de toucher à un e-mail, je vous le demande ici.',
+      acts: 'J’agis seul, sans vous : tout ce que je fais s’affiche ici, et vous pouvez l’annuler.',
+      asks: 'Avant de toucher à un e-mail, je vous le demande ici. Laissez-moi agir seul, et je m’en occuperai sans vous.',
       board:
-        'Bonjour ! Je suis les promesses et les échéances de votre courrier : ce qu’on vous doit, ce que vous avez promis et ce qui arrive bientôt. Demandez-moi qui vous doit quoi.',
-      change: 'Pour changer ce que je fais, écrivez-moi simplement.',
+        'Bonjour ! Je suis les promesses et les échéances de votre courrier : ce qu’on vous doit, ce que vous avez promis et ce qui arrive bientôt, et je vous le rappelle le jour venu. Demandez-moi qui vous doit quoi.',
+      change:
+        'Écrivez-moi pour changer ce que je fais ou pour que je vous rappelle quelque chose.',
       fewmail:
-        'Bonjour, je suis Fewmail Bot. Je lis tout le courrier qu’aucun de vos bots ne prend et je ne vous montre que ce qui demande votre attention. Rien ne change dans Gmail sans votre accord. Posez-moi vos questions sur votre courrier, ou demandez-moi de créer un bot.',
+        'Bonjour, je suis Fewmail Bot. Je lis tout le courrier qu’aucun de vos bots ne prend et je ne vous montre que ce qui demande votre attention. Rien ne change dans Gmail sans votre accord. Posez-moi vos questions sur votre courrier, demandez-moi de vous rappeler quelque chose ou de créer un bot qui s’occupe d’une partie de votre courrier sans vous.',
       own: (name: string) =>
         `Bonjour, je suis ${name}. Voici ce dont je m’occupe :`,
     },

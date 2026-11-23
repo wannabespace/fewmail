@@ -1260,13 +1260,14 @@ export const de: Messages = {
       watching: 'Behält deine Mail im Blick',
     },
     intro: {
-      acts: 'Ich handle selbst: Alles, was ich tue, steht hier, und du kannst es rückgängig machen.',
-      asks: 'Bevor ich eine E-Mail anfasse, frage ich dich hier.',
+      acts: 'Ich handle selbst, ohne dich: Alles, was ich tue, steht hier, und du kannst es rückgängig machen.',
+      asks: 'Bevor ich eine E-Mail anfasse, frage ich dich hier. Lass mich selbst handeln, dann erledige ich das ohne dich.',
       board:
-        'Hallo! Ich behalte die Versprechen und Fristen aus deiner Mail im Blick: was man dir schuldet, was du versprochen hast und was bald fällig ist. Frag mich, wer dir was schuldet.',
-      change: 'Wenn ich etwas anders machen soll, schreib mir einfach.',
+        'Hallo! Ich behalte die Versprechen und Fristen aus deiner Mail im Blick: was man dir schuldet, was du versprochen hast und was bald fällig ist, und erinnere dich, wenn etwas fällig wird. Frag mich, wer dir was schuldet.',
+      change:
+        'Schreib mir, wenn ich etwas anders machen oder dich an etwas erinnern soll.',
       fewmail:
-        'Hallo, ich bin Fewmail Bot. Ich lese alle Mails, die keiner deiner Bots übernimmt, und zeige dir nur, was dich braucht. In Gmail ändert sich nichts ohne deine Zustimmung. Frag mich alles zu deiner Mail oder bitte mich, einen Bot zu erstellen.',
+        'Hallo, ich bin Fewmail Bot. Ich lese alle Mails, die keiner deiner Bots übernimmt, und zeige dir nur, was dich braucht. In Gmail ändert sich nichts ohne deine Zustimmung. Frag mich alles zu deiner Mail, bitte mich, dich an etwas zu erinnern, oder einen Bot zu erstellen, der einen Teil deiner Mail ohne dich erledigt.',
       own: (name: string) => `Hallo, ich bin ${name}. Darum kümmere ich mich:`,
     },
     pause: {

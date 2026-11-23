@@ -806,13 +806,14 @@ export const tr: Messages = {
       watching: 'Postanı izliyor',
     },
     intro: {
-      acts: 'Kendi başıma yapıyorum: yaptığım her şey burada görünür ve geri alabilirsin.',
-      asks: 'Bir e-postaya dokunmadan önce sana burada soruyorum.',
+      acts: 'Sensiz, kendi başıma yapıyorum: yaptığım her şey burada görünür ve geri alabilirsin.',
+      asks: 'Bir e-postaya dokunmadan önce sana burada soruyorum. Kendi başıma yapmama izin ver, sensiz hallederim.',
       board:
-        'Merhaba! Postandaki sözleri ve son tarihleri takip ediyorum: sana borçlu olunanı, senin söz verdiklerini ve yaklaşanları. Kimin sana ne borçlu olduğunu sor.',
-      change: 'Yaptığımı değiştirmek için bana yazman yeterli.',
+        'Merhaba! Postandaki sözleri ve son tarihleri takip ediyorum: sana borçlu olunanı, senin söz verdiklerini ve yaklaşanları; zamanı gelince de hatırlatırım. Kimin sana ne borçlu olduğunu sor.',
+      change:
+        'Yaptığımı değiştirmek ya da sana bir şeyi hatırlatmamı istemek için bana yazman yeterli.',
       fewmail:
-        'Merhaba, ben Fewmail Bot. Botlarından hiçbirinin almadığı tüm postaları okur ve sana yalnızca seninle ilgili olanları gösteririm. Onayın olmadan Gmail’de hiçbir şey değişmez. Postanla ilgili her şeyi sorabilir ya da benden bir bot yapmamı isteyebilirsin.',
+        'Merhaba, ben Fewmail Bot. Botlarından hiçbirinin almadığı tüm postaları okur ve sana yalnızca seninle ilgili olanları gösteririm. Onayın olmadan Gmail’de hiçbir şey değişmez. Postanla ilgili her şeyi sorabilir, sana bir şeyi hatırlatmamı ya da postanın bir kısmını sensiz halleden bir bot yapmamı isteyebilirsin.',
       own: (name: string) => `Merhaba, ben ${name}. Şununla ilgileniyorum:`,
     },
     pause: {

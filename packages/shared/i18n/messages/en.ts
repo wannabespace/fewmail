@@ -814,13 +814,14 @@ export const en = {
       watching: 'Watching your mail',
     },
     intro: {
-      acts: 'I act on my own: everything I do shows here, and you can undo it.',
-      asks: 'Before I touch an email, I ask you here.',
+      acts: 'I act on my own, without you: everything I do shows here, and you can undo it.',
+      asks: 'Before I touch an email, I ask you here. Let me act on my own, and I will handle it without you.',
       board:
-        'Hi! I keep the promises and last days from your mail: what you are owed, what you promised and what is due soon. Ask me who owes you what.',
-      change: 'To change what I do, just write to me.',
+        'Hi! I keep the promises and last days from your mail: what you are owed, what you promised and what is due soon, and I remind you when one comes due. Ask me who owes you what.',
+      change:
+        'Write to me to change what I do, or to have me remind you of something.',
       fewmail:
-        'Hi, I’m Fewmail Bot. I read all the mail none of your bots takes and show you only what needs you. Nothing changes in Gmail without your approval. Ask me anything about your mail, or ask me to make a bot.',
+        'Hi, I’m Fewmail Bot. I read all the mail none of your bots takes and show you only what needs you. Nothing changes in Gmail without your approval. Ask me anything about your mail, to remind you of something, or to make a bot that handles some of it without you.',
       own: (name: string) => `Hi, I’m ${name}. Here is what I look after:`,
     },
     pause: {
