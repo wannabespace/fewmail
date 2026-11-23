@@ -20,6 +20,7 @@ import {
 import {
   Message,
   MessageActions,
+  MessageBubble,
   MessageContent,
   MessageDay,
   MessageReactions,
@@ -155,42 +156,43 @@ const inlineOf = (line: string) =>
     )
 
 /** The answers' little Markdown (`**bold**`, `- ` lists, `> ` quotes) without a Markdown library: Home stays light. */
-const AnswerText = ({ text }: { text: string }) => (
-  <div className="flex flex-col gap-1.5">
-    {text.split(/\n{2,}/u).map((block, index) => {
-      const lines = block.split('\n')
-      const isQuote = lines.every((line) => line.startsWith('>'))
-      const isList = lines.every((line) => line.startsWith('- '))
-      if (isQuote) {
+const AnswerText = ({ text }: { text: string }) =>
+  text.trim() && (
+    <MessageBubble>
+      {text.split(/\n{2,}/u).map((block, index) => {
+        const lines = block.split('\n')
+        const isQuote = lines.every((line) => line.startsWith('>'))
+        const isList = lines.every((line) => line.startsWith('- '))
+        if (isQuote) {
+          return (
+            <blockquote
+              key={index}
+              data-mask
+              className="border-foreground/20 border-l-2 pl-3 italic"
+            >
+              {lines.map((line, at) => (
+                <p key={at}>{inlineOf(line.replace(/^>\s?/u, ''))}</p>
+              ))}
+            </blockquote>
+          )
+        }
+        if (isList) {
+          return (
+            <ul key={index} data-mask className="list-disc pl-5">
+              {lines.map((line, at) => (
+                <li key={at}>{inlineOf(line.slice(2))}</li>
+              ))}
+            </ul>
+          )
+        }
         return (
-          <blockquote
-            key={index}
-            data-mask
-            className="border-foreground/20 border-l-2 pl-3 italic"
-          >
-            {lines.map((line, at) => (
-              <p key={at}>{inlineOf(line.replace(/^>\s?/u, ''))}</p>
-            ))}
-          </blockquote>
+          <p key={index} data-mask className="whitespace-pre-line">
+            {inlineOf(block)}
+          </p>
         )
-      }
-      if (isList) {
-        return (
-          <ul key={index} data-mask className="list-disc pl-5">
-            {lines.map((line, at) => (
-              <li key={at}>{inlineOf(line.slice(2))}</li>
-            ))}
-          </ul>
-        )
-      }
-      return (
-        <p key={index} data-mask className="whitespace-pre-line">
-          {inlineOf(block)}
-        </p>
-      )
-    })}
-  </div>
-)
+      })}
+    </MessageBubble>
+  )
 
 const CLOCK_SKEW_MS = 60_000
 
@@ -202,9 +204,13 @@ const STATUS_ICONS: Record<Card['action']['status'], IconSvgElement> = {
   pending: Clock01Icon,
 }
 
-/** What the bot says in words; nothing to say draws nothing. */
+/** What the bot says in words, in its bubble; nothing to say draws nothing. */
 const Speech = ({ children }: { children: ReactNode }) =>
-  children ? <p>{children}</p> : null
+  children ? (
+    <MessageBubble>
+      <p>{children}</p>
+    </MessageBubble>
+  ) : null
 
 /** The digest's one sentence, computed from its counts (no model text). */
 export const digestLead = (t: Messages, counts: DigestCounts) =>
@@ -243,13 +249,15 @@ export const DigestHeader = ({
   const Title = isLive ? 'h1' : 'h2'
   return (
     <>
-      {status && <p className="text-muted-foreground text-sm">{status}</p>}
-      {headline === null ? (
-        <Skeleton className="my-1 h-4 w-3/5" />
-      ) : (
-        <Title className="font-medium">{headline}</Title>
-      )}
-      {lead}
+      <MessageBubble>
+        {status && <p className="text-muted-foreground text-sm">{status}</p>}
+        {headline === null ? (
+          <Skeleton className="my-1 h-4 w-48" />
+        ) : (
+          <Title className="font-medium">{headline}</Title>
+        )}
+        {lead}
+      </MessageBubble>
       {children}
       {at && <MessageTime>{dates.format(at, 'p')}</MessageTime>}
     </>
@@ -267,8 +275,8 @@ const TimeOf = ({ at }: { at?: Date }) => {
 }
 
 /**
- * A bot's message: what it says and what it did or offers, straight on the page, then a line with the user's reaction
- * and when. The chat's bar names the bot, so no message does.
+ * A bot's message: what it says in a bubble, what it did or offers under it, then a line with the user's reaction and
+ * when. The chat's bar names the bot, so no message does.
  */
 const BotMessage = ({
   at,
@@ -739,16 +747,14 @@ const PostView = ({ entry }: { entry: Post }) => {
   }
   if (entry.kind === 'nudge') {
     return (
-      <>
-        <Speech>
-          <span data-mask>{entry.text}</span>
-        </Speech>
+      <MessageBubble>
+        <p data-mask>{entry.text}</p>
         {entry.replied !== null && (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground">
             {entry.replied ? t.bots.nudge.replied : t.bots.nudge.noReply}
           </p>
         )}
-      </>
+      </MessageBubble>
     )
   }
   if (entry.kind === 'no_plan') {
@@ -906,14 +912,14 @@ const BotIntro = ({ bot }: { bot: HomeBot }) => {
   }
   return (
     <BotMessage>
-      <Speech>
-        <span data-mask>{t.bots.intro.own(bot.name)}</span>
-      </Speech>
-      <BotJob bot={bot} />
-      <Speech>
-        {bot.own.enabled ? t.bots.intro.acts : t.bots.intro.asks}{' '}
-        {t.bots.intro.change}
-      </Speech>
+      <MessageBubble>
+        <p data-mask>{t.bots.intro.own(bot.name)}</p>
+        <BotJob bot={bot} />
+        <p>
+          {bot.own.enabled ? t.bots.intro.acts : t.bots.intro.asks}{' '}
+          {t.bots.intro.change}
+        </p>
+      </MessageBubble>
     </BotMessage>
   )
 }

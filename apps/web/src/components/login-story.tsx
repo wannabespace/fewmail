@@ -1,6 +1,10 @@
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
-import { Message, MessageContent } from '@fewmail/ui/components/message'
+import {
+  Message,
+  MessageBubble,
+  MessageContent,
+} from '@fewmail/ui/components/message'
 import { cn } from '@fewmail/ui/lib/utils'
 import { Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -159,7 +163,7 @@ const PromiseMessage = () => {
 
   return (
     <BotMessage from={<BotName name={t.starterBots.board.name} />}>
-      <span>{t.bots.promises(1)}</span>
+      <MessageBubble>{t.bots.promises(1)}</MessageBubble>
       <div className="flex flex-col gap-2">
         <span className="text-muted-foreground text-xs">
           {t.board.section.owed}
@@ -193,7 +197,7 @@ const BotMadeMessage = () => {
         </span>
       }
     >
-      <span>{t.bots.created}</span>
+      <MessageBubble>{t.bots.created}</MessageBubble>
     </BotMessage>
   )
 }

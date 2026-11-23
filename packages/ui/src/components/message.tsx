@@ -7,9 +7,9 @@ const MessageContext = createContext<{ from: 'assistant' | 'user' }>({
 })
 
 /**
- * One turn of a chat, as Grok or ChatGPT draws it: the assistant's words straight on the page across the column, the
- * user's in a bubble at the right. Everything the assistant sends (its text, tool blocks, lists) shares that one
- * column, so a reply and a list of its cards read as one voice; a bubble around cards read as a card in a card.
+ * One turn of a chat, as a messenger draws it: the assistant's words in a bubble at the left (`MessageBubble`), the
+ * user's in a bubble at the right. What the assistant sends besides words (tool blocks, lists, cards, buttons) sits
+ * under its bubble across the column, never inside: a bubble around cards read as a card in a card.
  */
 const Message = ({
   children,
@@ -61,7 +61,19 @@ const MessageContent = ({ className, ...props }: ComponentProps<'div'>) => {
   )
 }
 
-/** When it was written: at the bubble's end on the user's, under the words on the assistant's. */
+/** The assistant's words, a bubble at the left on level 3, its tail corner at the bottom left. */
+const MessageBubble = ({ className, ...props }: ComponentProps<'div'>) => (
+  <div
+    data-slot="message-bubble"
+    className={cn(
+      'bg-popover flex w-fit max-w-[85%] flex-col gap-2.5 rounded-2xl rounded-bl-md px-3.5 py-2.5',
+      className
+    )}
+    {...props}
+  />
+)
+
+/** When it was written: at the bubble's end on the user's, under the bubble on the assistant's. */
 const MessageTime = ({ className, ...props }: ComponentProps<'time'>) => {
   const { from } = use(MessageContext)
   return (
@@ -91,7 +103,7 @@ const MessageDay = ({ className, ...props }: ComponentProps<'p'>) => (
 
 /**
  * shadcn's `BubbleReactions`: on the user's bubble, over its edge, ringed in the chat's own background; on the
- * assistant's words, which have no bubble, in the line under them. Goes inside `MessageContent`.
+ * assistant's, in the line under its bubble. Goes inside `MessageContent`.
  */
 const MessageReactions = ({
   align = 'end',
@@ -131,6 +143,7 @@ const MessageActions = ({ className, ...props }: ComponentProps<'div'>) => (
 export {
   Message,
   MessageActions,
+  MessageBubble,
   MessageContent,
   MessageDay,
   MessageReactions,

@@ -10,6 +10,7 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
   Message,
+  MessageBubble,
   MessageContent,
   MessageTime,
 } from '@fewmail/ui/components/message'
@@ -699,18 +700,26 @@ const LAST_AT: Record<DeskChat, string> = {
   quick: '08:02',
 }
 
+/** A message as the app draws it: the bot's words in a bubble at the left, what it offers (`offers`) under it. */
 const Said = ({
   children,
   from = 'assistant',
+  offers,
   time,
 }: {
   children: ReactNode
   from?: 'assistant' | 'user'
+  offers?: ReactNode
   time: string
 }) => (
   <Message from={from}>
     <MessageContent>
-      {children}
+      {from === 'assistant' ? (
+        <MessageBubble>{children}</MessageBubble>
+      ) : (
+        children
+      )}
+      {offers}
       <MessageTime>{time}</MessageTime>
     </MessageContent>
   </Message>
@@ -897,22 +906,28 @@ const FewmailChat = ({
       {isMade ? (
         <Said time={LAST_AT.made}>{t.bots.created}</Said>
       ) : (
-        <Said time={LAST_AT.fewmail}>
+        <Said
+          time={LAST_AT.fewmail}
+          offers={
+            <>
+              <Item variant="muted" size="xs">
+                <DeskAvatar chat="made" name={fewmail.botName} />
+                <ItemContent>
+                  <ItemTitle>{fewmail.botName}</ItemTitle>
+                  <ItemDescription>
+                    {t.bots.effect.mark_read} · {t.bots.status.asks}
+                  </ItemDescription>
+                </ItemContent>
+              </Item>
+              <div>
+                <Button size="sm" onClick={onMake}>
+                  {fewmail.approve}
+                </Button>
+              </div>
+            </>
+          }
+        >
           <span>{fewmail.proposal}</span>
-          <Item variant="muted" size="xs">
-            <DeskAvatar chat="made" name={fewmail.botName} />
-            <ItemContent>
-              <ItemTitle>{fewmail.botName}</ItemTitle>
-              <ItemDescription>
-                {t.bots.effect.mark_read} · {t.bots.status.asks}
-              </ItemDescription>
-            </ItemContent>
-          </Item>
-          <div>
-            <Button size="sm" onClick={onMake}>
-              {fewmail.approve}
-            </Button>
-          </div>
         </Said>
       )}
     </>
