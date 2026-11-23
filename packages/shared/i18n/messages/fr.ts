@@ -1737,20 +1737,15 @@ export const fr: Messages = {
       running: 'Rangement…',
       unsubscribeHint:
         'Certains sont des listes dont Fewmail vous désabonnera, ce qui ne peut pas être annulé.',
-      archive: (n: number) => `${n} à archiver`,
       review: 'Vérifier',
       reviewLead:
-        'Chaque e-mail avec ce que l’agent ferait et pourquoi. Approuvez ce qui vous convient, gardez ce qui doit rester tel quel.',
+        'Je propose de ranger ces e-mails, avec la raison à côté de chacun. Approuvez-les tous d’un coup ou gardez ceux qui doivent rester.',
       reviewTitle: 'Vérifiez ce que l’agent propose',
       done: (n: number) => `${n} rangés`,
       keep: 'Garder',
-      mark_read: (n: number) => `${n} à marquer comme lus`,
       run: 'Tout approuver',
-      unsubscribe: (n: number) => `${n} à désabonner`,
       untilYouApprove:
         'Rien ne change dans votre boîte tant que vous n’approuvez pas',
-      spam: (n: number) => `${n} en spam`,
-      trash: (n: number) => `${n} à supprimer`,
     },
     pauseListening: 'Pause',
     resumeListening: 'Reprendre',

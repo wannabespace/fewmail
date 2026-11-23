@@ -1711,20 +1711,15 @@ export const de: Messages = {
       running: 'Wird aufgeräumt…',
       unsubscribeHint:
         'Darunter sind Verteiler, von denen Fewmail dich abmeldet, und eine Abmeldung lässt sich nicht rückgängig machen.',
-      archive: (n: number) => `${n} archivieren`,
       review: 'Prüfen',
       reviewLead:
-        'Jede E-Mail mit dem, was der Agent tun würde, und warum. Bestätige, was passt, und behalte, was bleiben soll, wie es ist.',
+        'Diese E-Mails würde ich wegräumen, bei jeder steht, warum. Bestätige alle auf einmal oder behalte die, die bleiben sollen.',
       reviewTitle: 'Prüfe, was der Agent vorschlägt',
       done: (n: number) => `${n} aufgeräumt`,
       keep: 'Behalten',
-      mark_read: (n: number) => `${n} als gelesen markieren`,
       run: 'Alle bestätigen',
-      unsubscribe: (n: number) => `${n} abbestellen`,
       untilYouApprove:
         'In deinem Postfach ändert sich nichts, bis du zustimmst',
-      spam: (n: number) => `${n} in Spam`,
-      trash: (n: number) => `${n} löschen`,
     },
     pauseListening: 'Pause',
     resumeListening: 'Weiter',

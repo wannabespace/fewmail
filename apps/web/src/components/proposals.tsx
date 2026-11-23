@@ -2,16 +2,16 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import { botOfCard, PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import type { ProposalKind } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
-import {
-  SettingsGroup,
-  SettingsRow,
-} from '@fewmail/ui/components/custom/settings-group'
+import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
+import { Mail01Icon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { NowMessage } from '~/components/bot-chat'
 import { confirm } from '~/components/confirm-dialog'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
 import { PaneRows } from '~/components/pane-rows'
@@ -205,7 +205,9 @@ const byKind = (proposals: Proposal[]) =>
     rows: proposals.filter((proposal) => proposal.kind === kind),
   })).filter(({ rows }) => rows.length > 0)
 
-/** Every proposal by what it would do: ⏎ approves the cursor's, S keeps the email as it is. */
+const PROPOSALS_SHOWN = 5
+
+/** Every proposal by what it would do, each kind folded to its first few: ⏎ approves the cursor's, S keeps the email as it is. */
 export const ProposalsReview = ({
   canUseKeys,
   proposals,
@@ -215,11 +217,25 @@ export const ProposalsReview = ({
 }) => {
   const t = useT()
   const [cursor, setCursor] = useState<number | null>(null)
-  const groups = byKind(proposals.proposals)
-  const rows = groups.flatMap(({ rows: group }) => group)
+  const [unfolded, setUnfolded] = useState<ProposalKind[]>([])
+  const groups = byKind(proposals.proposals).map((group) => ({
+    ...group,
+    isUnfolded: unfolded.includes(group.kind),
+    shown: unfolded.includes(group.kind)
+      ? group.rows
+      : group.rows.slice(0, PROPOSALS_SHOWN),
+  }))
+  const all = groups.flatMap(({ rows }) => rows)
+  const rows = groups.flatMap(({ shown }) => shown)
   // The cursor keeps its place as rows leave: the next one slides under it.
   const current = cursor === null ? -1 : Math.min(cursor, rows.length - 1)
   const selected = rows[current]
+  const toggle = (kind: ProposalKind) =>
+    setUnfolded((kinds) =>
+      kinds.includes(kind)
+        ? kinds.filter((each) => each !== kind)
+        : [...kinds, kind]
+    )
 
   const move = (step: number) =>
     setCursor(Math.max(0, Math.min(rows.length - 1, current + step)))
@@ -231,7 +247,7 @@ export const ProposalsReview = ({
   useHotkey('ArrowUp', () => move(-1), listKeys)
   useHotkey('Enter', () => selected && proposals.approve([selected]), keys)
   useHotkey('S', () => selected && proposals.keep(selected), keys)
-  useHotkey('T', () => proposals.approve(rows), listKeys)
+  useHotkey('T', () => proposals.approve(all), listKeys)
   useHotkey(
     'O',
     () =>
@@ -245,89 +261,112 @@ export const ProposalsReview = ({
 
   return (
     <>
-      <div className="flex items-center gap-3">
-        <p className="text-brief text-foreground/80 flex-1 font-serif text-balance">
-          {t.today.tidy.reviewLead}
-        </p>
+      <NowMessage isWide={false}>
+        <p>{t.today.tidy.reviewLead}</p>
         <Button
           size="sm"
-          onClick={() => proposals.approve(rows)}
+          className="self-start"
+          onClick={() => proposals.approve(all)}
           shortcut={<Kbd>T</Kbd>}
         >
           {t.today.tidy.run}
-          <span className="tabular-nums">{rows.length}</span>
+          <span className="tabular-nums">{all.length}</span>
         </Button>
-      </div>
-      <div className="flex flex-col gap-8">
-        {groups.map(({ kind, rows: group }) => (
-          <SettingsGroup
-            key={kind}
-            title={
-              <span className="inline-block first-letter:uppercase">
-                {t.today.tidy[kind](group.length)}
-              </span>
-            }
-          >
-            <PaneRows rowKey={({ id }) => id} rows={group}>
-              {(proposal, place) => {
-                const isActive = proposal === selected
-                const { message } = proposal
-                return (
-                  <SettingsRow
-                    {...place}
-                    active={isActive}
-                    trigger={
-                      message ? (
-                        <ExpandTrigger
-                          email={{ from: 'home', threadId: message.threadId }}
-                          rowId={proposal.id}
-                        />
-                      ) : undefined
-                    }
-                    iconVariant="avatar"
-                    icon={
-                      message && <SenderAvatar sender={message} size="sm" />
-                    }
-                    title={
-                      message ? (
-                        <span data-mask>
-                          {message.fromName ?? message.fromEmail}
-                        </span>
-                      ) : (
-                        t.actionKind[kind]
-                      )
-                    }
-                    description={
-                      <span data-mask>
-                        {[message?.subject, proposal.why]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </span>
-                    }
+      </NowMessage>
+      <NowMessage>
+        {groups.map((group) => (
+          <Tool key={group.kind} open>
+            <ToolHeader
+              icon={Mail01Icon}
+              isOpenable={false}
+              title={
+                <>
+                  {t.actionKind[group.kind]}
+                  <span className="text-muted-foreground ml-1.5 tabular-nums">
+                    {group.rows.length}
+                  </span>
+                </>
+              }
+              action={
+                group.rows.length > PROPOSALS_SHOWN && (
+                  <Button
+                    size="xs"
+                    variant="link-muted"
+                    onClick={() => toggle(group.kind)}
                   >
-                    <Button
-                      size="sm"
-                      variant="ghost-tint-muted"
-                      onClick={() => proposals.keep(proposal)}
-                      shortcut={isActive ? <Kbd>S</Kbd> : undefined}
-                    >
-                      {t.today.tidy.keep}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => proposals.approve([proposal])}
-                      shortcut={isActive ? <Kbd>⏎</Kbd> : undefined}
-                    >
-                      {t.actionKind[kind]}
-                    </Button>
-                  </SettingsRow>
+                    {group.isUnfolded
+                      ? t.mail.showFewer
+                      : t.mail.showAll(group.rows.length)}
+                  </Button>
                 )
-              }}
-            </PaneRows>
-          </SettingsGroup>
+              }
+            />
+            <ToolContent variant="rows">
+              <PaneRows
+                listKey={`${group.kind}:${group.isUnfolded}`}
+                rowKey={({ id }) => id}
+                rows={group.shown}
+              >
+                {(proposal, place) => {
+                  const isActive = proposal === selected
+                  const { message } = proposal
+                  return (
+                    <SettingsRow
+                      {...place}
+                      active={isActive}
+                      trigger={
+                        message ? (
+                          <ExpandTrigger
+                            email={{ from: 'home', threadId: message.threadId }}
+                            rowId={proposal.id}
+                          />
+                        ) : undefined
+                      }
+                      iconVariant="avatar"
+                      icon={
+                        message && <SenderAvatar sender={message} size="sm" />
+                      }
+                      title={
+                        message ? (
+                          <span data-mask>
+                            {message.fromName ?? message.fromEmail}
+                          </span>
+                        ) : (
+                          t.actionKind[proposal.kind]
+                        )
+                      }
+                      description={
+                        <span data-mask>
+                          {[message?.subject, proposal.why]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      }
+                    >
+                      <Button
+                        size="sm"
+                        variant="ghost-tint-muted"
+                        onClick={() => proposals.keep(proposal)}
+                        shortcut={isActive ? <Kbd>S</Kbd> : undefined}
+                      >
+                        {t.today.tidy.keep}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => proposals.approve([proposal])}
+                        shortcut={isActive ? <Kbd>⏎</Kbd> : undefined}
+                      >
+                        {t.actionKind[proposal.kind]}
+                      </Button>
+                    </SettingsRow>
+                  )
+                }}
+              </PaneRows>
+            </ToolContent>
+          </Tool>
         ))}
-      </div>
+      </NowMessage>
     </>
   )
 }

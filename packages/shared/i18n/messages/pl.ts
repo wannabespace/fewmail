@@ -1902,20 +1902,15 @@ export const pl: Messages = {
       running: 'Porządkowanie…',
       unsubscribeHint:
         'Wśród nich są listy, z których Fewmail cię wypisze, a wypisania nie można cofnąć.',
-      archive: (n: number) => `do archiwizacji: ${n}`,
       review: 'Sprawdź',
       reviewLead:
-        'Każdy e-mail z tym, co zrobiłby agent, i dlaczego. Zatwierdź to, co wygląda dobrze, zostaw to, co ma zostać bez zmian.',
+        'Proponuję uprzątnąć te e-maile, przy każdym piszę dlaczego. Zatwierdź wszystkie naraz albo zostaw te, które mają zostać.',
       reviewTitle: 'Sprawdź, co proponuje agent',
       done: (n: number) => `Uporządkowane: ${n}`,
       keep: 'Zostaw',
-      mark_read: (n: number) => `do oznaczenia jako przeczytane: ${n}`,
       run: 'Zatwierdź wszystko',
-      unsubscribe: (n: number) => `do wypisania się: ${n}`,
       untilYouApprove:
         'Nic w twojej poczcie się nie zmieni, dopóki nie zatwierdzisz',
-      spam: (n: number) => `do spamu: ${n}`,
-      trash: (n: number) => `do usunięcia: ${n}`,
     },
     pauseListening: 'Wstrzymaj',
     resumeListening: 'Wznów',

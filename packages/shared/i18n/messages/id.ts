@@ -1837,20 +1837,15 @@ export const id: Messages = {
       running: 'Merapikan…',
       unsubscribeHint:
         'Sebagian adalah milis yang akan ditinggalkan Fewmail, dan itu tidak bisa dibatalkan.',
-      archive: (n: number) => `${n} untuk diarsipkan`,
       review: 'Periksa',
       reviewLead:
-        'Setiap email dengan apa yang akan dilakukan agen dan alasannya. Setujui yang tepat, simpan yang harus tetap seperti semula.',
+        'Email ini sebaiknya saya rapikan, alasannya ada di samping masing-masing. Setujui semuanya sekaligus, atau simpan yang harus tetap ada.',
       reviewTitle: 'Periksa saran agen',
       done: (n: number) => `${n} dirapikan`,
       keep: 'Simpan',
-      mark_read: (n: number) => `${n} untuk ditandai dibaca`,
       run: 'Setujui semua',
-      unsubscribe: (n: number) => `${n} untuk berhenti langganan`,
       untilYouApprove:
         'Tidak ada yang berubah di email kamu sampai kamu menyetujuinya',
-      spam: (n: number) => `${n} ke spam`,
-      trash: (n: number) => `${n} untuk dihapus`,
     },
     pauseListening: 'Jeda',
     resumeListening: 'Lanjutkan',

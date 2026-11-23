@@ -1543,12 +1543,10 @@ const HomePage = () => {
         />
       </NowMessage>
       {proposals.proposals.length > 0 && (
-        <NowMessage>
-          <ProposalsReview
-            canUseKeys={isFocused && stops.length === 0}
-            proposals={proposals}
-          />
-        </NowMessage>
+        <ProposalsReview
+          canUseKeys={isFocused && stops.length === 0}
+          proposals={proposals}
+        />
       )}
       <NowMessage>
         <div className="flex flex-col gap-2.5 empty:hidden">
