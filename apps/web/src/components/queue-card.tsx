@@ -26,6 +26,11 @@ import {
   InputGroupInput,
 } from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@fewmail/ui/components/tooltip'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Calendar03Icon,
@@ -320,19 +325,49 @@ const QueueCardHeader = ({
             </span>
           )}
         </span>
-        <span
-          data-mask
-          className={cn(
-            'truncate',
+        <CutLine
+          className={
             action.kind === 'security'
               ? 'text-destructive'
               : 'text-muted-foreground'
-          )}
+          }
         >
           {cardHeadlineOf(item)}
-        </span>
+        </CutLine>
       </span>
     </AccordionTrigger>
+  )
+}
+
+/** One line that ends in … when it does not fit, and then says itself in full on hover. */
+const CutLine = ({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className: string
+}) => {
+  const line = useRef<HTMLSpanElement>(null)
+  return (
+    <Tooltip
+      onOpenChange={(isOpening, details) => {
+        const shown = line.current
+        if (isOpening && !(shown && shown.scrollWidth > shown.clientWidth)) {
+          details.cancel()
+        }
+      }}
+    >
+      <TooltipTrigger
+        render={
+          <span ref={line} data-mask className={cn('truncate', className)} />
+        }
+      >
+        {children}
+      </TooltipTrigger>
+      <TooltipContent side="bottom" align="start">
+        <span data-mask>{children}</span>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
