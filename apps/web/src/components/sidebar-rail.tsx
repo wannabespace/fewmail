@@ -15,23 +15,25 @@ export const FADES_IN_RAIL =
 export const GUIDE_IN_RAIL =
   'ms-4.5 border-s ps-1.5 transition-[margin,padding,border-color] duration-250 ease-house group-data-collapsed/sidebar:ms-0 group-data-collapsed/sidebar:border-transparent group-data-collapsed/sidebar:ps-0'
 
-/** In the rail a row's name is gone, so it moves into a tooltip to the right. */
+/** In the rail a row's name is gone, so it moves into a tooltip to the right; out of it, the tooltip says in full what the row cut short (`cut`), if anything. */
 export const RailTip = ({
   children,
+  cut,
   isCollapsed,
   label,
   shortcut,
 }: {
   children: ReactElement
+  cut?: ReactNode
   isCollapsed: boolean
   label: ReactNode
   shortcut?: ReactNode
 }) => (
   <Tooltip
-    disabled={!isCollapsed}
+    disabled={!isCollapsed && !cut}
     shortcut={isCollapsed ? shortcut : undefined}
   >
     <TooltipTrigger render={children} />
-    <TooltipContent side="right">{label}</TooltipContent>
+    <TooltipContent side="right">{isCollapsed ? label : cut}</TooltipContent>
   </Tooltip>
 )

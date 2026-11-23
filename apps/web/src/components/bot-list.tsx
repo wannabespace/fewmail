@@ -40,7 +40,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence } from 'motion/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -445,12 +445,16 @@ export const BotListRow = ({
   const line = lineOf(t, bot, useWaitingIds())
   const pausedLine =
     pausedUntil && t.bots.status.paused(dates.format(pausedUntil, 'd MMM'))
+  const preview = pausedLine || line || bot.job
+  const previewRef = useRef<HTMLSpanElement>(null)
+  const [isPreviewCut, setIsPreviewCut] = useState(false)
   return (
     // No ⋯ on a chat row, as in a messenger: over every row it read as one more ellipsis beside the cut preview. Its menu is the right click here and the ⋯ in the chat's bar.
     <ContextMenu>
       <ContextMenuTrigger render={<div />}>
         <RailTip
           isCollapsed={isCollapsed}
+          cut={isPreviewCut && <span data-mask>{preview}</span>}
           label={
             <>
               <span data-mask={!!bot.own}>{bot.name}</span>
@@ -465,6 +469,10 @@ export const BotListRow = ({
             aria-current={isOpen || undefined}
             aria-label={isCollapsed ? bot.name : undefined}
             onClick={onOpen}
+            onPointerEnter={() => {
+              const cut = previewRef.current
+              setIsPreviewCut(!!cut && cut.scrollWidth > cut.clientWidth)
+            }}
             className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring ease-house flex w-full shrink-0 cursor-pointer items-center gap-2.5 overflow-hidden rounded-lg px-2 py-1.5 text-left text-sm transition-[padding] duration-250 outline-none group-data-collapsed/sidebar:px-0.5"
           >
             <span
@@ -506,10 +514,11 @@ export const BotListRow = ({
               </span>
               <span className="flex items-center gap-1.5">
                 <span
+                  ref={previewRef}
                   data-mask
                   className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
                 >
-                  {pausedLine || line || bot.job}
+                  {preview}
                 </span>
                 {bot.unread > 0 && (
                   <span
