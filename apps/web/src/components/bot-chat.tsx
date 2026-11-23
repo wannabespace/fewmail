@@ -25,7 +25,10 @@ import {
   MessageReactions,
   MessageTime,
 } from '@fewmail/ui/components/message'
-import { MessageScrollerItem } from '@fewmail/ui/components/message-scroller'
+import {
+  MessageScrollerItem,
+  useMessageScroller,
+} from '@fewmail/ui/components/message-scroller'
 import {
   Popover,
   PopoverContent,
@@ -59,7 +62,15 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import type { InfiniteData } from '@tanstack/react-query'
 import { isSameDay, isToday } from 'date-fns'
-import { createContext, Fragment, use, useEffect, useState } from 'react'
+import {
+  createContext,
+  Fragment,
+  use,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { toast } from 'sonner'
@@ -914,6 +925,73 @@ export const BotJob = ({ bot }: { bot: HomeBot }) => (
   </blockquote>
 )
 
+const INTRO_ID = 'intro'
+
+/** Room left over the first unread message, so its day chip still shows above it. */
+const UNREAD_PEEK_PX = 48
+
+const firstUnreadOf = (
+  shown: Entry[],
+  since: Date | null,
+  isIntroShown: boolean
+) => {
+  const unread =
+    since &&
+    shown.find(
+      (entry) =>
+        entry.at > since && !(entry.type === 'post' && entry.kind === 'message')
+    )
+  if (!unread) {
+    return null
+  }
+  return unread === shown[0] && isIntroShown ? INTRO_ID : unread.id
+}
+
+/**
+ * A chat opens at the first thing its bot said since the user last looked (its intro when all of it is new), when what
+ * came since is taller than the chat; otherwise at its end. That moment is kept from when the chat opened: opening it
+ * reads it, and the refreshed list says nothing is new.
+ */
+const useOpenAtUnread = (
+  bot: HomeBot,
+  shown: Entry[],
+  { isIntroShown, isLoaded }: { isIntroShown: boolean; isLoaded: boolean }
+) => {
+  const [opening, setOpening] = useState<{
+    since: Date | null
+    target?: string | null
+  }>({ since: bot.unread > 0 ? bot.unreadSince : null })
+  const { target } = opening
+  if (target === undefined && isLoaded) {
+    setOpening({
+      ...opening,
+      target: firstUnreadOf(shown, opening.since, isIntroShown),
+    })
+  }
+  const { scrollToMessage } = useMessageScroller()
+  const ref = useRef<HTMLDivElement>(null)
+  // Before paint, or the chat shows its end for a frame and jumps.
+  useLayoutEffect(() => {
+    const item = ref.current
+    const viewport = item?.closest('[data-slot="message-scroller-viewport"]')
+    if (!target || !item || !viewport) {
+      return
+    }
+    const top =
+      item.getBoundingClientRect().top -
+      viewport.getBoundingClientRect().top +
+      viewport.scrollTop
+    // The intro even when it all fits: the suggestions over the composer come later and would push its first line out.
+    if (
+      target === INTRO_ID ||
+      viewport.scrollHeight - top > viewport.clientHeight
+    ) {
+      scrollToMessage(target, { scrollMargin: UNREAD_PEEK_PX })
+    }
+  }, [scrollToMessage, target])
+  return [ref, target] as const
+}
+
 /**
  * The chat with one bot, oldest first, older days on demand; `children` is what it waits on now, after its latest report.
  * Its parts are the page's `MessageScrollerContent` children, so it renders no box of its own; the message being sent anchors at the top while its answer streams in.
@@ -954,6 +1032,23 @@ export const BotTimeline = ({
   const said = entries.slice(lastReport + 1)
   const isMine = asking?.bot === bot.bot
   const { isSent, shownSaid } = useSentAnchor(isMine ? asking : null, said)
+  const isIntroShown = !!data && !hasNextPage
+  const [unreadRef, opensAt] = useOpenAtUnread(
+    bot,
+    [...reported, ...shownSaid],
+    {
+      isIntroShown,
+      isLoaded: !!data,
+    }
+  )
+  const view = (entry: Entry) =>
+    entry.id === opensAt ? (
+      <MessageScrollerItem ref={unreadRef} messageId={entry.id}>
+        <EntryView entry={entry} />
+      </MessageScrollerItem>
+    ) : (
+      <EntryView entry={entry} />
+    )
 
   return (
     <ChatBot value={bot}>
@@ -970,11 +1065,18 @@ export const BotTimeline = ({
           {t.bots.earlier}
         </Button>
       )}
-      {data && !hasNextPage && <BotIntro bot={bot} />}
+      {isIntroShown &&
+        (opensAt === INTRO_ID ? (
+          <MessageScrollerItem ref={unreadRef} messageId={INTRO_ID}>
+            <BotIntro bot={bot} />
+          </MessageScrollerItem>
+        ) : (
+          <BotIntro bot={bot} />
+        ))}
       {reported.map((entry) => (
         <Fragment key={entry.id}>
           <DayOf entries={entries} entry={entry} />
-          <EntryView entry={entry} />
+          {view(entry)}
         </Fragment>
       ))}
       {children}
@@ -986,7 +1088,7 @@ export const BotTimeline = ({
               <EntryView entry={entry} />
             </MessageScrollerItem>
           ) : (
-            <EntryView entry={entry} />
+            view(entry)
           )}
         </Fragment>
       ))}

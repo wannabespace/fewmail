@@ -401,7 +401,7 @@ const newSince = (entry: BotEntry, since: Date) => {
   return !isUsers && entry.at > since ? 1 : 0
 }
 
-/** Home's list: each bot's latest message, how much came since the user last looked, and whether it may notify. */
+/** Home's list: each bot's latest message, how much came since the user last looked and from when, and whether it may notify. */
 export const listBotChats = async (userId: string) => {
   const now = new Date()
   const found = await botsOf(userId)
@@ -428,6 +428,7 @@ export const listBotChats = async (userId: string) => {
       unread: chat
         .map((entry) => newSince(entry, since))
         .reduce((sum, count) => sum + count, 0),
+      unreadSince: since,
     }
   })
 }

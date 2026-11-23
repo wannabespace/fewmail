@@ -2,7 +2,10 @@ import { Button } from '@fewmail/ui/components/button'
 import { cn } from '@fewmail/ui/lib/utils'
 import { ArrowDown02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { MessageScroller as MessageScrollerPrimitive } from '@shadcn/react/message-scroller'
+import {
+  MessageScroller as MessageScrollerPrimitive,
+  useMessageScroller,
+} from '@shadcn/react/message-scroller'
 import type { ComponentProps } from 'react'
 
 const MessageScrollerProvider = (
@@ -91,4 +94,5 @@ export {
   MessageScrollerItem,
   MessageScrollerProvider,
   MessageScrollerViewport,
+  useMessageScroller,
 }
