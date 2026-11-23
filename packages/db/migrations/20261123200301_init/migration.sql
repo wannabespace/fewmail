@@ -242,7 +242,7 @@ CREATE TABLE "messages" (
 	"body" text NOT NULL,
 	"auth" jsonb,
 	"bulk_count" integer,
-	"cc" text NOT NULL,
+	"cc" text[] NOT NULL,
 	"code" text,
 	"from_domain" text NOT NULL,
 	"from_email" text NOT NULL,
@@ -269,7 +269,7 @@ CREATE TABLE "messages" (
 	"suspicion" smallint,
 	"subject" text NOT NULL,
 	"thread_id" text NOT NULL,
-	"to" text NOT NULL,
+	"to" text[] NOT NULL,
 	"user_id" uuid NOT NULL
 );
 --> statement-breakpoint
@@ -403,8 +403,8 @@ CREATE TABLE "outbox" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"action_id" uuid,
 	"attachments" text,
-	"bcc" text NOT NULL,
-	"cc" text NOT NULL,
+	"bcc" text[] NOT NULL,
+	"cc" text[] NOT NULL,
 	"error" text,
 	"html" text NOT NULL,
 	"in_reply_to" text,
@@ -418,7 +418,7 @@ CREATE TABLE "outbox" (
 	"subject" text NOT NULL,
 	"text" text NOT NULL,
 	"thread_id" text,
-	"to" text NOT NULL,
+	"to" text[] NOT NULL,
 	"user_id" uuid NOT NULL
 );
 --> statement-breakpoint

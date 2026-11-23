@@ -37,7 +37,7 @@ const searchableTextType = customType<{ data: string; driverData: string }>({
 
 export const searchableText = () => searchableTextType()
 
-/** Deterministic per element, so `arrayContains` finds an address. */
+/** Deterministic per element, so `arrayContains` finds an address. drizzle-kit writes its column as `text` in a CREATE TABLE: make it `text[]` by hand, or its gin index fails to build. */
 export const searchableTextArray = customType<{
   data: string[]
   driverData: string[]
