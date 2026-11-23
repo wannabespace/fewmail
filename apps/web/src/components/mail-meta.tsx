@@ -4,9 +4,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
+import { useNow } from '@fewmail/ui/hooks/use-now'
 import { cn } from '@fewmail/ui/lib/utils'
 import { isToday, parseISO } from 'date-fns'
-import { useEffect, useState } from 'react'
 
 import { useDates, useLocale, useMoneyFormat, useT } from '~/lib/i18n'
 
@@ -22,16 +22,8 @@ export const RowTime = ({ date }: { date: Date }) => {
   const t = useT()
   const locale = useLocale()
   const dates = useDates()
-  const [now, setNow] = useState(Date.now)
-  const age = now - date.getTime()
+  const age = useNow(60_000, date.getTime() + HOUR) - date.getTime()
   const isRecent = age < HOUR
-  useEffect(() => {
-    if (!isRecent) {
-      return
-    }
-    const timer = setInterval(() => setNow(Date.now()), 60_000)
-    return () => clearInterval(timer)
-  }, [isRecent])
   if (age < 60_000) {
     return t.justNow
   }

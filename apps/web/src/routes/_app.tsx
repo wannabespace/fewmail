@@ -171,8 +171,6 @@ const AppLayout = () => {
   }, [router])
   useEffect(() => {
     void mailRowsOf().preload()
-  }, [])
-  useEffect(() => {
     const controller = new AbortController()
     void listenForChanges(controller.signal)
     return () => controller.abort()

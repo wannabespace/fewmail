@@ -46,6 +46,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
+import { useLoadNearEnd } from '@fewmail/ui/hooks/use-load-near-end'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -2017,23 +2018,10 @@ const OlderRowsLoader = ({
   load,
 }: ReturnType<typeof useOlderRows>) => {
   const t = useT()
-  const ref = useRef<HTMLLIElement>(null)
-  useEffect(() => {
-    const node = ref.current
-    if (!node || !hasMore || isLoading || isFailed) {
-      return
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          load()
-        }
-      },
-      { root: node.closest('ul'), rootMargin: '0px 0px 600px 0px' }
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [hasMore, isFailed, isLoading, load])
+  const ref = useLoadNearEnd<HTMLLIElement>(load, {
+    isEnabled: hasMore && !isLoading && !isFailed,
+    root: 'ul',
+  })
   return (
     <li ref={ref} hidden={!hasMore} className="flex justify-center py-3">
       {isLoading && <Spinner label={t.nav.loading} />}

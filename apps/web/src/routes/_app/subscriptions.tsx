@@ -14,6 +14,7 @@ import {
 } from '@fewmail/ui/components/empty'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { useLoadNearEnd } from '@fewmail/ui/hooks/use-load-near-end'
 import { MailRemove01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -58,23 +59,10 @@ const NextPageLoader = ({
   load: () => unknown
 }) => {
   const t = useT()
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const node = ref.current
-    if (!node || !hasMore || isLoading) {
-      return
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          load()
-        }
-      },
-      { root: node.closest('main > div'), rootMargin: '0px 0px 600px 0px' }
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [hasMore, isLoading, load])
+  const ref = useLoadNearEnd<HTMLDivElement>(load, {
+    isEnabled: hasMore && !isLoading,
+    root: 'main > div',
+  })
   return (
     <div ref={ref} hidden={!hasMore} className="flex justify-center py-3">
       {isLoading && <Spinner label={t.nav.loading} />}

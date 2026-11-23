@@ -19,7 +19,7 @@ import { Input } from '@fewmail/ui/components/input'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Switch } from '@fewmail/ui/components/switch'
 import { Textarea } from '@fewmail/ui/components/textarea'
-import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { createDebouncedFn } from 'seitu'
 import { toast } from 'sonner'
@@ -49,15 +49,12 @@ const READ_PAUSE_MS = 500
 const READ_CHARS = 2000
 
 /** Jev reads the text once typing pauses, so saving rarely waits on it; changed words that do not say what to do only collect. */
-const useReadEffect = (text: string, bot: OwnBot | null, t: Messages) => {
-  const [typed, setTyped] = useState(text)
+const useReadEffect = (bot: OwnBot | null, t: Messages) => {
   const afterTyping = useMemo(
-    () => createDebouncedFn(setTyped, READ_PAUSE_MS),
+    () => createDebouncedFn((run: () => void) => run(), READ_PAUSE_MS),
     []
   )
-  useEffect(() => {
-    afterTyping(text)
-  }, [afterTyping, text])
+  // A read still waiting when the form closes would cost a model call nobody saves.
   useEffect(() => afterTyping.cancel, [afterTyping])
   const asked = (value: string) => {
     const words = value.trim()
@@ -65,26 +62,27 @@ const useReadEffect = (text: string, bot: OwnBot | null, t: Messages) => {
       ? { simple: !!bot?.match, text: words.slice(0, READ_CHARS) }
       : null
   }
-  useQuery(
+  const queryOf = (input: NonNullable<ReturnType<typeof asked>>) =>
     orpc.bots.readEffect.queryOptions({
-      input: asked(typed) ?? skipToken,
+      input,
       staleTime: Number.POSITIVE_INFINITY,
     })
-  )
-  /** Saving right after a keystroke reads the words as they stand, never the read from before the pause. */
-  return async (): Promise<MailBotEffect> => {
-    const latest = asked(text)
-    if (!latest) {
-      return bot && bot.effect !== BOARD_EFFECT ? bot.effect : 'collect'
-    }
-    return (
-      (await queryClient.fetchQuery(
-        orpc.bots.readEffect.queryOptions({
-          input: latest,
-          staleTime: Number.POSITIVE_INFINITY,
-        })
-      )) ?? 'collect'
-    )
+  return {
+    readAhead: (text: string) =>
+      afterTyping(() => {
+        const input = asked(text)
+        if (input) {
+          void queryClient.prefetchQuery(queryOf(input))
+        }
+      }),
+    /** Saving right after a keystroke reads the words as they stand, never the read from before the pause. */
+    read: async (text: string): Promise<MailBotEffect> => {
+      const latest = asked(text)
+      if (!latest) {
+        return bot && bot.effect !== BOARD_EFFECT ? bot.effect : 'collect'
+      }
+      return (await queryClient.fetchQuery(queryOf(latest))) ?? 'collect'
+    },
   }
 }
 
@@ -210,7 +208,7 @@ export const BotForm = ({
 }) => {
   const t = useT()
   const [draft, setDraft] = useState(() => draftOf(bot, t))
-  const readEffect = useReadEffect(draft.text, bot, t)
+  const readEffect = useReadEffect(bot, t)
   const done = (message: string) => {
     toast.success(message)
     onClose?.()
@@ -262,7 +260,7 @@ export const BotForm = ({
       return
     }
     const fields = {
-      effect: await readEffect(),
+      effect: await readEffect.read(draft.text),
       enabled: draft.enabled,
       name: draft.name.trim(),
     }
@@ -306,9 +304,12 @@ export const BotForm = ({
         draft={draft}
         hasMatch={!!bot?.match}
         isBoard={isBoard}
-        onChange={(change) =>
+        onChange={(change) => {
+          if (change.text !== undefined) {
+            readEffect.readAhead(change.text)
+          }
           setDraft((current) => ({ ...current, ...change }))
-        }
+        }}
       />
       <DialogFooter>
         {bot && (

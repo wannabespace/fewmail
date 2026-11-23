@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
-import { collapseExpanded } from '~/components/expand-row'
+import { collapseExpanded, expandedThread } from '~/components/expand-row'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 import { posthog } from '~/lib/posthog'
@@ -33,6 +33,13 @@ export const closeSender = () => {
     shownStore.set({ ...shown, isOpen: false })
   }
 }
+
+// An email opened from the chat takes the same sidebar.
+expandedThread.subscribe((open) => {
+  if (open) {
+    closeSender()
+  }
+})
 
 /** Whether this sender's emails are open beside Home, for its card's highlight. */
 export const useIsSenderShown = (sender?: StackSender) => {

@@ -1,4 +1,5 @@
 import { Calendar } from '@fewmail/ui/components/calendar'
+import { useNow } from '@fewmail/ui/hooks/use-now'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   addDays,
@@ -17,7 +18,7 @@ import {
   startOfYear,
 } from 'date-fns'
 import type { CSSProperties } from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import type { CalendarEvent } from '~/lib/calendar'
 import { eventTimes, isOnDay } from '~/lib/calendar'
@@ -226,11 +227,7 @@ const layoutDay = (events: CalendarEvent[], day: Date) => {
 }
 
 const NowLine = () => {
-  const [now, setNow] = useState(() => new Date())
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 60_000)
-    return () => clearInterval(timer)
-  }, [])
+  const now = new Date(useNow(60_000))
   return (
     <div
       className="bg-primary pointer-events-none absolute inset-x-0 top-(--top) z-20 h-px"

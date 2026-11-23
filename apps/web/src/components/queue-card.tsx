@@ -374,12 +374,12 @@ const RewriteField = ({
   const keys = { ignoreInputs: false, target: inputRef }
   useHotkey('Enter', submit, keys)
   useHotkey('Escape', onCancel, keys)
-  useEffect(() => inputRef.current?.focus(), [])
 
   return (
     <InputGroup size="sm">
       <InputGroupInput
         ref={inputRef}
+        autoFocus
         value={instruction}
         onChange={(event) => setInstruction(event.target.value)}
         onBlur={() => !instruction && onCancel()}

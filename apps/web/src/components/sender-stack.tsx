@@ -2,10 +2,8 @@ import { listSearch } from '@fewmail/shared/agent'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 
-import { useIsThreadExpanded } from '~/components/expand-row'
 import { closeSender, useShownSender } from '~/components/sender-card'
 import type { StackSender } from '~/components/sender-card'
 import { ReaderSidebar } from '~/components/thread-link'
@@ -58,14 +56,7 @@ export const SenderStack = ({
 /** Home's sidebar for the emails a card is about: a new sender's, a suggested bot's; esc closes it. */
 export const SenderSidebar = () => {
   const shown = useShownSender()
-  const isThreadOpen = useIsThreadExpanded()
   useHotkey('Escape', closeSender, { enabled: !!shown?.isOpen })
-  // An email opened from the chat takes the same sidebar.
-  useEffect(() => {
-    if (isThreadOpen) {
-      closeSender()
-    }
-  }, [isThreadOpen])
   return (
     <ReaderSidebar isOpen={!!shown?.isOpen}>
       {shown && (
