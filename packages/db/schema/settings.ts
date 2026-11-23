@@ -224,3 +224,9 @@ export const subscriptions = d.snakeCase.table(
   },
   (table) => [d.index('subscriptions_user_idx').on(table.userId)]
 )
+
+/** Outlives the account it came from: a deleted account's addresses, so signing in again with one starts no second trial. */
+export const usedTrials = d.snakeCase.table('used_trials', {
+  addressHash: d.text().primaryKey(),
+  createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+})

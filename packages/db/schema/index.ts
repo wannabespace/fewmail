@@ -35,6 +35,7 @@ export {
   subscriptions,
   telegramLinks,
   usage,
+  usedTrials,
   userSettings,
   whatsappLinks,
 } from './settings'

@@ -56,7 +56,7 @@ Checkout shows the amount and billing interval you agree to, including any appli
 
 The allowance resets on the first day of each calendar month at 00:00 UTC, including on yearly billing, and unused allowance does not roll over. Once it is used, ordinary agent writing and requests pause until the reset. Mail sorting, protection and enabled rules continue. Urgent mail has a limited extra processing reserve; promises and deadlines may still be recorded. There is no automatic charge for extra usage.
 
-**Trial.** A new account gets 14 days of the paid agent features without a payment card, using Lite's monthly allowance. The account moves to Free when the trial ends unless you choose to subscribe. The trial does not start a paid subscription automatically.
+**Trial.** A new account gets 14 days of the paid agent features without a payment card, using Lite's monthly allowance. The account moves to Free when the trial ends unless you choose to subscribe. The trial does not start a paid subscription automatically. Each email address gets the trial once, including after its account is deleted.
 
 ## 7. Cancellation, refunds and plan changes
 

@@ -12,6 +12,9 @@ export const keyedHash = (value: string) =>
 export const senderHashOf = (email: string) =>
   keyedHash(`sender:${email.trim().toLowerCase()}`)
 
+export const trialHashOf = (email: string) =>
+  keyedHash(`trial:${email.trim().toLowerCase()}`)
+
 export const userHashOf = (userId: string) => keyedHash(`user:${userId}`)
 
 export const domainHashOf = (domain: string) => keyedHash(`domain:${domain}`)

@@ -9,6 +9,7 @@ import { logErrorAs } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { presetBot } from './bots'
 import { backfillAgentLabels } from './labels'
+import { trialUsedBy } from './plan'
 import { getSettings } from './settings'
 import { syncMailboxes } from './sync'
 
@@ -26,9 +27,10 @@ export const saveSettings = async (
   }
 ) => {
   const before = await getSettings(userId)
+  const trialUsed = !before && (await trialUsedBy(userId))
   const [inserted] = await db
     .insert(userSettings)
-    .values({ ...input, userId })
+    .values({ ...input, userId, ...(trialUsed && { trialEndsAt: new Date() }) })
     .onConflictDoNothing()
     .returning()
 

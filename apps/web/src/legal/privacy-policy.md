@@ -149,7 +149,7 @@ We keep synced mail, settings and agent records while your account exists so you
 
 Deletion does not delete your Gmail messages, Gmail drafts or calendar events. To make sure all Google permissions are removed, including for added mailboxes, revoke them at [Google account permissions](https://myaccount.google.com/permissions).
 
-Account deletion does not automatically erase every copy elsewhere. Hashed network signals are stored separately from account-linked records; analytics, support correspondence, infrastructure logs, backups and records held by connected services can have separate retention periods. Stripe retains payment and invoice records as required for its obligations. Contact us about deletion of remaining personal data and applicable retention periods. We may retain data where required by law or necessary for a legal claim.
+We keep a keyed hash of each address of a deleted account (the sign-in mailbox and every added one), with no link to the deleted records, so the free trial is given once per address. Account deletion does not automatically erase every copy elsewhere. Hashed network signals are stored separately from account-linked records; analytics, support correspondence, infrastructure logs, backups and records held by connected services can have separate retention periods. Stripe retains payment and invoice records as required for its obligations. Contact us about deletion of remaining personal data and applicable retention periods. We may retain data where required by law or necessary for a legal claim.
 
 ## 11. Your choices and rights
 

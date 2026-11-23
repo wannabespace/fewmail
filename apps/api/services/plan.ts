@@ -1,13 +1,21 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
 import { db } from '@fewmail/db'
-import { subscriptions, usage, userSettings } from '@fewmail/db/schema'
+import {
+  mailboxes,
+  subscriptions,
+  usage,
+  usedTrials,
+  users,
+  userSettings,
+} from '@fewmail/db/schema'
 import { PLAN_ALLOWANCE_USD } from '@fewmail/shared/agent'
 import type { Plan } from '@fewmail/shared/agent'
 import { and, desc, eq, gt, inArray, or, sql } from 'drizzle-orm'
 import type { Column } from 'drizzle-orm'
 
 import { env } from '../env'
+import { trialHashOf } from '../lib/keyed-hash'
 import { LimitReachedError, usageResetsAt } from './limit-error'
 
 /** past_due keeps the plan while Stripe retries the card; a lapse ends it with `canceled` or `unpaid`. */
@@ -76,6 +84,35 @@ export const getPlanInfo = async (userId: string) => {
       !subscription && trialMsLeft > 0 ? Math.ceil(trialMsLeft / DAY_MS) : null,
     trialEndsAt,
   }
+}
+
+export const keepTrialUsed = async (userId: string, email: string) => {
+  const added = await db
+    .select({ email: mailboxes.email })
+    .from(mailboxes)
+    .where(eq(mailboxes.userId, userId))
+  const hashes = new Set(
+    [email, ...added.map((row) => row.email)].map(trialHashOf)
+  )
+  await db
+    .insert(usedTrials)
+    .values([...hashes].map((addressHash) => ({ addressHash })))
+    .onConflictDoNothing()
+}
+
+export const trialUsedBy = async (userId: string) => {
+  const [user] = await db
+    .select({ email: users.email })
+    .from(users)
+    .where(eq(users.id, userId))
+  if (!user) {
+    return false
+  }
+  const [row] = await db
+    .select({ addressHash: usedTrials.addressHash })
+    .from(usedTrials)
+    .where(eq(usedTrials.addressHash, trialHashOf(user.email)))
+  return Boolean(row)
 }
 
 type PlanInfo = Awaited<ReturnType<typeof getPlanInfo>>
