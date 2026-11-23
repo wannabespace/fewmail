@@ -48,7 +48,7 @@ export const ko: Messages = {
   },
   byBot: '봇에 따라',
   agent: {
-    decideOnHome: '홈에서 결정하기',
+    decideOnHome: 'Fewmail에서 결정하기',
     fromAgent: '에이전트가 요청함',
     mcpAsks: (client: string) => `${client}이(가) MCP로 요청합니다`,
     calendar: (email: string) => `${email}의 캘린더`,
@@ -146,7 +146,7 @@ export const ko: Messages = {
     dropFiles: '파일을 놓아 첨부하세요',
     removeAttachment: '제거',
     discarded: '임시 보관 메일을 삭제했어요',
-    backInQueue: '취소했어요. 초안이 홈으로 돌아갔어요.',
+    backInQueue: '취소했어요. 초안이 다시 봇 채팅에서 기다려요.',
     canceled: '취소했어요. 이메일이 편집기로 돌아갔어요.',
     cc: '참조',
     discard: '삭제',
@@ -264,7 +264,7 @@ export const ko: Messages = {
     needsPro: 'Fewmail Pro가 필요해요.',
     alreadySent: '이미 보냈어요. 취소하기엔 늦었어요.',
     consentChanged:
-      '요청된 뒤에 내용이 바뀌었어요. 다시 확인하고 홈에서 결정해 주세요.',
+      '요청된 뒤에 내용이 바뀌었어요. 다시 확인하고 봇 채팅에서 결정해 주세요.',
     notFound: '더 이상 존재하지 않아요. 삭제되었을 수 있어요.',
     offline: 'Fewmail에 연결할 수 없어요. 연결 상태를 확인해 주세요.',
   },
@@ -435,7 +435,7 @@ export const ko: Messages = {
     block: '발신자 차단',
     ignoresUnsubscribe: (name: string) => `${name} 님은 수신 거부를 무시합니다`,
     ignoresUnsubscribeHint:
-      'Fewmail이 수신 거부를 요청했지만 이 발신자는 그래도 계속 보내는 것으로 알려져 있어요. 앞으로 이 발신자의 메일을 휴지통으로 보낼까요? 봇이 맡아서 하고, 그 봇은 홈에서 삭제할 수 있어요.',
+      'Fewmail이 수신 거부를 요청했지만 이 발신자는 그래도 계속 보내는 것으로 알려져 있어요. 앞으로 이 발신자의 메일을 휴지통으로 보낼까요? 봇이 맡아서 하고, 그 봇은 봇 목록에서 삭제할 수 있어요.',
     blocked: '차단했어요. 이제 이 발신자의 메일은 휴지통으로 가요.',
     forward: '전달',
     more: '더 보기',
@@ -509,7 +509,7 @@ export const ko: Messages = {
     unsubscribe: '구독 취소',
     unsubscribed: '구독을 취소했어요',
     unsubscribeFailed:
-      '이 발신자는 원클릭 구독 취소를 지원하지 않아서 메일을 보관했어요.',
+      '이 발신자는 Fewmail이 쓸 수 있는 구독 취소 방법이 없어 메일을 보관했어요. 하지만 아직 리스트에 있어요.',
     you: '나',
     sent: '보냄',
     writeReply: '답장 쓰기…',
@@ -521,8 +521,8 @@ export const ko: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `Fewmail 독자의 ${percent}%가 구독을 해지했어요`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail이 리스트 구독을 취소하고 보낸 메일을 모두 보관해요(이번 달 ${emails}). 구독 취소는 되돌릴 수 없어요.`,
+    unsubscribeHint:
+      'Fewmail이 리스트 구독을 취소하고 보낸 메일을 모두 보관해요. 구독 취소는 되돌릴 수 없어요.',
     archivedOnly:
       '이 발신자는 Fewmail이 쓸 수 있는 구독 취소 방법이 없어 메일을 보관했어요. 하지만 아직 리스트에 있어서 새 메일은 계속 와요.',
     count: (total: number) => `메일링 리스트 ${total}개`,
@@ -558,7 +558,7 @@ export const ko: Messages = {
     loading: '불러오는 중',
     syncFailedIn: (email: string) => `${email} 동기화 실패, 다시 시도 중`,
     syncingIn: (email: string) => `${email} 읽는 중…`,
-    home: '홈',
+    home: '봇',
     trialLeft: (total: number) => `Pro 체험 · ${total}일 남음`,
     usage: (percent: number) => `에이전트 · 이번 달 ${percent}% 사용`,
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
@@ -624,7 +624,6 @@ export const ko: Messages = {
   bots: {
     profile: '하는 일',
     closeProfile: '닫기',
-    change: '바꾸기',
     since: (date: string) => `${date}부터 일하는 중`,
     status: {
       acts: '알아서 처리해요',
@@ -705,7 +704,7 @@ export const ko: Messages = {
     earlier: '이전 항목 보기',
     edit: '봇 설정',
     effect: {
-      always_show: '홈에 두기',
+      always_show: '하나도 빠짐없이 보여 주기',
       archive: '보관하기',
       collect: '모아 두기만',
       draft_reply: '답장 초안 쓰기',
@@ -809,7 +808,7 @@ export const ko: Messages = {
         'Fewmail이 이 메일함을 더 이상 읽지 않고 읽은 내용을 잊어요. Gmail에서는 아무것도 바뀌지 않아요.',
       add: 'Gmail 추가',
       addDescription:
-        '다른 Gmail 계정의 메일이 같은 홈과 받은편지함에 모입니다. 이 계정으로는 여기에 로그인할 수 없으며, 로그인하면 별도의 Fewmail이 열립니다.',
+        '다른 Gmail 계정의 메일이 같은 봇과 받은편지함에 모입니다. 이 계정으로는 여기에 로그인할 수 없으며, 로그인하면 별도의 Fewmail이 열립니다.',
       added: '메일함을 추가했습니다. 1분 안에 메일이 표시됩니다.',
       failed:
         '메일함을 추가하지 못했습니다. Gmail 접근을 허용하고 다시 시도하세요.',
@@ -1479,7 +1478,7 @@ export const ko: Messages = {
     board: { name: '보드' },
     important: {
       instruction:
-        '내가 직접 움직여야 하는 것: 내 답장을 기다리는 사람, 납부할 청구서, 보안 알림, 은행이나 정부 기관에서 온 모든 것. 홈에 두기',
+        '내가 직접 움직여야 하는 것: 내 답장을 기다리는 사람, 납부할 청구서, 보안 알림, 은행이나 정부 기관에서 온 모든 것. 하나도 빠짐없이 보여 주기',
       name: '중요',
     },
     later: {

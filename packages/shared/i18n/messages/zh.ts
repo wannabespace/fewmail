@@ -48,7 +48,7 @@ export const zh: Messages = {
   },
   byBot: '按机器人',
   agent: {
-    decideOnHome: '在主页决定',
+    decideOnHome: '在 Fewmail 中决定',
     fromAgent: '助手请求',
     mcpAsks: (client: string) => `${client}通过 MCP 请求`,
     calendar: (email: string) => `在 ${email} 的日历中`,
@@ -145,7 +145,7 @@ export const zh: Messages = {
     dropFiles: '拖放文件以添加附件',
     removeAttachment: '移除',
     discarded: '草稿已丢弃',
-    backInQueue: '已取消。草稿已回到“首页”。',
+    backInQueue: '已取消。草稿又在它的机器人聊天里等你了。',
     canceled: '已取消。你的邮件已回到编辑器。',
     cc: '抄送',
     discard: '丢弃',
@@ -261,7 +261,8 @@ export const zh: Messages = {
     failed: '出了点问题，请重试。',
     needsPro: '此功能需要 Fewmail Pro。',
     alreadySent: '已发送，无法撤销。',
-    consentChanged: '提出请求后内容已变化。请再看一遍，然后在主页决定。',
+    consentChanged:
+      '提出请求后内容已变化。请再看一遍，然后在它的机器人聊天里决定。',
     notFound: '它已不存在，可能已被删除。',
     offline: '无法连接到 Fewmail，请检查网络。',
   },
@@ -426,7 +427,7 @@ export const zh: Messages = {
     block: '屏蔽发件人',
     ignoresUnsubscribe: (name: string) => `${name} 会无视退订`,
     ignoresUnsubscribeHint:
-      'Fewmail 已请求退订,但这个发件人以退订后仍继续发信而闻名。从现在起把它的邮件移到垃圾箱?这件事会交给一个机器人，你可以在首页删除它。',
+      'Fewmail 已请求退订,但这个发件人以退订后仍继续发信而闻名。从现在起把它的邮件移到垃圾箱?这件事会交给一个机器人，你可以在你的机器人中删除它。',
     blocked: '已屏蔽。对方的邮件将进入废纸篓。',
     forward: '转发',
     more: '更多',
@@ -498,7 +499,8 @@ export const zh: Messages = {
     search: '搜索或描述',
     unsubscribe: '退订',
     unsubscribed: '已退订',
-    unsubscribeFailed: '该发件人不支持一键退订，所以这封邮件已归档。',
+    unsubscribeFailed:
+      '这个发件人没有 Fewmail 能用的退订方式，所以这封邮件已归档，但你仍在列表中。',
     you: '你',
     sent: '已发送',
     writeReply: '写回复…',
@@ -509,8 +511,8 @@ export const zh: Messages = {
   },
   subscriptions: {
     leftBy: (percent: number) => `${percent}% 的 Fewmail 读者已退订`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail 会退出该列表并归档它发来的所有邮件（本月 ${emails}）。退订无法撤销。`,
+    unsubscribeHint:
+      'Fewmail 会退出该列表并归档它发来的所有邮件。退订无法撤销。',
     archivedOnly:
       '这个发件人没有 Fewmail 能用的退订方式，所以已归档其邮件，但你仍在列表中，新邮件还会继续发来。',
     count: (total: number) => `邮件列表：${total} 个`,
@@ -546,7 +548,7 @@ export const zh: Messages = {
     loading: '正在加载',
     syncFailedIn: (email: string) => `${email} 同步失败，正在重试`,
     syncingIn: (email: string) => `正在读取 ${email}…`,
-    home: '首页',
+    home: '机器人',
     trialLeft: (total: number) => `Pro 试用 · 还剩 ${total} 天`,
     usage: (percent: number) => `助手 · 本月已用 ${percent}%`,
     watching: '助手正在留意你的收件箱',
@@ -610,7 +612,6 @@ export const zh: Messages = {
   bots: {
     profile: '我在做什么',
     closeProfile: '关闭',
-    change: '修改',
     since: (date: string) => `自 ${date} 起工作`,
     status: {
       acts: '自己处理',
@@ -689,7 +690,7 @@ export const zh: Messages = {
     earlier: '显示更早的',
     edit: '机器人设置',
     effect: {
-      always_show: '留在首页',
+      always_show: '每一封都给我看',
       archive: '归档',
       collect: '只收集',
       draft_reply: '起草回复',
@@ -790,7 +791,7 @@ export const zh: Messages = {
         'Fewmail 会停止读取这个邮箱，并忘记从中读到的内容。Gmail 中不会有任何变化。',
       add: '添加 Gmail',
       addDescription:
-        '另一个 Gmail 账号的邮件会进入同一个“首页”和收件箱。它永远不能登录这里：用它登录会打开一个独立的 Fewmail。',
+        '另一个 Gmail 账号的邮件会进入同样的机器人和收件箱。它永远不能登录这里：用它登录会打开一个独立的 Fewmail。',
       added: '邮箱已添加，邮件将在一分钟内出现。',
       failed: '无法添加邮箱。请允许访问 Gmail 后重试。',
       lost: 'Gmail 访问已失效。请重新添加以重新连接。',
@@ -1452,7 +1453,7 @@ export const zh: Messages = {
     board: { name: '看板' },
     important: {
       instruction:
-        '需要我采取行动的：等我回复的人、到期的账单、安全提醒、来自我的银行或政府的一切。留在首页',
+        '需要我采取行动的：等我回复的人、到期的账单、安全提醒、来自我的银行或政府的一切。每一封都给我看',
       name: '重要',
     },
     later: {

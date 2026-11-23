@@ -250,7 +250,7 @@ const SubscriptionsPage = () => {
     !leaving.has(row.messageId) &&
     confirm({
       action: t.subscriptions.unsubscribe,
-      description: t.subscriptions.unsubscribeHint(t.cleanup.emails(row.count)),
+      description: t.subscriptions.unsubscribeHint,
       onConfirm: () =>
         unsubscribe.mutate(
           { messageId: row.messageId },

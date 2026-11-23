@@ -47,7 +47,7 @@ export const tr: Messages = {
     pending: 'seni bekliyor',
   },
   agent: {
-    decideOnHome: 'Ana sayfada karar ver',
+    decideOnHome: 'Fewmail’de karar ver',
     fromAgent: 'Ajan soruyor',
     mcpAsks: (client: string) => `${client} MCP üzerinden istiyor`,
     calendar: (email: string) => `${email} takviminde`,
@@ -329,7 +329,7 @@ export const tr: Messages = {
     dropFiles: 'Eklemek için dosyaları bırak',
     removeAttachment: 'Kaldır',
     discarded: 'Taslak silindi',
-    backInQueue: 'İptal edildi. Taslak Ana Sayfa’ya geri döndü.',
+    backInQueue: 'İptal edildi. Taslak yine botunun sohbetinde bekliyor.',
     canceled: 'İptal edildi. E-postan düzenleyiciye geri döndü.',
     cc: 'Bilgi',
     discard: 'Sil',
@@ -398,7 +398,7 @@ export const tr: Messages = {
     needsPro: 'Bunun için Fewmail Pro gerekiyor.',
     alreadySent: 'Zaten gönderildi, geri almak için çok geç.',
     consentChanged:
-      'Bu, istendiğinden beri değişti. Tekrar bak ve ana sayfada karar ver.',
+      'Bu, istendiğinden beri değişti. Tekrar bak ve botunun sohbetinde karar ver.',
     notFound: 'Bu artık yok. Silinmiş olabilir.',
     offline: 'Fewmail’e ulaşılamıyor. Bağlantını kontrol et.',
   },
@@ -571,7 +571,7 @@ export const tr: Messages = {
     ignoresUnsubscribe: (name: string) =>
       `${name} abonelikten çıkmayı yok sayıyor`,
     ignoresUnsubscribeHint:
-      'Fewmail abonelikten çıkmayı istedi ama bu gönderenin yine de yazmaya devam ettiği biliniyor. Postaları bundan sonra çöp kutusuna gitsin mi? Bunu bir bot yapar, onu da Ana Sayfa’dan silebilirsin.',
+      'Fewmail abonelikten çıkmayı istedi ama bu gönderenin yine de yazmaya devam ettiği biliniyor. Postaları bundan sonra çöp kutusuna gitsin mi? Bunu bir bot yapar, onu da botlarının arasından silebilirsin.',
     blocked: 'Engellendi. E-postaları artık çöpe gidiyor.',
     forward: 'İlet',
     more: 'Daha fazla',
@@ -645,7 +645,7 @@ export const tr: Messages = {
     unsubscribe: 'Abonelikten çık',
     unsubscribed: 'Abonelikten çıkıldı',
     unsubscribeFailed:
-      'Bu gönderen tek tıkla abonelikten çıkmayı desteklemiyor, bu yüzden e-posta arşivlendi.',
+      "Bu gönderenin Fewmail'in kullanabileceği bir abonelikten çıkma yolu yok, bu yüzden e-posta arşivlendi, ama hâlâ listedesin.",
     you: 'Sen',
     sent: 'Gönderildi',
     writeReply: 'Yanıt yaz…',
@@ -657,8 +657,8 @@ export const tr: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `Fewmail okurlarının %${percent} kadarı abonelikten çıktı`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail listeden çıkar ve gönderdiği her şeyi arşivler (bu ay ${emails}). Abonelikten çıkma geri alınamaz.`,
+    unsubscribeHint:
+      'Fewmail listeden çıkar ve gönderdiği her şeyi arşivler. Abonelikten çıkma geri alınamaz.',
     archivedOnly:
       "Bu gönderenin Fewmail'in kullanabileceği bir abonelikten çıkma yolu yok, bu yüzden e-postaları arşivlendi, ama hâlâ listedesin ve yeni e-postalar gelmeye devam edecek.",
     count: (total: number) => `E-posta listesi: ${total}`,
@@ -695,7 +695,7 @@ export const tr: Messages = {
     syncFailedIn: (email: string) =>
       `${email} eşitlemesi başarısız, yeniden deneniyor`,
     syncingIn: (email: string) => `${email} okunuyor…`,
-    home: 'Ana Sayfa',
+    home: 'Botlar',
     trialLeft: (total: number) => `Pro denemesi · ${total} gün kaldı`,
     usage: (percent: number) => `Ajan · bu ayın %${percent} kadarı kullanıldı`,
     watching: 'Ajan gelen kutunu izliyor',
@@ -789,7 +789,6 @@ export const tr: Messages = {
   bots: {
     profile: 'Ne yapıyorum',
     closeProfile: 'Kapat',
-    change: 'Değiştir',
     since: (date: string) => `${date} tarihinden beri çalışıyor`,
     status: {
       acts: 'Kendi başına yapıyor',
@@ -893,7 +892,7 @@ export const tr: Messages = {
     earlier: 'Öncekileri göster',
     edit: 'Bot ayarları',
     effect: {
-      always_show: 'Ana Sayfa’da tut',
+      always_show: 'Her birini bana göster',
       archive: 'Arşivle',
       collect: 'Sadece topla',
       draft_reply: 'Yanıt taslağı hazırla',
@@ -997,7 +996,7 @@ export const tr: Messages = {
         'Fewmail bu kutuyu okumayı bırakır ve orada okuduklarını unutur. Gmail’de hiçbir şey değişmez.',
       add: 'Gmail ekle',
       addDescription:
-        'Başka bir Gmail hesabının postaları aynı Ana Sayfa’ya ve gelen kutusuna gelir. Bu hesapla buraya kimse giriş yapamaz: onunla giriş yapmak ayrı bir Fewmail açar.',
+        'Başka bir Gmail hesabının postaları aynı botlara ve gelen kutusuna gelir. Bu hesapla buraya kimse giriş yapamaz: onunla giriş yapmak ayrı bir Fewmail açar.',
       added: 'Posta kutusu eklendi. Postaları bir dakika içinde görünür.',
       failed:
         'Posta kutusu eklenemedi. Gmail erişimine izin verip tekrar deneyin.',
@@ -1691,7 +1690,7 @@ export const tr: Messages = {
     board: { name: 'Pano' },
     important: {
       instruction:
-        'Benden bir adım bekleyenler: yanıtımı bekleyen kişiler, ödemesi gelen faturalar, güvenlik uyarıları, bankamdan ya da devletten gelen her şey. Ana Sayfa’da tut',
+        'Benden bir adım bekleyenler: yanıtımı bekleyen kişiler, ödemesi gelen faturalar, güvenlik uyarıları, bankamdan ya da devletten gelen her şey. Her birini bana göster',
       name: 'Önemli',
     },
     later: {

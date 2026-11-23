@@ -48,7 +48,7 @@ export const ja: Messages = {
   },
   byBot: 'ボットによる',
   agent: {
-    decideOnHome: 'ホームで決める',
+    decideOnHome: 'Fewmail で決める',
     fromAgent: 'エージェントからの確認',
     mcpAsks: (client: string) => `${client}が MCP 経由で依頼しています`,
     calendar: (email: string) => `${email} のカレンダー`,
@@ -146,7 +146,8 @@ export const ja: Messages = {
     dropFiles: 'ドロップして添付',
     removeAttachment: '削除',
     discarded: '下書きを破棄しました',
-    backInQueue: 'キャンセルしました。下書きは「ホーム」に戻りました。',
+    backInQueue:
+      'キャンセルしました。下書きはまたボットのチャットで待っています。',
     canceled: 'キャンセルしました。メールはエディタに戻りました。',
     cc: 'Cc',
     discard: '破棄',
@@ -264,7 +265,7 @@ export const ja: Messages = {
     needsPro: 'これには Fewmail Pro が必要です。',
     alreadySent: 'すでに送信済みのため、取り消せません。',
     consentChanged:
-      '確認を求めた後に内容が変わりました。もう一度見て、ホームで決めてください。',
+      '確認を求めた後に内容が変わりました。もう一度見て、ボットのチャットで決めてください。',
     notFound: 'これはもう存在しません。削除された可能性があります。',
     offline: 'Fewmail に接続できません。接続を確認してください。',
   },
@@ -436,7 +437,7 @@ export const ja: Messages = {
     block: '送信者をブロック',
     ignoresUnsubscribe: (name: string) => `${name} は配信停止を無視します`,
     ignoresUnsubscribeHint:
-      'Fewmail は配信停止を依頼しましたが、この送信者はそれでも送り続けることで知られています。今後このメールをゴミ箱に送りますか?ボットが行い、そのボットはホームで削除できます。',
+      'Fewmail は配信停止を依頼しましたが、この送信者はそれでも送り続けることで知られています。今後このメールをゴミ箱に送りますか?ボットが行い、そのボットはボットの一覧から削除できます。',
     blocked: 'ブロックしました。今後のメールはゴミ箱に移動します。',
     forward: '転送',
     more: 'その他',
@@ -510,7 +511,7 @@ export const ja: Messages = {
     unsubscribe: '配信停止',
     unsubscribed: '配信を停止しました',
     unsubscribeFailed:
-      'この送信者はワンクリック配信停止に対応していないため、メールをアーカイブしました。',
+      'この送信者にはFewmailが使える配信停止の方法がないため、メールをアーカイブしました。ただしリストには残っています。',
     you: 'あなた',
     sent: '送信済み',
     writeReply: '返信を書く…',
@@ -521,8 +522,8 @@ export const ja: Messages = {
   },
   subscriptions: {
     leftBy: (percent: number) => `Fewmailの読者の${percent}%が配信を停止`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmailがリストから登録解除し、送られたメールをすべてアーカイブします（今月は${emails}）。配信停止は元に戻せません。`,
+    unsubscribeHint:
+      'Fewmailがリストから登録解除し、送られたメールをすべてアーカイブします。配信停止は元に戻せません。',
     archivedOnly:
       'この送信者にはFewmailが使える配信停止の方法がないため、メールをアーカイブしました。ただしリストには残っているので、新しいメールは引き続き届きます。',
     count: (total: number) => `メーリングリスト${total}件`,
@@ -557,7 +558,7 @@ export const ja: Messages = {
     loading: '読み込み中',
     syncFailedIn: (email: string) => `${email} の同期に失敗しました。再試行中`,
     syncingIn: (email: string) => `${email} を読んでいます…`,
-    home: 'ホーム',
+    home: 'ボット',
     trialLeft: (total: number) => `Pro トライアル · 残り ${total} 日`,
     usage: (percent: number) => `エージェント · 今月の ${percent}% を使用`,
     watching: 'エージェントが受信トレイを見守っています',
@@ -623,7 +624,6 @@ export const ja: Messages = {
   bots: {
     profile: '担当していること',
     closeProfile: '閉じる',
-    change: '変更',
     since: (date: string) => `${date}から稼働中`,
     status: {
       acts: '自動で処理',
@@ -705,7 +705,7 @@ export const ja: Messages = {
     earlier: '以前のものを表示',
     edit: 'ボットの設定',
     effect: {
-      always_show: 'ホームに残す',
+      always_show: 'すべて見せる',
       archive: 'アーカイブする',
       collect: 'まとめておくだけ',
       draft_reply: '返信を下書きする',
@@ -812,7 +812,7 @@ export const ja: Messages = {
         'Fewmailはこのメールボックスを読むのをやめ、読んだ内容を忘れます。Gmailでは何も変わりません。',
       add: 'Gmailを追加',
       addDescription:
-        '別のGmailアカウントのメールも同じ「ホーム」と受信トレイに届きます。このアカウントでここにログインすることはできません。ログインすると別のFewmailが開きます。',
+        '別のGmailアカウントのメールも同じボットと受信トレイに届きます。このアカウントでここにログインすることはできません。ログインすると別のFewmailが開きます。',
       added: 'メールボックスを追加しました。1分ほどでメールが表示されます。',
       failed:
         'メールボックスを追加できませんでした。Gmailへのアクセスを許可して、もう一度お試しください。',
@@ -1496,7 +1496,7 @@ export const ja: Messages = {
     board: { name: 'ボード' },
     important: {
       instruction:
-        '自分の対応が必要なもの：返信を待っている人、支払期限の来た請求書、セキュリティ警告、銀行や役所からのものすべて。ホームに残す',
+        '自分の対応が必要なもの：返信を待っている人、支払期限の来た請求書、セキュリティ警告、銀行や役所からのものすべて。すべて見せる',
       name: '重要',
     },
     later: {

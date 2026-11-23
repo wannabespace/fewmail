@@ -278,8 +278,8 @@ const BotMessage = ({
       {children}
       {(at || post) && (
         <div className="flex h-6 items-center gap-2">
-          {post && <ReactionPicker post={post} />}
           <TimeOf at={at} />
+          {post && <ReactionPicker post={post} />}
         </div>
       )}
     </MessageMenu>

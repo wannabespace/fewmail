@@ -344,11 +344,7 @@ const BotPane = ({
     <div className="under-notice relative flex min-w-0 flex-1">
       {/* A container: an email open beside the page narrows the chat as a phone would, and it takes a phone's gutter. */}
       <div className="@container flex min-w-0 flex-1 flex-col">
-        <BotHeader
-          bot={bot}
-          isProfileOpen={isProfileOpen}
-          onProfile={onProfile}
-        />
+        <BotHeader bot={bot} onProfile={onProfile} />
         {/* Keyed: a bot opens at its newest message, not where the last one was scrolled to. */}
         <MessageScrollerProvider key={bot.bot} autoScroll>
           <ChatScroller>

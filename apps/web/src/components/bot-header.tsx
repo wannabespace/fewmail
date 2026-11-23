@@ -1,4 +1,3 @@
-import { Button } from '@fewmail/ui/components/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,72 +69,53 @@ export const BotStatus = ({ bot }: { bot: HomeBot }) => {
     .join(' · ')
 }
 
-/** The chat's bar, as a messenger's: the open bot's face, its name and what it is doing now, the whole of it one button opening its profile, mute and chat actions; under it, pinned, what it looks after. */
+/** The chat's bar, as a messenger's: the open bot's face, its name and what it is doing now, the whole of it one button opening its profile, mute and chat actions. What it looks after is its intro's and its profile's, never a strip under the bar. */
 export const BotHeader = ({
   bot,
-  isProfileOpen,
   onProfile,
 }: {
   bot: HomeBot
-  isProfileOpen: boolean
   onProfile: () => void
 }) => {
   const t = useT()
   const mute = useMute(bot)
   return (
-    <>
-      <header className="flex h-14 shrink-0 border-b">
-        <div className="mx-auto flex w-full max-w-3xl items-center px-8 max-md:px-2 @max-xl:px-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="hover:bg-accent data-popup-open:bg-accent focus-visible:focus-ring flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-xl px-2 py-1 text-left outline-none">
-              <BotAvatar bot={bot} size="md" />
-              <span className="flex min-w-0 flex-1 flex-col">
-                <h1
-                  data-mask={!!bot.own}
-                  className="truncate text-sm font-medium"
-                >
-                  {bot.name}
-                </h1>
-                <span className="text-muted-foreground truncate text-xs">
-                  <BotStatus bot={bot} />
-                </span>
+    <header className="flex h-14 shrink-0 border-b">
+      <div className="mx-auto flex w-full max-w-3xl items-center px-8 max-md:px-2 @max-xl:px-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="hover:bg-accent data-popup-open:bg-accent focus-visible:focus-ring flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-xl px-2 py-1 text-left outline-none">
+            <BotAvatar bot={bot} size="md" />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <h1
+                data-mask={!!bot.own}
+                className="truncate text-sm font-medium"
+              >
+                {bot.name}
+              </h1>
+              <span className="text-muted-foreground truncate text-xs">
+                <BotStatus bot={bot} />
               </span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={onProfile}>
-                <HugeiconsIcon icon={SidebarRight01Icon} strokeWidth={2} />
-                {t.bots.profile}
-                <DropdownMenuShortcut>P</DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={mute}>
-                <HugeiconsIcon
-                  icon={bot.muted ? Notification01Icon : NotificationOff01Icon}
-                  strokeWidth={2}
-                />
-                {bot.muted ? t.bots.unmute : t.bots.mute}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <BotMenuItems bot={bot} isOpen />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-      <div className="bg-body flex h-9 shrink-0 border-b">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-10 max-md:px-4 @max-xl:px-4">
-          <p
-            data-mask={!!bot.own}
-            className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
-          >
-            {bot.job}
-          </p>
-          {!isProfileOpen && (
-            <Button size="xs" variant="link-muted" onClick={onProfile}>
-              {t.bots.change}
-            </Button>
-          )}
-        </div>
+            </span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={onProfile}>
+              <HugeiconsIcon icon={SidebarRight01Icon} strokeWidth={2} />
+              {t.bots.profile}
+              <DropdownMenuShortcut>P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={mute}>
+              <HugeiconsIcon
+                icon={bot.muted ? Notification01Icon : NotificationOff01Icon}
+                strokeWidth={2}
+              />
+              {bot.muted ? t.bots.unmute : t.bots.mute}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <BotMenuItems bot={bot} isOpen />
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    </>
+    </header>
   )
 }
 

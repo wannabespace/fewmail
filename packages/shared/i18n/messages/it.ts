@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const it: Messages = {
   agent: {
-    decideOnHome: 'Decidi nella Home',
+    decideOnHome: 'Decidi in Fewmail',
     fromAgent: 'L’agente chiede',
     mcpAsks: (client: string) => `${client} chiede tramite MCP`,
     calendar: (email: string) => `Nel calendario di ${email}`,
@@ -103,7 +103,7 @@ export const it: Messages = {
     dropFiles: 'Rilascia i file per allegarli',
     removeAttachment: 'Rimuovi',
     discarded: 'Bozza eliminata',
-    backInQueue: 'Annullato. La bozza è di nuovo in Home.',
+    backInQueue: 'Annullato. La bozza aspetta di nuovo nella chat del suo bot.',
     canceled: 'Annullato. La tua email è di nuovo nell’editor.',
     cc: 'Cc',
     discard: 'Elimina',
@@ -876,7 +876,7 @@ export const it: Messages = {
     needsPro: 'Serve Fewmail Pro.',
     alreadySent: 'Già inviata: è tardi per annullare.',
     consentChanged:
-      'È cambiato da quando è stato chiesto. Guardalo di nuovo e decidi nella Home.',
+      'È cambiato da quando è stato chiesto. Guardalo di nuovo e decidi nella chat del suo bot.',
     notFound: 'Non esiste più: forse è stato eliminato.',
     offline: 'Impossibile raggiungere Fewmail. Controlla la connessione.',
   },
@@ -1052,7 +1052,7 @@ export const it: Messages = {
     block: 'Blocca mittente',
     ignoresUnsubscribe: (name: string) => `${name} ignora le disiscrizioni`,
     ignoresUnsubscribeHint:
-      'Fewmail ha chiesto la disiscrizione, ma questo mittente è noto per continuare a scrivere. Mandare le sue email nel cestino d’ora in poi? Lo farà un bot, e puoi eliminarlo in Home.',
+      'Fewmail ha chiesto la disiscrizione, ma questo mittente è noto per continuare a scrivere. Mandare le sue email nel cestino d’ora in poi? Lo farà un bot, e puoi eliminarlo tra i tuoi bot.',
     blocked: 'Bloccato. Le sue email ora finiscono nel cestino.',
     forward: 'Inoltra',
     more: 'Altro',
@@ -1128,7 +1128,7 @@ export const it: Messages = {
     unsubscribe: 'Annulla iscrizione',
     unsubscribed: 'Iscrizione annullata',
     unsubscribeFailed:
-      'Questo mittente non permette di annullare l’iscrizione con un clic, quindi l’email è stata archiviata.',
+      'Questo mittente non offre una disiscrizione che Fewmail possa usare, quindi l’email è stata archiviata, ma sei ancora nella lista.',
     you: 'Tu',
     sent: 'Inviata',
     writeReply: 'Scrivi una risposta…',
@@ -1140,8 +1140,8 @@ export const it: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `Il ${percent}% dei suoi lettori su Fewmail si è disiscritto`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail annulla l’iscrizione alla lista e archivia tutto ciò che ha inviato (${emails} questo mese). L’annullamento dell’iscrizione non si può revocare.`,
+    unsubscribeHint:
+      'Fewmail annulla l’iscrizione alla lista e archivia tutto ciò che ha inviato. L’annullamento dell’iscrizione non si può revocare.',
     archivedOnly:
       'Questo mittente non offre una disiscrizione che Fewmail possa usare, quindi la sua posta è stata archiviata, ma sei ancora nella lista e le nuove email continueranno ad arrivare.',
     count: (total: number) => `Mailing list: ${total}`,
@@ -1178,7 +1178,7 @@ export const it: Messages = {
     syncFailedIn: (email: string) =>
       `Sincronizzazione di ${email} non riuscita, riprovo`,
     syncingIn: (email: string) => `Leggo ${email}…`,
-    home: 'Home',
+    home: 'Bot',
     trialLeft: (total: number) =>
       plural('it', total, {
         one: (n) => `Prova Pro · ${n} giorno rimasto`,
@@ -1248,7 +1248,6 @@ export const it: Messages = {
   bots: {
     profile: 'Cosa faccio',
     closeProfile: 'Chiudi',
-    change: 'Modifica',
     since: (date: string) => `Attivo dal ${date}`,
     status: {
       acts: 'Agisce da solo',
@@ -1370,7 +1369,7 @@ export const it: Messages = {
     earlier: 'Mostra precedenti',
     edit: 'Impostazioni del bot',
     effect: {
-      always_show: 'Tienila in Home',
+      always_show: 'Mostrameli tutti',
       archive: 'Archiviala',
       collect: 'Raccoglila e basta',
       draft_reply: 'Scrivi una bozza',
@@ -1484,7 +1483,7 @@ export const it: Messages = {
         'Fewmail smette di leggerla e dimentica ciò che ha letto. In Gmail non cambia nulla.',
       add: 'Aggiungi Gmail',
       addDescription:
-        'La posta di un altro account Gmail arriva nella stessa Home e nella stessa casella. Non fa mai accedere nessuno qui: accedere con quell’account apre un Fewmail separato.',
+        'La posta di un altro account Gmail arriva agli stessi bot e nella stessa casella. Non fa mai accedere nessuno qui: accedere con quell’account apre un Fewmail separato.',
       added: 'Casella aggiunta. La posta compare tra un minuto.',
       failed:
         'Impossibile aggiungere la casella. Consenti l’accesso a Gmail e riprova.',
@@ -1577,7 +1576,7 @@ export const it: Messages = {
     board: { name: 'Bacheca' },
     important: {
       instruction:
-        'Ciò che richiede un mio passo: persone che aspettano la mia risposta, bollette in scadenza, avvisi di sicurezza, qualsiasi cosa dalla mia banca o dalla pubblica amministrazione. Tienile in Home',
+        'Ciò che richiede un mio passo: persone che aspettano la mia risposta, bollette in scadenza, avvisi di sicurezza, qualsiasi cosa dalla mia banca o dalla pubblica amministrazione. Mostrameli tutti',
       name: 'Importanti',
     },
     later: {

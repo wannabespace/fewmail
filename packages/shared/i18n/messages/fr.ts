@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const fr: Messages = {
   agent: {
-    decideOnHome: 'Décider sur l’accueil',
+    decideOnHome: 'Décider dans Fewmail',
     fromAgent: 'L’agent demande',
     mcpAsks: (client: string) => `${client} demande via MCP`,
     calendar: (email: string) => `Dans l’agenda de ${email}`,
@@ -103,7 +103,8 @@ export const fr: Messages = {
     dropFiles: 'Déposez les fichiers pour les joindre',
     removeAttachment: 'Retirer',
     discarded: 'Brouillon supprimé',
-    backInQueue: 'Annulé. Le brouillon est de retour dans Accueil.',
+    backInQueue:
+      'Annulé. Le brouillon attend de nouveau dans le chat de son bot.',
     canceled: 'Annulé. Votre e-mail est de retour dans l’éditeur.',
     cc: 'Cc',
     discard: 'Supprimer',
@@ -879,7 +880,7 @@ export const fr: Messages = {
     needsPro: 'Il faut Fewmail Pro pour cela.',
     alreadySent: 'Déjà envoyé, trop tard pour annuler.',
     consentChanged:
-      'Le contenu a changé depuis la demande. Vérifiez-le à nouveau et décidez sur l’Accueil.',
+      'Le contenu a changé depuis la demande. Vérifiez-le à nouveau et décidez dans le chat de son bot.',
     notFound: 'Ceci n’existe plus. Il a peut-être été supprimé.',
     offline: 'Impossible de joindre Fewmail. Vérifiez votre connexion.',
   },
@@ -1056,7 +1057,7 @@ export const fr: Messages = {
     block: 'Bloquer l’expéditeur',
     ignoresUnsubscribe: (name: string) => `${name} ignore les désabonnements`,
     ignoresUnsubscribeHint:
-      'Fewmail a demandé le désabonnement, mais cet expéditeur est connu pour continuer d’écrire. Envoyer ses e-mails à la corbeille désormais ? Un bot s’en chargera, et vous pourrez le supprimer depuis l’Accueil.',
+      'Fewmail a demandé le désabonnement, mais cet expéditeur est connu pour continuer d’écrire. Envoyer ses e-mails à la corbeille désormais ? Un bot s’en chargera, et vous pourrez le supprimer parmi vos bots.',
     blocked: 'Bloqué. Ses e-mails vont désormais à la corbeille.',
     forward: 'Transférer',
     more: 'Plus',
@@ -1133,7 +1134,7 @@ export const fr: Messages = {
     unsubscribe: 'Se désabonner',
     unsubscribed: 'Désabonné',
     unsubscribeFailed:
-      'Cet expéditeur ne propose pas de désabonnement en un clic, l’e-mail a donc été archivé.',
+      'Cet expéditeur n’offre pas de désabonnement que Fewmail puisse utiliser, l’e-mail a donc été archivé, mais vous restez sur la liste.',
     you: 'Vous',
     sent: 'Envoyé',
     writeReply: 'Écrire une réponse…',
@@ -1145,8 +1146,8 @@ export const fr: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent} % de ses lecteurs sur Fewmail se sont désabonnés`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail vous désabonne de la liste et archive tout ce qu’elle a envoyé (${emails} ce mois-ci). Un désabonnement ne peut pas être annulé.`,
+    unsubscribeHint:
+      'Fewmail vous désabonne de la liste et archive tout ce qu’elle a envoyé. Un désabonnement ne peut pas être annulé.',
     archivedOnly:
       'Cet expéditeur n’offre pas de désabonnement que Fewmail puisse utiliser, ses e-mails ont donc été archivés, mais vous restez sur la liste et les nouveaux continueront d’arriver.',
     count: (total: number) => `Listes de diffusion : ${total}`,
@@ -1183,7 +1184,7 @@ export const fr: Messages = {
     syncFailedIn: (email: string) =>
       `Échec de la synchro de ${email}, nouvelle tentative`,
     syncingIn: (email: string) => `Lecture de ${email}…`,
-    home: 'Accueil',
+    home: 'Bots',
     trialLeft: (total: number) =>
       plural('fr', total, {
         one: (n) => `Essai Pro · ${n} jour restant`,
@@ -1253,7 +1254,6 @@ export const fr: Messages = {
   bots: {
     profile: 'Ce que je fais',
     closeProfile: 'Fermer',
-    change: 'Modifier',
     since: (date: string) => `Actif depuis le ${date}`,
     status: {
       acts: 'Agit seul',
@@ -1377,7 +1377,7 @@ export const fr: Messages = {
     earlier: 'Afficher les précédents',
     edit: 'Réglages du bot',
     effect: {
-      always_show: 'Le garder sur l’Accueil',
+      always_show: 'Me montrer chacun',
       archive: 'L’archiver',
       collect: 'Juste le recueillir',
       draft_reply: 'Rédiger une réponse',
@@ -1493,7 +1493,7 @@ export const fr: Messages = {
         'Fewmail cesse de lire cette boîte et oublie ce qu’il y a lu. Rien ne change dans Gmail.',
       add: 'Ajouter Gmail',
       addDescription:
-        'Le courrier d’un autre compte Gmail rejoint le même Accueil et la même boîte de réception. Il ne connecte jamais personne ici : se connecter avec lui ouvre un Fewmail distinct.',
+        'Le courrier d’un autre compte Gmail rejoint les mêmes bots et la même boîte de réception. Il ne connecte jamais personne ici : se connecter avec lui ouvre un Fewmail distinct.',
       added: 'Boîte ajoutée. Son courrier apparaît dans une minute.',
       failed:
         'Impossible d’ajouter la boîte. Autorisez l’accès à Gmail et réessayez.',
@@ -1592,7 +1592,7 @@ export const fr: Messages = {
     board: { name: 'Tableau' },
     important: {
       instruction:
-        'Ce qui demande une action de ma part : les personnes qui attendent ma réponse, les factures à payer, les alertes de sécurité, tout ce qui vient de ma banque ou de l’administration. Les garder sur l’Accueil',
+        'Ce qui demande une action de ma part : les personnes qui attendent ma réponse, les factures à payer, les alertes de sécurité, tout ce qui vient de ma banque ou de l’administration. Me montrer chacun',
       name: 'Important',
     },
     later: {

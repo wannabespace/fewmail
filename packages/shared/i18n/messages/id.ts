@@ -47,7 +47,7 @@ export const id: Messages = {
     pending: 'menunggumu',
   },
   agent: {
-    decideOnHome: 'Putuskan di Beranda',
+    decideOnHome: 'Putuskan di Fewmail',
     fromAgent: 'Agen meminta',
     mcpAsks: (client: string) => `${client} meminta lewat MCP`,
     calendar: (email: string) => `Di kalender ${email}`,
@@ -330,7 +330,7 @@ export const id: Messages = {
     dropFiles: 'Lepas file untuk melampirkan',
     removeAttachment: 'Hapus',
     discarded: 'Draf dibuang',
-    backInQueue: 'Dibatalkan. Draf kembali ke Beranda.',
+    backInQueue: 'Dibatalkan. Draf menunggu lagi di chat bot-nya.',
     canceled: 'Dibatalkan. Email kamu kembali ke editor.',
     cc: 'Cc',
     discard: 'Buang',
@@ -404,7 +404,7 @@ export const id: Messages = {
     needsPro: 'Ini memerlukan Fewmail Pro.',
     alreadySent: 'Sudah terkirim, terlambat untuk membatalkan.',
     consentChanged:
-      'Ini berubah sejak diminta. Lihat lagi dan putuskan di Beranda.',
+      'Ini berubah sejak diminta. Lihat lagi dan putuskan di chat bot-nya.',
     notFound: 'Ini sudah tidak ada. Mungkin sudah dihapus.',
     offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
   },
@@ -577,7 +577,7 @@ export const id: Messages = {
     ignoresUnsubscribe: (name: string) =>
       `${name} mengabaikan berhenti berlangganan`,
     ignoresUnsubscribeHint:
-      'Fewmail sudah meminta berhenti berlangganan, tetapi pengirim ini dikenal tetap mengirim email. Kirim emailnya ke sampah mulai sekarang? Sebuah bot akan melakukannya, dan kamu bisa menghapusnya di Beranda.',
+      'Fewmail sudah meminta berhenti berlangganan, tetapi pengirim ini dikenal tetap mengirim email. Kirim emailnya ke sampah mulai sekarang? Sebuah bot akan melakukannya, dan kamu bisa menghapusnya di antara bot-botmu.',
     blocked: 'Diblokir. Email mereka kini masuk ke sampah.',
     forward: 'Teruskan',
     more: 'Lainnya',
@@ -653,7 +653,7 @@ export const id: Messages = {
     unsubscribe: 'Berhenti berlangganan',
     unsubscribed: 'Berhenti berlangganan',
     unsubscribeFailed:
-      'Pengirim ini tidak mendukung berhenti berlangganan sekali klik, jadi email-nya diarsipkan.',
+      'Pengirim ini tidak punya cara berhenti langganan yang bisa dipakai Fewmail, jadi email-nya diarsipkan, tetapi kamu masih di milis.',
     you: 'Kamu',
     sent: 'Terkirim',
     writeReply: 'Tulis balasan…',
@@ -665,8 +665,8 @@ export const id: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent}% pembacanya di Fewmail berhenti berlangganan`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail keluar dari milis ini dan mengarsipkan semua yang dikirimnya (${emails} bulan ini). Berhenti berlangganan tidak bisa dibatalkan.`,
+    unsubscribeHint:
+      'Fewmail keluar dari milis ini dan mengarsipkan semua yang dikirimnya. Berhenti berlangganan tidak bisa dibatalkan.',
     archivedOnly:
       'Pengirim ini tidak punya cara berhenti langganan yang bisa dipakai Fewmail, jadi emailnya diarsipkan, tetapi kamu masih di milis dan email baru akan terus datang.',
     count: (total: number) => `Milis: ${total}`,
@@ -703,7 +703,7 @@ export const id: Messages = {
     syncFailedIn: (email: string) =>
       `Sinkronisasi ${email} gagal, mencoba lagi`,
     syncingIn: (email: string) => `Membaca ${email}…`,
-    home: 'Beranda',
+    home: 'Bot',
     trialLeft: (total: number) => `Uji coba Pro · sisa ${total} hari`,
     usage: (percent: number) => `Agen · ${percent}% bulan ini terpakai`,
     watching: 'Agen sedang memantau kotak masukmu',
@@ -797,7 +797,6 @@ export const id: Messages = {
   bots: {
     profile: 'Yang kulakukan',
     closeProfile: 'Tutup',
-    change: 'Ubah',
     since: (date: string) => `Bekerja sejak ${date}`,
     status: {
       acts: 'Bertindak sendiri',
@@ -902,7 +901,7 @@ export const id: Messages = {
     earlier: 'Tampilkan yang sebelumnya',
     edit: 'Pengaturan bot',
     effect: {
-      always_show: 'Tetap di Beranda',
+      always_show: 'Tunjukkan semuanya padaku',
       archive: 'Arsipkan',
       collect: 'Kumpulkan saja',
       draft_reply: 'Buat draf balasan',
@@ -1005,7 +1004,7 @@ export const id: Messages = {
         'Fewmail berhenti membacanya dan melupakan apa yang dibacanya di sana. Tidak ada yang berubah di Gmail.',
       add: 'Tambah Gmail',
       addDescription:
-        'Email dari akun Gmail lain masuk ke Beranda dan kotak masuk yang sama. Akun itu tidak bisa dipakai masuk ke sini: masuk dengannya membuka Fewmail terpisah.',
+        'Email dari akun Gmail lain masuk ke bot dan kotak masuk yang sama. Akun itu tidak bisa dipakai masuk ke sini: masuk dengannya membuka Fewmail terpisah.',
       added: 'Kotak surat ditambahkan. Emailnya muncul dalam semenit.',
       failed:
         'Kotak surat tidak bisa ditambahkan. Izinkan akses Gmail lalu coba lagi.',
@@ -1696,7 +1695,7 @@ export const id: Messages = {
     board: { name: 'Papan' },
     important: {
       instruction:
-        'Yang butuh tindakan dariku: orang yang menunggu balasanku, tagihan yang jatuh tempo, peringatan keamanan, apa pun dari bank atau pemerintah. Simpan di Beranda',
+        'Yang butuh tindakan dariku: orang yang menunggu balasanku, tagihan yang jatuh tempo, peringatan keamanan, apa pun dari bank atau pemerintah. Tunjukkan semuanya padaku',
       name: 'Penting',
     },
     later: {

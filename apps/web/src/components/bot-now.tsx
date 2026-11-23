@@ -153,9 +153,7 @@ const NewSenders = ({
     handleUnsubscribe: () =>
       confirm({
         action: t.subscriptions.unsubscribe,
-        description: t.subscriptions.unsubscribeHint(
-          t.cleanup.emails(sender.count)
-        ),
+        description: t.subscriptions.unsubscribeHint,
         onConfirm: () =>
           unsubscribe.mutate(
             { messageId: sender.messageId },

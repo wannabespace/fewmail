@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const es: Messages = {
   agent: {
-    decideOnHome: 'Decide en Inicio',
+    decideOnHome: 'Decide en Fewmail',
     fromAgent: 'Lo pide el agente',
     mcpAsks: (client: string) => `${client} pide a través de MCP`,
     calendar: (email: string) => `En el calendario de ${email}`,
@@ -102,7 +102,8 @@ export const es: Messages = {
     dropFiles: 'Suelta los archivos para adjuntarlos',
     removeAttachment: 'Quitar',
     discarded: 'Borrador descartado',
-    backInQueue: 'Cancelado. El borrador vuelve a estar en Inicio.',
+    backInQueue:
+      'Cancelado. El borrador vuelve a esperar en el chat de su bot.',
     canceled: 'Cancelado. Tu correo vuelve a estar en el editor.',
     cc: 'Cc',
     discard: 'Descartar',
@@ -881,7 +882,7 @@ export const es: Messages = {
     needsPro: 'Esto requiere Fewmail Pro.',
     alreadySent: 'Ya se envió; es tarde para deshacerlo.',
     consentChanged:
-      'Esto cambió desde que se pidió. Míralo de nuevo y decide en Inicio.',
+      'Esto cambió desde que se pidió. Míralo de nuevo y decide en el chat de su bot.',
     notFound: 'Esto ya no existe; puede que se haya eliminado.',
     offline: 'No se puede conectar con Fewmail. Revisa tu conexión.',
   },
@@ -1058,7 +1059,7 @@ export const es: Messages = {
     block: 'Bloquear remitente',
     ignoresUnsubscribe: (name: string) => `${name} ignora las bajas`,
     ignoresUnsubscribeHint:
-      'Fewmail pidió la baja, pero se sabe que este remitente sigue escribiendo. ¿Enviar su correo a la papelera a partir de ahora? Lo hará un bot, y puedes eliminarlo en Inicio.',
+      'Fewmail pidió la baja, pero se sabe que este remitente sigue escribiendo. ¿Enviar su correo a la papelera a partir de ahora? Lo hará un bot, y puedes eliminarlo entre tus bots.',
     blocked: 'Bloqueado. Sus correos ahora van a la papelera.',
     forward: 'Reenviar',
     more: 'Más',
@@ -1132,7 +1133,7 @@ export const es: Messages = {
     unsubscribe: 'Darse de baja',
     unsubscribed: 'Baja hecha',
     unsubscribeFailed:
-      'Este remitente no permite darse de baja con un clic, así que el correo se archivó.',
+      'Este remitente no ofrece una baja que Fewmail pueda usar, así que el correo se archivó, pero sigues en la lista.',
     you: 'Tú',
     sent: 'Enviado',
     writeReply: 'Escribe una respuesta…',
@@ -1144,8 +1145,8 @@ export const es: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent} % de sus lectores en Fewmail se dieron de baja`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail te da de baja de la lista y archiva todo lo que envió (${emails} este mes). Darse de baja no se puede deshacer.`,
+    unsubscribeHint:
+      'Fewmail te da de baja de la lista y archiva todo lo que envió. Darse de baja no se puede deshacer.',
     archivedOnly:
       'Este remitente no ofrece una baja que Fewmail pueda usar, así que se archivó su correo, pero sigues en la lista y seguirán llegando correos nuevos.',
     count: (total: number) => `Listas de correo: ${total}`,
@@ -1182,7 +1183,7 @@ export const es: Messages = {
     syncFailedIn: (email: string) =>
       `Falló la sincronización de ${email}, reintentando`,
     syncingIn: (email: string) => `Leyendo ${email}…`,
-    home: 'Inicio',
+    home: 'Bots',
     trialLeft: (total: number) =>
       plural('es', total, {
         one: (n) => `Prueba de Pro · queda ${n} día`,
@@ -1252,7 +1253,6 @@ export const es: Messages = {
   bots: {
     profile: 'Lo que hago',
     closeProfile: 'Cerrar',
-    change: 'Cambiar',
     since: (date: string) => `Trabajando desde el ${date}`,
     status: {
       acts: 'Actúa por su cuenta',
@@ -1375,7 +1375,7 @@ export const es: Messages = {
     earlier: 'Mostrar anteriores',
     edit: 'Ajustes del bot',
     effect: {
-      always_show: 'Mantenerlo en Inicio',
+      always_show: 'Mostrarme cada uno',
       archive: 'Archivarlo',
       collect: 'Solo reunirlo',
       draft_reply: 'Redactar respuesta',
@@ -1491,7 +1491,7 @@ export const es: Messages = {
         'Fewmail deja de leer este buzón y olvida lo que leyó. En Gmail no cambia nada.',
       add: 'Añadir Gmail',
       addDescription:
-        'El correo de otra cuenta de Gmail llega al mismo Inicio y a la misma bandeja. Nunca sirve para entrar aquí: iniciar sesión con ella abre un Fewmail aparte.',
+        'El correo de otra cuenta de Gmail llega a los mismos bots y a la misma bandeja. Nunca sirve para entrar aquí: iniciar sesión con ella abre un Fewmail aparte.',
       added: 'Buzón añadido. Su correo aparecerá en un minuto.',
       failed:
         'No se pudo añadir el buzón. Permite el acceso a Gmail e inténtalo de nuevo.',
@@ -1586,7 +1586,7 @@ export const es: Messages = {
     board: { name: 'Tablero' },
     important: {
       instruction:
-        'Lo que necesita un paso mío: personas que esperan mi respuesta, facturas por pagar, alertas de seguridad, cualquier cosa de mi banco o del gobierno. Mantenerlos en Inicio',
+        'Lo que necesita un paso mío: personas que esperan mi respuesta, facturas por pagar, alertas de seguridad, cualquier cosa de mi banco o del gobierno. Mostrarme cada uno',
       name: 'Importante',
     },
     later: {

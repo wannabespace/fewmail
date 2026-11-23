@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const de: Messages = {
   agent: {
-    decideOnHome: 'Auf der Startseite entscheiden',
+    decideOnHome: 'In Fewmail entscheiden',
     fromAgent: 'Der Agent fragt',
     mcpAsks: (client: string) => `${client} bittet über MCP`,
     calendar: (email: string) => `Im Kalender von ${email}`,
@@ -102,7 +102,7 @@ export const de: Messages = {
     dropFiles: 'Dateien zum Anhängen ablegen',
     removeAttachment: 'Entfernen',
     discarded: 'Entwurf verworfen',
-    backInQueue: 'Abgebrochen. Der Entwurf ist wieder auf der Startseite.',
+    backInQueue: 'Abgebrochen. Der Entwurf wartet wieder im Chat seines Bots.',
     canceled: 'Abgebrochen. Deine E-Mail ist wieder im Editor.',
     cc: 'Cc',
     discard: 'Verwerfen',
@@ -872,7 +872,7 @@ export const de: Messages = {
     needsPro: 'Dafür brauchst du Fewmail Pro.',
     alreadySent: 'Schon gesendet – Rückgängig geht nicht mehr.',
     consentChanged:
-      'Das hat sich seit der Anfrage geändert. Sieh es dir noch einmal an und entscheide auf der Startseite.',
+      'Das hat sich seit der Anfrage geändert. Sieh es dir noch einmal an und entscheide im Chat seines Bots.',
     notFound: 'Das gibt es nicht mehr – vielleicht wurde es gelöscht.',
     offline: 'Fewmail ist nicht erreichbar. Prüf deine Verbindung.',
   },
@@ -1046,7 +1046,7 @@ export const de: Messages = {
     block: 'Absender blockieren',
     ignoresUnsubscribe: (name: string) => `${name} ignoriert Abmeldungen`,
     ignoresUnsubscribeHint:
-      'Fewmail hat um die Abmeldung gebeten, aber dieser Absender schreibt bekanntlich trotzdem weiter. Seine Mails ab jetzt in den Papierkorb? Das übernimmt ein Bot, und du kannst ihn auf der Startseite löschen.',
+      'Fewmail hat um die Abmeldung gebeten, aber dieser Absender schreibt bekanntlich trotzdem weiter. Seine Mails ab jetzt in den Papierkorb? Das übernimmt ein Bot, und du kannst ihn bei deinen Bots löschen.',
     blocked: 'Blockiert. Ihre Mails landen jetzt im Papierkorb.',
     forward: 'Weiterleiten',
     more: 'Mehr',
@@ -1122,7 +1122,7 @@ export const de: Messages = {
     unsubscribe: 'Abmelden',
     unsubscribed: 'Abgemeldet',
     unsubscribeFailed:
-      'Dieser Absender bietet keine Abmeldung per Klick, daher wurde die Mail archiviert.',
+      'Dieser Absender bietet keine Abmeldung, die Fewmail nutzen kann, daher wurde die Mail archiviert. Du bleibst aber im Verteiler.',
     you: 'Du',
     sent: 'Gesendet',
     writeReply: 'Antwort schreiben…',
@@ -1134,8 +1134,8 @@ export const de: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent} % ihrer Leser bei Fewmail haben sich abgemeldet`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail meldet dich vom Verteiler ab und archiviert alles, was er geschickt hat (${emails} diesen Monat). Eine Abmeldung lässt sich nicht rückgängig machen.`,
+    unsubscribeHint:
+      'Fewmail meldet dich vom Verteiler ab und archiviert alles, was er geschickt hat. Eine Abmeldung lässt sich nicht rückgängig machen.',
     archivedOnly:
       'Dieser Absender bietet keine Abmeldung, die Fewmail nutzen kann, daher wurden seine Mails archiviert. Du bleibst aber im Verteiler, neue Mails kommen weiter.',
     count: (total: number) => `Verteiler: ${total}`,
@@ -1172,7 +1172,7 @@ export const de: Messages = {
     syncFailedIn: (email: string) =>
       `Sync von ${email} fehlgeschlagen, neuer Versuch`,
     syncingIn: (email: string) => `Lese ${email}…`,
-    home: 'Startseite',
+    home: 'Bots',
     trialLeft: (total: number) =>
       plural('de', total, {
         one: () => 'Pro-Testphase · noch 1 Tag',
@@ -1241,7 +1241,6 @@ export const de: Messages = {
   bots: {
     profile: 'Was ich tue',
     closeProfile: 'Schließen',
-    change: 'Ändern',
     since: (date: string) => `Arbeitet seit ${date}`,
     status: {
       acts: 'Handelt selbst',
@@ -1355,7 +1354,7 @@ export const de: Messages = {
     earlier: 'Frühere anzeigen',
     edit: 'Bot-Einstellungen',
     effect: {
-      always_show: 'Auf der Startseite halten',
+      always_show: 'Mir jede zeigen',
       archive: 'Archivieren',
       collect: 'Nur sammeln',
       draft_reply: 'Antwort entwerfen',
@@ -1470,7 +1469,7 @@ export const de: Messages = {
         'Fewmail liest das Postfach nicht mehr und vergisst, was es dort gelesen hat. In Gmail ändert sich nichts.',
       add: 'Gmail hinzufügen',
       addDescription:
-        'Mail eines weiteren Gmail-Kontos landet auf derselben Startseite und im selben Posteingang. Damit meldet sich niemand hier an: Eine Anmeldung damit öffnet ein eigenes Fewmail.',
+        'Mail eines weiteren Gmail-Kontos landet bei denselben Bots und im selben Posteingang. Damit meldet sich niemand hier an: Eine Anmeldung damit öffnet ein eigenes Fewmail.',
       added: 'Postfach hinzugefügt. Die Mails erscheinen in einer Minute.',
       failed:
         'Das Postfach konnte nicht hinzugefügt werden. Erlaube den Gmail-Zugriff und versuche es erneut.',
@@ -1568,7 +1567,7 @@ export const de: Messages = {
     board: { name: 'Pinnwand' },
     important: {
       instruction:
-        'Was einen Schritt von mir braucht: Leute, die auf meine Antwort warten, fällige Rechnungen, Sicherheitswarnungen, alles von meiner Bank oder von Behörden. Auf der Startseite halten',
+        'Was einen Schritt von mir braucht: Leute, die auf meine Antwort warten, fällige Rechnungen, Sicherheitswarnungen, alles von meiner Bank oder von Behörden. Mir jede zeigen',
       name: 'Wichtig',
     },
     later: {

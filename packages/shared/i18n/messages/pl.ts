@@ -47,7 +47,7 @@ export const pl: Messages = {
     pending: 'czeka na ciebie',
   },
   agent: {
-    decideOnHome: 'Zdecyduj na stronie głównej',
+    decideOnHome: 'Zdecyduj w Fewmail',
     fromAgent: 'Prosi agent',
     mcpAsks: (client: string) => `${client} prosi przez MCP`,
     calendar: (email: string) => `W kalendarzu ${email}`,
@@ -344,7 +344,7 @@ export const pl: Messages = {
     dropFiles: 'Upuść pliki, aby je załączyć',
     removeAttachment: 'Usuń',
     discarded: 'Wersja robocza odrzucona',
-    backInQueue: 'Anulowano. Szkic wrócił na stronę główną.',
+    backInQueue: 'Anulowano. Szkic znów czeka w czacie swojego bota.',
     canceled: 'Anulowano. Twój e-mail wrócił do edytora.',
     cc: 'DW',
     discard: 'Odrzuć',
@@ -419,7 +419,7 @@ export const pl: Messages = {
     needsPro: 'Do tego potrzebny jest Fewmail Pro.',
     alreadySent: 'Już wysłano, za późno, by cofnąć.',
     consentChanged:
-      'To się zmieniło od czasu prośby. Spójrz jeszcze raz i zdecyduj na stronie głównej.',
+      'To się zmieniło od czasu prośby. Spójrz jeszcze raz i zdecyduj w czacie bota.',
     notFound: 'Tego już nie ma. Możliwe, że zostało usunięte.',
     offline: 'Brak połączenia z Fewmail. Sprawdź internet.',
   },
@@ -596,7 +596,7 @@ export const pl: Messages = {
     block: 'Zablokuj nadawcę',
     ignoresUnsubscribe: (name: string) => `${name} ignoruje wypisania`,
     ignoresUnsubscribeHint:
-      'Fewmail poprosił o wypisanie, ale ten nadawca znany jest z tego, że i tak pisze dalej. Przenosić jego maile do kosza od teraz? Zrobi to bot, a usuniesz go na Stronie głównej.',
+      'Fewmail poprosił o wypisanie, ale ten nadawca znany jest z tego, że i tak pisze dalej. Przenosić jego maile do kosza od teraz? Zrobi to bot, a usuniesz go wśród swoich botów.',
     blocked: 'Zablokowano. Jego poczta trafia teraz do kosza.',
     forward: 'Przekaż',
     more: 'Więcej',
@@ -671,7 +671,7 @@ export const pl: Messages = {
     unsubscribe: 'Wypisz się',
     unsubscribed: 'Wypisano',
     unsubscribeFailed:
-      'Ten nadawca nie obsługuje wypisania jednym kliknięciem, więc e-mail został zarchiwizowany.',
+      'Ten nadawca nie ma wypisania, z którego Fewmail może skorzystać, więc e-mail został zarchiwizowany, ale nadal jesteś na liście.',
     you: 'Ty',
     sent: 'Wysłano',
     writeReply: 'Napisz odpowiedź…',
@@ -683,8 +683,8 @@ export const pl: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent}% czytelników w Fewmail się wypisało`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail wypisze cię z listy i zarchiwizuje wszystko, co wysłała (${emails} w tym miesiącu). Wypisania nie można cofnąć.`,
+    unsubscribeHint:
+      'Fewmail wypisze cię z listy i zarchiwizuje wszystko, co wysłała. Wypisania nie można cofnąć.',
     archivedOnly:
       'Ten nadawca nie ma wypisania, z którego Fewmail może skorzystać, więc jego poczta została zarchiwizowana, ale nadal jesteś na liście i nowe wiadomości będą przychodzić.',
     count: (total: number) => `Listy mailingowe: ${total}`,
@@ -721,7 +721,7 @@ export const pl: Messages = {
     syncFailedIn: (email: string) =>
       `Synchronizacja ${email} nie powiodła się, ponawiam`,
     syncingIn: (email: string) => `Czytam ${email}…`,
-    home: 'Strona główna',
+    home: 'Boty',
     trialLeft: (total: number) =>
       plural('pl', total, {
         one: () => 'Okres próbny Pro · został 1 dzień',
@@ -821,7 +821,6 @@ export const pl: Messages = {
   bots: {
     profile: 'Co robię',
     closeProfile: 'Zamknij',
-    change: 'Zmień',
     since: (date: string) => `Działa od ${date}`,
     status: {
       acts: 'Działa sam',
@@ -949,7 +948,7 @@ export const pl: Messages = {
     earlier: 'Pokaż wcześniejsze',
     edit: 'Ustawienia bota',
     effect: {
-      always_show: 'Zostaw na Stronie głównej',
+      always_show: 'Pokazuj mi każdy',
       archive: 'Archiwizuj',
       collect: 'Tylko zbieraj',
       draft_reply: 'Przygotuj szkic odpowiedzi',
@@ -1057,7 +1056,7 @@ export const pl: Messages = {
         'Fewmail przestanie czytać tę skrzynkę i zapomni, co w niej przeczytał. W Gmailu nic się nie zmieni.',
       add: 'Dodaj Gmail',
       addDescription:
-        'Poczta z innego konta Gmail trafia na tę samą stronę główną i do skrzynki odbiorczej. Nie da się nim tu zalogować: logowanie nim otwiera osobny Fewmail.',
+        'Poczta z innego konta Gmail trafia do tych samych botów i do skrzynki odbiorczej. Nie da się nim tu zalogować: logowanie nim otwiera osobny Fewmail.',
       added: 'Skrzynka dodana. Poczta pojawi się za minutę.',
       failed:
         'Nie udało się dodać skrzynki. Zezwól na dostęp do Gmaila i spróbuj ponownie.',
@@ -1755,7 +1754,7 @@ export const pl: Messages = {
     board: { name: 'Tablica' },
     important: {
       instruction:
-        'Co wymaga mojego ruchu: ludzie czekający na moją odpowiedź, rachunki do zapłacenia, alerty bezpieczeństwa, wszystko od mojego banku lub urzędów. Zostaw na Stronie głównej',
+        'Co wymaga mojego ruchu: ludzie czekający na moją odpowiedź, rachunki do zapłacenia, alerty bezpieczeństwa, wszystko od mojego banku lub urzędów. Pokazuj mi każdy',
       name: 'Ważne',
     },
     later: {

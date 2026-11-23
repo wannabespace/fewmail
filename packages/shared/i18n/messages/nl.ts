@@ -47,7 +47,7 @@ export const nl: Messages = {
     pending: 'wacht op jou',
   },
   agent: {
-    decideOnHome: 'Beslis op Home',
+    decideOnHome: 'Beslis in Fewmail',
     fromAgent: 'De agent vraagt',
     mcpAsks: (client: string) => `${client} vraagt via MCP`,
     calendar: (email: string) => `In de agenda van ${email}`,
@@ -332,7 +332,7 @@ export const nl: Messages = {
     dropFiles: 'Zet bestanden neer om ze bij te voegen',
     removeAttachment: 'Verwijderen',
     discarded: 'Concept verworpen',
-    backInQueue: 'Geannuleerd. Het concept staat weer op Home.',
+    backInQueue: 'Geannuleerd. Het concept wacht weer in de chat van zijn bot.',
     canceled: 'Geannuleerd. Je e-mail staat weer in de editor.',
     cc: 'Cc',
     discard: 'Verwerpen',
@@ -405,7 +405,7 @@ export const nl: Messages = {
     needsPro: 'Hiervoor heb je Fewmail Pro nodig.',
     alreadySent: 'Al verzonden, te laat om ongedaan te maken.',
     consentChanged:
-      'Dit is veranderd sinds het werd gevraagd. Bekijk het opnieuw en beslis op Home.',
+      'Dit is veranderd sinds het werd gevraagd. Bekijk het opnieuw en beslis in de chat van zijn bot.',
     notFound: 'Dit bestaat niet meer. Misschien is het verwijderd.',
     offline: 'Fewmail is niet bereikbaar. Controleer je verbinding.',
   },
@@ -578,7 +578,7 @@ export const nl: Messages = {
     block: 'Afzender blokkeren',
     ignoresUnsubscribe: (name: string) => `${name} negeert afmeldingen`,
     ignoresUnsubscribeHint:
-      'Fewmail heeft om afmelding gevraagd, maar deze afzender blijft bekend genoeg toch mailen. Zijn mail voortaan naar de prullenbak? Een bot doet het, en je kunt hem verwijderen op Home.',
+      'Fewmail heeft om afmelding gevraagd, maar deze afzender blijft bekend genoeg toch mailen. Zijn mail voortaan naar de prullenbak? Een bot doet het, en je kunt hem verwijderen bij je bots.',
     blocked: 'Geblokkeerd. Hun mail gaat nu naar de prullenbak.',
     forward: 'Doorsturen',
     more: 'Meer',
@@ -652,7 +652,7 @@ export const nl: Messages = {
     unsubscribe: 'Afmelden',
     unsubscribed: 'Afgemeld',
     unsubscribeFailed:
-      'Deze afzender heeft geen afmelding met één klik, dus de e-mail is gearchiveerd.',
+      'Deze afzender heeft geen afmelding die Fewmail kan gebruiken, dus de e-mail is gearchiveerd, maar je staat nog op de lijst.',
     you: 'Jij',
     sent: 'Verzonden',
     writeReply: 'Schrijf een antwoord…',
@@ -664,8 +664,8 @@ export const nl: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent}% van de lezers op Fewmail heeft zich afgemeld`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail meldt je af bij de lijst en archiveert alles wat die stuurde (${emails} deze maand). Afmelden kan niet ongedaan worden gemaakt.`,
+    unsubscribeHint:
+      'Fewmail meldt je af bij de lijst en archiveert alles wat die stuurde. Afmelden kan niet ongedaan worden gemaakt.',
     archivedOnly:
       'Deze afzender heeft geen afmelding die Fewmail kan gebruiken, dus de mail is gearchiveerd, maar je staat nog op de lijst en nieuwe mail blijft komen.',
     count: (total: number) => `Mailinglijsten: ${total}`,
@@ -702,7 +702,7 @@ export const nl: Messages = {
     syncFailedIn: (email: string) =>
       `Synchronisatie van ${email} mislukt, opnieuw proberen`,
     syncingIn: (email: string) => `${email} wordt gelezen…`,
-    home: 'Home',
+    home: 'Bots',
     trialLeft: (total: number) =>
       plural('nl', total, {
         one: () => 'Pro-proefperiode · nog 1 dag',
@@ -800,7 +800,6 @@ export const nl: Messages = {
   bots: {
     profile: 'Wat ik doe',
     closeProfile: 'Sluiten',
-    change: 'Wijzigen',
     since: (date: string) => `Actief sinds ${date}`,
     status: {
       acts: 'Handelt zelf',
@@ -913,7 +912,7 @@ export const nl: Messages = {
     earlier: 'Eerdere tonen',
     edit: 'Botinstellingen',
     effect: {
-      always_show: 'Op Home houden',
+      always_show: 'Laat ze me allemaal zien',
       archive: 'Archiveren',
       collect: 'Alleen verzamelen',
       draft_reply: 'Antwoord opstellen',
@@ -1018,7 +1017,7 @@ export const nl: Messages = {
         'Fewmail leest deze mailbox niet meer en vergeet wat het er las. In Gmail verandert niets.',
       add: 'Gmail toevoegen',
       addDescription:
-        'Mail van een ander Gmail-account komt ook op Home en in dezelfde inbox. Er logt nooit iemand mee in: inloggen ermee opent een aparte Fewmail.',
+        'Mail van een ander Gmail-account komt bij dezelfde bots en in dezelfde inbox. Er logt nooit iemand mee in: inloggen ermee opent een aparte Fewmail.',
       added: 'Mailbox toegevoegd. De mail verschijnt binnen een minuut.',
       failed:
         'De mailbox kon niet worden toegevoegd. Sta Gmail-toegang toe en probeer het opnieuw.',
@@ -1712,7 +1711,7 @@ export const nl: Messages = {
     board: { name: 'Bord' },
     important: {
       instruction:
-        'Wat een stap van mij vraagt: mensen die op mijn antwoord wachten, rekeningen die betaald moeten worden, beveiligingsmeldingen, alles van mijn bank of de overheid. Op Home houden',
+        'Wat een stap van mij vraagt: mensen die op mijn antwoord wachten, rekeningen die betaald moeten worden, beveiligingsmeldingen, alles van mijn bank of de overheid. Laat ze me allemaal zien',
       name: 'Belangrijk',
     },
     later: {

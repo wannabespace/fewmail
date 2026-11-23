@@ -1045,14 +1045,6 @@ export const BotDesk = () => {
     made: bots.fewmail.botName,
     quick: t.starterBots.quick.name,
   }
-  const jobs: Record<DeskChat, string> = {
-    board: t.bots.effect.promises,
-    fewmail: t.bots.fewmailJob,
-    important: t.starterBots.important.instruction,
-    later: t.starterBots.later.instruction,
-    made: bots.fewmail.ask,
-    quick: t.starterBots.quick.instruction,
-  }
   const lines: Record<DeskChat, string> = {
     board: t.bots.promises(2),
     fewmail: isMade ? t.bots.created : bots.fewmail.proposal,
@@ -1150,9 +1142,6 @@ export const BotDesk = () => {
               </span>
             </span>
           </div>
-          <p className="text-muted-foreground flex h-9 shrink-0 items-center border-b px-4 text-xs">
-            <span className="truncate">{jobs[open]}</span>
-          </p>
           <motion.div
             key={open}
             initial={{ opacity: 0, y: 8 }}

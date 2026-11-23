@@ -10,6 +10,7 @@ import {
 import type { BotEffect, BotPreset, MailBotEffect } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
+import type { Locale } from '@fewmail/shared/i18n/locales'
 import { choice } from '@typesafe-ai/sdk'
 import { and, desc, eq, isNull, lte, or, sql } from 'drizzle-orm'
 
@@ -65,25 +66,67 @@ const sayEffect = (bot: typeof bots.$inferSelect, t: Messages) =>
     ? `${bot.instruction.trim().replace(/[.。]$/u, '')}. ${t.bots.effect[bot.effect]}`
     : bot.instruction
 
+/**
+ * How `always_show` was said while Home was a page ("Keep them on Home"): a bot made then still ends its words on it,
+ * so the first read says it as now ("Show me every one"), in the language it was written in.
+ */
+const HOME_WORDS: Record<Locale, string[]> = {
+  de: ['Auf der Startseite halten'],
+  en: ['Keep it on Home', 'Keep them on Home'],
+  es: ['Mantenerlo en Inicio', 'Mantenerlos en Inicio'],
+  fr: ['Le garder sur l’Accueil', 'Les garder sur l’Accueil'],
+  hi: ['होम पर रखें'],
+  id: ['Tetap di Beranda', 'Simpan di Beranda'],
+  it: ['Tienila in Home', 'Tienile in Home'],
+  ja: ['ホームに残す'],
+  ko: ['홈에 두기'],
+  nl: ['Op Home houden'],
+  pl: ['Zostaw na Stronie głównej'],
+  pt: ['Manter no Início'],
+  tr: ['Ana Sayfa’da tut'],
+  uk: ['Тримати на «Головній»'],
+  zh: ['留在首页'],
+}
+
+const withoutHome = (instruction: string | null) => {
+  if (!instruction) {
+    return instruction
+  }
+  for (const [language, words] of Object.entries(HOME_WORDS)) {
+    const said = words.find((each) => instruction.trimEnd().endsWith(each))
+    if (said) {
+      return `${instruction.trimEnd().slice(0, -said.length)}${dictionaries[language as Locale].bots.effect.always_show}`
+    }
+  }
+  return instruction
+}
+
+/** Words or a name the bot was given before they were what they are now, set right once. */
+const isDated = (bot: typeof bots.$inferSelect) =>
+  bot.name === null || withoutHome(bot.instruction) !== bot.instruction
+
 export const listBots = async (userId: string) => {
   const rows = await db
     .select()
     .from(bots)
     .where(eq(bots.userId, userId))
     .orderBy(...BOT_ORDER)
-  if (rows.every(({ name }) => name !== null)) {
+  if (!rows.some(isDated)) {
     return rows
   }
   const settings = await getSettings(userId)
   const t = dictionaries[settings?.language ?? 'en']
   return Promise.all(
     rows.map(async (bot) => {
-      if (bot.name !== null) {
+      if (!isDated(bot)) {
         return bot
       }
-      const named = { instruction: sayEffect(bot, t), name: nameOf(bot, t) }
-      await db.update(bots).set(named).where(eq(bots.id, bot.id))
-      return { ...bot, ...named }
+      const fixed =
+        bot.name === null
+          ? { instruction: sayEffect(bot, t), name: nameOf(bot, t) }
+          : { instruction: withoutHome(bot.instruction) }
+      await db.update(bots).set(fixed).where(eq(bots.id, bot.id))
+      return { ...bot, ...fixed }
     })
   )
 }
@@ -116,7 +159,8 @@ const UNSAID = 'unsaid'
 
 const EFFECT_CRITERIA: Record<MailBotEffect | typeof UNSAID, string> = {
   [UNSAID]: 'It only says which emails, not what to do with them',
-  always_show: 'Keep them in sight on Home, never let one slip',
+  always_show:
+    'Show the user every one of them as needing them, never let one slip',
   archive: 'Archive them, take them out of the inbox',
   collect: 'Only gather them in one place and leave the inbox as it is',
   draft_reply: 'Draft a reply to each',

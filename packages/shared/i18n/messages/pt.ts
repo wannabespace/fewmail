@@ -47,7 +47,7 @@ export const pt: Messages = {
     pending: 'aguarda você',
   },
   agent: {
-    decideOnHome: 'Decida no Início',
+    decideOnHome: 'Decida no Fewmail',
     fromAgent: 'O agente pede',
     mcpAsks: (client: string) => `${client} pede via MCP`,
     calendar: (email: string) => `Na agenda de ${email}`,
@@ -333,7 +333,7 @@ export const pt: Messages = {
     dropFiles: 'Solte os arquivos para anexar',
     removeAttachment: 'Remover',
     discarded: 'Rascunho descartado',
-    backInQueue: 'Cancelado. O rascunho voltou para o Início.',
+    backInQueue: 'Cancelado. O rascunho espera de novo no chat do seu bot.',
     canceled: 'Cancelado. Seu e-mail voltou para o editor.',
     cc: 'Cc',
     discard: 'Descartar',
@@ -411,7 +411,7 @@ export const pt: Messages = {
     needsPro: 'Isso requer o Fewmail Pro.',
     alreadySent: 'Já foi enviado, tarde demais para desfazer.',
     consentChanged:
-      'Isso mudou desde o pedido. Veja de novo e decida no Início.',
+      'Isso mudou desde o pedido. Veja de novo e decida no chat do bot.',
     notFound: 'Isso não existe mais. Talvez tenha sido excluído.',
     offline: 'Não foi possível conectar ao Fewmail. Verifique sua conexão.',
   },
@@ -589,7 +589,7 @@ export const pt: Messages = {
     ignoresUnsubscribe: (name: string) =>
       `${name} ignora cancelamentos de inscrição`,
     ignoresUnsubscribeHint:
-      'O Fewmail pediu o cancelamento, mas este remetente é conhecido por continuar escrevendo. Mandar os e-mails dele para a lixeira daqui em diante? Um bot vai fazer isso, e você pode excluí-lo no Início.',
+      'O Fewmail pediu o cancelamento, mas este remetente é conhecido por continuar escrevendo. Mandar os e-mails dele para a lixeira daqui em diante? Um bot vai fazer isso, e você pode excluí-lo entre seus bots.',
     blocked: 'Bloqueado. Os e-mails dele agora vão para a lixeira.',
     forward: 'Encaminhar',
     more: 'Mais',
@@ -663,7 +663,7 @@ export const pt: Messages = {
     unsubscribe: 'Cancelar inscrição',
     unsubscribed: 'Inscrição cancelada',
     unsubscribeFailed:
-      'Este remetente não tem cancelamento de inscrição com um clique, então o e-mail foi arquivado.',
+      'Este remetente não tem um cancelamento que o Fewmail consiga usar, então o e-mail foi arquivado, mas você continua na lista.',
     you: 'Você',
     sent: 'Enviado',
     writeReply: 'Escreva uma resposta…',
@@ -675,8 +675,8 @@ export const pt: Messages = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent}% dos leitores no Fewmail cancelaram a inscrição`,
-    unsubscribeHint: (emails: string) =>
-      `O Fewmail cancela sua inscrição na lista e arquiva tudo o que ela enviou (${emails} este mês). Cancelar uma inscrição não pode ser desfeito.`,
+    unsubscribeHint:
+      'O Fewmail cancela sua inscrição na lista e arquiva tudo o que ela enviou. Cancelar uma inscrição não pode ser desfeito.',
     archivedOnly:
       'Este remetente não tem um cancelamento que o Fewmail consiga usar, então os e-mails foram arquivados, mas você continua na lista e novos e-mails vão continuar chegando.',
     count: (total: number) => `Listas de e-mail: ${total}`,
@@ -713,7 +713,7 @@ export const pt: Messages = {
     syncFailedIn: (email: string) =>
       `Falha ao sincronizar ${email}, tentando de novo`,
     syncingIn: (email: string) => `Lendo ${email}…`,
-    home: 'Início',
+    home: 'Bots',
     trialLeft: (total: number) =>
       plural('pt', total, {
         one: () => 'Teste do Pro · falta 1 dia',
@@ -811,7 +811,6 @@ export const pt: Messages = {
   bots: {
     profile: 'O que eu faço',
     closeProfile: 'Fechar',
-    change: 'Alterar',
     since: (date: string) => `Trabalhando desde ${date}`,
     status: {
       acts: 'Age sozinho',
@@ -932,7 +931,7 @@ export const pt: Messages = {
     earlier: 'Mostrar anteriores',
     edit: 'Configurações do bot',
     effect: {
-      always_show: 'Manter no Início',
+      always_show: 'Mostrar-me cada um',
       archive: 'Arquivar',
       collect: 'Só reunir',
       draft_reply: 'Rascunhar resposta',
@@ -1036,7 +1035,7 @@ export const pt: Messages = {
         'O Fewmail para de ler esta caixa e esquece o que leu nela. Nada muda no Gmail.',
       add: 'Adicionar Gmail',
       addDescription:
-        'O e-mail de outra conta do Gmail chega ao mesmo Início e à mesma caixa de entrada. Ela nunca entra aqui: entrar com ela abre um Fewmail separado.',
+        'O e-mail de outra conta do Gmail chega aos mesmos bots e à mesma caixa de entrada. Ela nunca entra aqui: entrar com ela abre um Fewmail separado.',
       added: 'Caixa adicionada. Os e-mails aparecem em um minuto.',
       failed:
         'Não foi possível adicionar a caixa. Permita o acesso ao Gmail e tente de novo.',
@@ -1741,7 +1740,7 @@ export const pt: Messages = {
     board: { name: 'Quadro' },
     important: {
       instruction:
-        'O que precisa de um passo meu: pessoas esperando minha resposta, contas a vencer, alertas de segurança, qualquer coisa do meu banco ou do governo. Manter no Início',
+        'O que precisa de um passo meu: pessoas esperando minha resposta, contas a vencer, alertas de segurança, qualquer coisa do meu banco ou do governo. Mostrar-me cada um',
       name: 'Importante',
     },
     later: {

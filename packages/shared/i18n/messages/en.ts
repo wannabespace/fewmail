@@ -47,7 +47,7 @@ export const en = {
     pending: 'waiting for you',
   },
   agent: {
-    decideOnHome: 'Decide on Home',
+    decideOnHome: 'Decide in Fewmail',
     fromAgent: 'The agent asks',
     mcpAsks: (client: string) => `${client} asks through MCP`,
     calendar: (email: string) => `In the calendar of ${email}`,
@@ -205,7 +205,7 @@ export const en = {
     dropFiles: 'Drop files to attach',
     removeAttachment: 'Remove',
     discarded: 'Draft discarded',
-    backInQueue: 'Canceled. The draft is back on Home.',
+    backInQueue: 'Canceled. The draft waits in its bot’s chat again.',
     canceled: 'Canceled. Your email is back in the editor.',
     cc: 'Cc',
     discard: 'Discard',
@@ -401,7 +401,7 @@ export const en = {
     needsPro: 'This needs Fewmail Pro.',
     alreadySent: "Already sent, it's too late to undo.",
     consentChanged:
-      'This changed since it was asked. Look at it again and decide on Home.',
+      'This changed since it was asked. Look at it again and decide in its bot’s chat.',
     notFound: 'This is no longer here. It may have been deleted.',
     offline: "Can't reach Fewmail. Check your connection.",
   },
@@ -576,7 +576,7 @@ export const en = {
     block: 'Block sender',
     ignoresUnsubscribe: (name: string) => `${name} ignores unsubscribes`,
     ignoresUnsubscribeHint:
-      'Fewmail asked to leave, but this sender is known to keep writing anyway. Send their mail to the trash from now on? A bot will do it, and you can delete it on Home.',
+      'Fewmail asked to leave, but this sender is known to keep writing anyway. Send their mail to the trash from now on? A bot will do it, and you can delete it among your bots.',
     blocked: 'Blocked. Their mail now goes to the trash.',
     forward: 'Forward',
     more: 'More',
@@ -645,7 +645,7 @@ export const en = {
     unsubscribe: 'Unsubscribe',
     unsubscribed: 'Unsubscribed',
     unsubscribeFailed:
-      'This sender has no one-click unsubscribe, so the email was archived.',
+      'This sender has no unsubscribe Fewmail can use, so the email was archived, but you are still on the list.',
     you: 'You',
     sent: 'Sent',
     writeReply: 'Write a reply…',
@@ -657,8 +657,8 @@ export const en = {
   subscriptions: {
     leftBy: (percent: number) =>
       `${percent}% of its readers on Fewmail left it`,
-    unsubscribeHint: (emails: string) =>
-      `Fewmail leaves the list and archives everything it sent (${emails} this month). Leaving a list cannot be undone.`,
+    unsubscribeHint:
+      'Fewmail leaves the list and archives everything it has sent. Leaving a list cannot be undone.',
     archivedOnly:
       'This sender has no unsubscribe Fewmail can use, so its mail was archived, but you are still on the list and new mail will keep arriving.',
     count: (total: number) =>
@@ -698,7 +698,7 @@ export const en = {
     loading: 'Loading',
     syncFailedIn: (email: string) => `Couldn’t sync ${email}, retrying`,
     syncingIn: (email: string) => `Reading ${email}…`,
-    home: 'Home',
+    home: 'Bots',
     trialLeft: (total: number) =>
       plural('en', total, {
         one: () => 'Pro trial · 1 day left',
@@ -795,7 +795,6 @@ export const en = {
   bots: {
     profile: 'What I do',
     closeProfile: 'Close',
-    change: 'Change',
     since: (date: string) => `Working since ${date}`,
     status: {
       acts: 'Acts on its own',
@@ -907,7 +906,7 @@ export const en = {
     earlier: 'Show earlier',
     edit: 'Bot settings',
     effect: {
-      always_show: 'Keep it on Home',
+      always_show: 'Show me every one',
       archive: 'Archive it',
       collect: 'Just collect it',
       draft_reply: 'Draft a reply',
@@ -1010,7 +1009,7 @@ export const en = {
         'Fewmail stops reading it and forgets what it read there. Nothing changes in Gmail.',
       add: 'Add Gmail',
       addDescription:
-        'Another Gmail account’s mail joins the same Home and inbox. It never signs anyone in here: signing in with it opens a separate Fewmail.',
+        'Another Gmail account’s mail joins the same bots and inbox. It never signs anyone in here: signing in with it opens a separate Fewmail.',
       added: 'Mailbox added. Its mail shows up in a minute.',
       failed: 'Could not add the mailbox. Allow Gmail access and try again.',
       lost: 'Gmail access was lost. Add it again to reconnect.',
@@ -1694,7 +1693,7 @@ export const en = {
     board: { name: 'Board' },
     important: {
       instruction:
-        'What needs a step from me: people waiting for my answer, bills that are due, security alerts, anything from my bank or government. Keep them on Home',
+        'What needs a step from me: people waiting for my answer, bills that are due, security alerts, anything from my bank or government. Show me every one',
       name: 'Important',
     },
     later: {
