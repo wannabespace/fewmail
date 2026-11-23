@@ -1,1 +1,0 @@
-ALTER TABLE "actions" ADD COLUMN "banner_dismissed_at" timestamp with time zone;

@@ -1,1 +1,0 @@
-ALTER TABLE "user_settings" ALTER COLUMN "brief_hour" SET DEFAULT 20;

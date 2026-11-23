@@ -124,7 +124,7 @@ const [harden, hardenOptions] = defaultRehypePlugins.harden as [
   PluggableList[number],
   object,
 ]
-// Without an origin, harden blocks every relative link — the agent's `?thread=` links included.
+// Without an origin, harden blocks every relative link.
 const rehypePlugins = [
   defaultRehypePlugins.raw,
   defaultRehypePlugins.sanitize,

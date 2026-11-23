@@ -60,7 +60,7 @@ const listPeople = async (account: GmailAccount, field: PeopleField) => {
       })}`,
       { headers }
     )
-    // A grant from before the contacts scopes, or with them unticked, has no contacts to give.
+    // A grant with the contacts scopes unticked has no contacts to give.
     if (response.status === 403) {
       return people
     }

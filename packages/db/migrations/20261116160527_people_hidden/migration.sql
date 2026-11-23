@@ -1,1 +1,0 @@
-ALTER TABLE "people" ADD COLUMN "hidden_at" timestamp with time zone;

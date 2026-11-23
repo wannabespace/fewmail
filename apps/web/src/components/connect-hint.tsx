@@ -44,12 +44,7 @@ const SLIDE = { duration: 0.15, ease: [0.32, 0.72, 0, 1] } as const
 const hintsStore = createWebStorageValue({
   defaultValue: { dismissed: [] },
   key: 'fewmail.hints',
-  schema: z.object({
-    // Browsers still hold the retired hints; without them the whole list fails to parse and every dismissed hint comes back.
-    dismissed: z.array(
-      z.enum([...HINTS, 'ask', 'boards', 'telegram', 'whatsapp'])
-    ),
-  }),
+  schema: z.object({ dismissed: z.array(z.enum(HINTS)) }),
   type: 'localStorage',
 })
 

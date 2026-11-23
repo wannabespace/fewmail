@@ -16,7 +16,6 @@ import { Route as DesktopRouteImport } from './routes/desktop'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as AppBoardRouteImport } from './routes/_app/board'
 import { Route as AppCalendarRouteImport } from './routes/_app/calendar'
 import { Route as AppComposeRouteImport } from './routes/_app/compose'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
@@ -24,7 +23,6 @@ import { Route as AppMailRouteImport } from './routes/_app/mail'
 import { Route as AppReadingRouteImport } from './routes/_app/reading'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppSubscriptionsRouteImport } from './routes/_app/subscriptions'
-import { Route as AppTodayRouteImport } from './routes/_app/today'
 import { Route as AppWrappedRouteImport } from './routes/_app/wrapped'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteAiEmailAssistantRouteImport } from './routes/_site/ai-email-assistant'
@@ -74,11 +72,6 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppBoardRoute = AppBoardRouteImport.update({
-  id: '/board',
-  path: '/board',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppCalendarRoute = AppCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
@@ -112,11 +105,6 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
 const AppSubscriptionsRoute = AppSubscriptionsRouteImport.update({
   id: '/subscriptions',
   path: '/subscriptions',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppTodayRoute = AppTodayRouteImport.update({
-  id: '/today',
-  path: '/today',
   getParentRoute: () => AppRoute,
 } as any)
 const AppWrappedRoute = AppWrappedRouteImport.update({
@@ -202,7 +190,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/board': typeof AppBoardRoute
   '/calendar': typeof AppCalendarRoute
   '/compose': typeof AppComposeRoute
   '/home': typeof AppHomeRoute
@@ -210,7 +197,6 @@ export interface FileRoutesByFullPath {
   '/reading': typeof AppReadingRoute
   '/settings': typeof AppSettingsRoute
   '/subscriptions': typeof AppSubscriptionsRoute
-  '/today': typeof AppTodayRoute
   '/wrapped': typeof AppWrappedRoute
   '/ai-email-assistant': typeof SiteAiEmailAssistantRoute
   '/mcp': typeof SiteMcpRoute
@@ -233,7 +219,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/board': typeof AppBoardRoute
   '/calendar': typeof AppCalendarRoute
   '/compose': typeof AppComposeRoute
   '/home': typeof AppHomeRoute
@@ -241,7 +226,6 @@ export interface FileRoutesByTo {
   '/reading': typeof AppReadingRoute
   '/settings': typeof AppSettingsRoute
   '/subscriptions': typeof AppSubscriptionsRoute
-  '/today': typeof AppTodayRoute
   '/wrapped': typeof AppWrappedRoute
   '/ai-email-assistant': typeof SiteAiEmailAssistantRoute
   '/mcp': typeof SiteMcpRoute
@@ -266,7 +250,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/_app/board': typeof AppBoardRoute
   '/_app/calendar': typeof AppCalendarRoute
   '/_app/compose': typeof AppComposeRoute
   '/_app/home': typeof AppHomeRoute
@@ -274,7 +257,6 @@ export interface FileRoutesById {
   '/_app/reading': typeof AppReadingRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/subscriptions': typeof AppSubscriptionsRoute
-  '/_app/today': typeof AppTodayRoute
   '/_app/wrapped': typeof AppWrappedRoute
   '/_site/ai-email-assistant': typeof SiteAiEmailAssistantRoute
   '/_site/mcp': typeof SiteMcpRoute
@@ -300,7 +282,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy'
     | '/terms'
-    | '/board'
     | '/calendar'
     | '/compose'
     | '/home'
@@ -308,7 +289,6 @@ export interface FileRouteTypes {
     | '/reading'
     | '/settings'
     | '/subscriptions'
-    | '/today'
     | '/wrapped'
     | '/ai-email-assistant'
     | '/mcp'
@@ -331,7 +311,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy'
     | '/terms'
-    | '/board'
     | '/calendar'
     | '/compose'
     | '/home'
@@ -339,7 +318,6 @@ export interface FileRouteTypes {
     | '/reading'
     | '/settings'
     | '/subscriptions'
-    | '/today'
     | '/wrapped'
     | '/ai-email-assistant'
     | '/mcp'
@@ -363,7 +341,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy'
     | '/terms'
-    | '/_app/board'
     | '/_app/calendar'
     | '/_app/compose'
     | '/_app/home'
@@ -371,7 +348,6 @@ export interface FileRouteTypes {
     | '/_app/reading'
     | '/_app/settings'
     | '/_app/subscriptions'
-    | '/_app/today'
     | '/_app/wrapped'
     | '/_site/ai-email-assistant'
     | '/_site/mcp'
@@ -451,13 +427,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/board': {
-      id: '/_app/board'
-      path: '/board'
-      fullPath: '/board'
-      preLoaderRoute: typeof AppBoardRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/calendar': {
       id: '/_app/calendar'
       path: '/calendar'
@@ -505,13 +474,6 @@ declare module '@tanstack/react-router' {
       path: '/subscriptions'
       fullPath: '/subscriptions'
       preLoaderRoute: typeof AppSubscriptionsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/today': {
-      id: '/_app/today'
-      path: '/today'
-      fullPath: '/today'
-      preLoaderRoute: typeof AppTodayRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/wrapped': {
@@ -623,7 +585,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
-  AppBoardRoute: typeof AppBoardRoute
   AppCalendarRoute: typeof AppCalendarRoute
   AppComposeRoute: typeof AppComposeRoute
   AppHomeRoute: typeof AppHomeRoute
@@ -631,7 +592,6 @@ interface AppRouteChildren {
   AppReadingRoute: typeof AppReadingRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSubscriptionsRoute: typeof AppSubscriptionsRoute
-  AppTodayRoute: typeof AppTodayRoute
   AppWrappedRoute: typeof AppWrappedRoute
   AppMailThreadIdRoute: typeof AppMailThreadIdRoute
   AppMailArchiveRoute: typeof AppMailArchiveRoute
@@ -643,7 +603,6 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppBoardRoute: AppBoardRoute,
   AppCalendarRoute: AppCalendarRoute,
   AppComposeRoute: AppComposeRoute,
   AppHomeRoute: AppHomeRoute,
@@ -651,7 +610,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppReadingRoute: AppReadingRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSubscriptionsRoute: AppSubscriptionsRoute,
-  AppTodayRoute: AppTodayRoute,
   AppWrappedRoute: AppWrappedRoute,
   AppMailThreadIdRoute: AppMailThreadIdRoute,
   AppMailArchiveRoute: AppMailArchiveRoute,

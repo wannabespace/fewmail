@@ -116,7 +116,7 @@ const tilesOf = (shared: Shared, locale: Locale) => {
 }
 
 const drawnLocale = (shared: Shared): Locale =>
-  shared.locale && DRAWN_LOCALES.has(shared.locale) ? shared.locale : 'en'
+  DRAWN_LOCALES.has(shared.locale) ? shared.locale : 'en'
 
 /** The 1200×630 preview social apps show for a shared Wrapped link: the same counts as the card, nothing else. */
 export const wrappedImage = async (shared: Shared) => {

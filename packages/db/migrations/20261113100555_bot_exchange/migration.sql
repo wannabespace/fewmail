@@ -1,1 +1,0 @@
-ALTER TABLE "bot_messages" ADD COLUMN "exchange" text;

@@ -135,8 +135,6 @@ export interface HomeBot extends Chat {
   own: OwnBot | null
 }
 
-export const ownName = (bot: OwnBot) => bot.name ?? ''
-
 /** Fewmail, then the user's bots newest first, each with its name and what it looks after. */
 export const useBots = (): HomeBot[] => {
   const t = useT()
@@ -158,7 +156,7 @@ export const useBots = (): HomeBot[] => {
               (bot.match
                 ? t.bots.simple.title[bot.match.field](bot.match.value)
                 : t.bots.effect[bot.effect]),
-            name: ownName(bot),
+            name: bot.name,
             own: bot,
           },
         ]
@@ -640,7 +638,7 @@ export const BotFolderRow = ({
   )
 }
 
-/** The bot that keeps the promises, if the user has one; `?bot=board` (`G B`, the old `/board`) opens it. */
+/** The bot that keeps the promises, if the user has one; `?bot=board` (`G B`) opens it. */
 export const boardOf = (bots: HomeBot[]) => bots.find(isBoardBot)
 
 export const isBoardBot = (bot?: Pick<HomeBot, 'own'>) =>

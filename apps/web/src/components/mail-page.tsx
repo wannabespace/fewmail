@@ -154,7 +154,7 @@ import { posthog } from '~/lib/posthog'
 import { STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { pendingToast, settleToast, toastDeferred } from '~/lib/undo'
 
-const INBOX_VIEWS = ['focused', 'unread', 'categories', 'inbox'] as const
+export const INBOX_VIEWS = ['focused', 'unread', 'categories', 'inbox'] as const
 
 type InboxView = (typeof INBOX_VIEWS)[number]
 
@@ -401,12 +401,12 @@ const groupKeyOf = (
   ) {
     return 'earlier'
   }
-  const group = analysis ? GROUP_OF[analysis.category] : 'people'
-  // Mail analysed before senders were checked may still call a service a person, and unanalysed mail is only a guess.
-  return group === 'people' &&
-    (message.isMassMail || isAutomatedSender(message.fromEmail))
+  if (analysis) {
+    return GROUP_OF[analysis.category]
+  }
+  return message.isMassMail || isAutomatedSender(message.fromEmail)
     ? 'updates'
-    : group
+    : 'people'
 }
 
 const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
@@ -2838,11 +2838,9 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
     },
     { enabled: related.anchorIndex !== -1 }
   )
-  const showFilter = (next: Filter) => {
-    if (isInboxView(next)) {
-      inboxViewStore.set(next)
-      posthog.capture('mail_view_picked', { view: next })
-    }
+  const showFilter = (next: InboxView) => {
+    inboxViewStore.set(next)
+    posthog.capture('mail_view_picked', { view: next })
     return navigate({
       to: '.',
       search: (prev) => ({

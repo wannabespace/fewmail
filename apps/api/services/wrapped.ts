@@ -103,8 +103,8 @@ const signature = (payload: string) =>
 
 export interface Shared {
   label: string
-  /** The sharer's language, for the link's preview image; absent on links made before it. */
-  locale?: Locale
+  /** The sharer's language, for the link's preview image. */
+  locale: Locale
   period: WrappedPeriod
   stats: WrappedStats
 }

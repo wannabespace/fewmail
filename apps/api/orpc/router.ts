@@ -677,9 +677,9 @@ export const router = {
       .handler(({ context, input }) => saveSettings(context.user.id, input)),
   },
   live: authed
-    .input(type({ 'device?': 'string.uuid' }).or('undefined'))
+    .input(type({ 'device?': 'string.uuid' }))
     .handler(async function* live({ context, input, signal }) {
-      if (input?.device) {
+      if (input.device) {
         keepDeviceSeen(context.user.id, input.device, signal)
       }
       yield* watchChanges(context.user.id, signal)
@@ -727,7 +727,7 @@ export const router = {
       ),
     issues: authed.handler(({ context }) => listReadingIssues(context.user.id)),
     markRead: authed
-      .input(readingDayInput)
+      .input(type({ day: /^\d{4}-\d{2}-\d{2}$/u }))
       .handler(({ context, input }) =>
         markReadingRead(context.user.id, input.day)
       ),

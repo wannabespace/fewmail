@@ -1,2 +1,0 @@
-ALTER TABLE "outbox" ADD COLUMN "reply_to_message_id" uuid;--> statement-breakpoint
-ALTER TABLE "outbox" ADD CONSTRAINT "outbox_reply_to_message_id_messages_id_fkey" FOREIGN KEY ("reply_to_message_id") REFERENCES "messages"("id") ON DELETE SET NULL;

@@ -10,7 +10,6 @@ import {
 import type { BotEffect, BotPreset, MailBotEffect } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
-import type { Locale } from '@fewmail/shared/i18n/locales'
 import { choice } from '@typesafe-ai/sdk'
 import { and, desc, eq, isNull, lte, or, sql } from 'drizzle-orm'
 
@@ -36,100 +35,12 @@ export const isWorking = or(
   lte(bots.pausedUntil, sql`now()`)
 )
 
-const NAME_WORDS = 3
-const SHORT_WORD = 3
-
-/** A bot from before names were required is named once from its own words: what it matches, or its instruction's first clause. */
-const nameOf = (bot: typeof bots.$inferSelect, t: Messages) => {
-  if (bot.effect === BOARD_EFFECT) {
-    return t.starterBots.board.name
-  }
-  if (bot.match) {
-    return bot.match.value || t.bots.simple.title.mailingList()
-  }
-  const words = (bot.instruction ?? '')
-    .split(/[,.;:(]/u)[0]
-    ?.trim()
-    .split(/\s+/u)
-    .slice(0, NAME_WORDS) ?? ['']
-  // "Newsletters and" reads as cut off: a short word never ends a name.
-  while (words.length > 1 && (words.at(-1)?.length ?? 0) <= SHORT_WORD) {
-    words.pop()
-  }
-  const name = words.join(' ')
-  return `${name.charAt(0).toLocaleUpperCase()}${name.slice(1)}`
-}
-
-/** A rule's effect was picked apart from its words; a bot's words are the only place it shows, so they say it. */
-const sayEffect = (bot: typeof bots.$inferSelect, t: Messages) =>
-  bot.instruction && bot.effect !== 'collect'
-    ? `${bot.instruction.trim().replace(/[.。]$/u, '')}. ${t.bots.effect[bot.effect]}`
-    : bot.instruction
-
-/**
- * How `always_show` was said while Home was a page ("Keep them on Home"): a bot made then still ends its words on it,
- * so the first read says it as now ("Show me every one"), in the language it was written in.
- */
-const HOME_WORDS: Record<Locale, string[]> = {
-  de: ['Auf der Startseite halten'],
-  en: ['Keep it on Home', 'Keep them on Home'],
-  es: ['Mantenerlo en Inicio', 'Mantenerlos en Inicio'],
-  fr: ['Le garder sur l’Accueil', 'Les garder sur l’Accueil'],
-  hi: ['होम पर रखें'],
-  id: ['Tetap di Beranda', 'Simpan di Beranda'],
-  it: ['Tienila in Home', 'Tienile in Home'],
-  ja: ['ホームに残す'],
-  ko: ['홈에 두기'],
-  nl: ['Op Home houden'],
-  pl: ['Zostaw na Stronie głównej'],
-  pt: ['Manter no Início'],
-  tr: ['Ana Sayfa’da tut'],
-  uk: ['Тримати на «Головній»'],
-  zh: ['留在首页'],
-}
-
-const withoutHome = (instruction: string | null) => {
-  if (!instruction) {
-    return instruction
-  }
-  for (const [language, words] of Object.entries(HOME_WORDS)) {
-    const said = words.find((each) => instruction.trimEnd().endsWith(each))
-    if (said) {
-      return `${instruction.trimEnd().slice(0, -said.length)}${dictionaries[language as Locale].bots.effect.always_show}`
-    }
-  }
-  return instruction
-}
-
-/** Words or a name the bot was given before they were what they are now, set right once. */
-const isDated = (bot: typeof bots.$inferSelect) =>
-  bot.name === null || withoutHome(bot.instruction) !== bot.instruction
-
-export const listBots = async (userId: string) => {
-  const rows = await db
+export const listBots = (userId: string) =>
+  db
     .select()
     .from(bots)
     .where(eq(bots.userId, userId))
     .orderBy(...BOT_ORDER)
-  if (!rows.some(isDated)) {
-    return rows
-  }
-  const settings = await getSettings(userId)
-  const t = dictionaries[settings?.language ?? 'en']
-  return Promise.all(
-    rows.map(async (bot) => {
-      if (!isDated(bot)) {
-        return bot
-      }
-      const fixed =
-        bot.name === null
-          ? { instruction: sayEffect(bot, t), name: nameOf(bot, t) }
-          : { instruction: withoutHome(bot.instruction) }
-      await db.update(bots).set(fixed).where(eq(bots.id, bot.id))
-      return { ...bot, ...fixed }
-    })
-  )
-}
 
 /** A preset as the user's bot, in their language. */
 export const presetBot = (

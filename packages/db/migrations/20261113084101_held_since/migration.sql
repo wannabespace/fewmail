@@ -1,1 +1,0 @@
-ALTER TABLE "mailboxes" ADD COLUMN "held_since" timestamp with time zone DEFAULT now() NOT NULL;

@@ -1,1 +1,0 @@
-ALTER TABLE "user_settings" ADD COLUMN "starter_boards" text[] DEFAULT '{money}'::text[] NOT NULL;

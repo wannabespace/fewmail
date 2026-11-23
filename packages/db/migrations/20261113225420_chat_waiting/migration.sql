@@ -1,1 +1,0 @@
-ALTER TABLE "chats" ADD COLUMN "waiting" boolean DEFAULT false NOT NULL;

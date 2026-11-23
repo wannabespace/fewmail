@@ -780,18 +780,13 @@ export const markThreadRead = (userId: string, threadId: string) =>
 export const markThreadUnread = (userId: string, threadId: string) =>
   changeThreadLabels(userId, threadId, { add: ['UNREAD'] })
 
-const needsGmail = (message: typeof messages.$inferSelect) =>
-  message.html === null ||
-  (message.attachments === null &&
-    (message.hasAttachments || message.html.includes('cid:')))
-
-/** Held mail is stored without its HTML, and mail stored before attachments were kept has no list of them. */
+/** Held mail is stored without its HTML. */
 const fillFromGmail = async (
   userId: string,
   threadId: string,
   rows: { message: typeof messages.$inferSelect }[]
 ) => {
-  const missing = rows.filter(({ message }) => needsGmail(message))
+  const missing = rows.filter(({ message }) => message.html === null)
   if (missing.length === 0) {
     return
   }
@@ -802,11 +797,7 @@ const fillFromGmail = async (
         () => null
       )
       if (parsed) {
-        const filled = {
-          attachments: parsed.attachments,
-          code: parsed.code,
-          html: parsed.html,
-        }
+        const filled = { html: parsed.html }
         Object.assign(message, filled)
         await db.update(messages).set(filled).where(eq(messages.id, message.id))
       }

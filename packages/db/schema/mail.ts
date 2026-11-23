@@ -96,8 +96,7 @@ export const messages = d.snakeCase.table(
     fromEmail: searchableText().notNull(),
     fromName: encryptedText(),
     gmailId: d.text().notNull(),
-    /** Null for mail stored before it was kept: read again from Gmail when first opened (`fillFromGmail`). */
-    attachments: encryptedJson<MailAttachment[]>(),
+    attachments: encryptedJson<MailAttachment[]>().notNull(),
     hasAttachments: d.boolean().notNull(),
     /** Empty when the email has no HTML part; null until first opened for held mail stored without it (`keepsHtml: false`). */
     html: encryptedText(),
@@ -119,8 +118,8 @@ export const messages = d.snakeCase.table(
     receivedAt: d.timestamp({ withTimezone: true }).notNull(),
     replyTo: encryptedText(),
     risk: d.jsonb().$type<MessageRisk>(),
-    /** Keyed hashes of the subject's and sender's word beginnings (`searchTokensOf`); null until indexed. */
-    searchTokens: d.text().array(),
+    /** Keyed hashes of the subject's and sender's word beginnings (`searchTokensOf`). */
+    searchTokens: d.text().array().notNull(),
     snippet: encryptedText().notNull(),
     suspicion: d.smallint(),
     subject: encryptedText().notNull(),
@@ -139,11 +138,6 @@ export const messages = d.snakeCase.table(
     d.index('messages_to_idx').using('gin', table.to),
     d.index('messages_cc_idx').using('gin', table.cc),
     d.index('messages_search_tokens_idx').using('gin', table.searchTokens),
-    // The backfill asks for unindexed mail every tick: without it that is a scan of every message, long after none is left.
-    d
-      .index('messages_unindexed_idx')
-      .on(table.id)
-      .where(sql`${table.searchTokens} is null`),
     // The worker drops old HTML every tick: without it that is a scan of every message.
     d
       .index('messages_html_kept_idx')
@@ -160,8 +154,7 @@ export interface SimpleMatch {
 export interface Extracted {
   amount: string | null
   dueDate: string | null
-  /** Absent on analyses written before it existed. */
-  meetingStart?: string | null
+  meetingStart: string | null
   meetingTime: string | null
 }
 
@@ -175,8 +168,8 @@ export const bots = d.snakeCase.table('bots', {
   instruction: encryptedText(),
   /** Simple bot matched without AI, available on every plan; null for an agent bot. */
   match: encryptedJson<SimpleMatch>(),
-  /** What its chat is called. Required since bots replaced rules; one made before gets it on the first read (`listBots`), and its effect is written into its instruction then. */
-  name: encryptedText(),
+  /** What its chat is called. */
+  name: encryptedText().notNull(),
   /** Until then it takes no mail: Jev and the simple bots skip it and its mail is Fewmail's; null, it works. */
   pausedUntil: d.timestamp({ withTimezone: true }),
   userId: userId(),

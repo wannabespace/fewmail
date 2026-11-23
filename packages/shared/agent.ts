@@ -501,8 +501,7 @@ export interface CleanupSender {
   count: number
   fromEmail: string
   fromName: string | null
-  /** Absent on cards offered before lists were told apart by List-Id. */
-  listId?: string | null
+  listId: string | null
   messageId: string
 }
 

@@ -1,1 +1,0 @@
-ALTER TABLE "boards" ADD COLUMN "period_days" smallint DEFAULT 90 NOT NULL;

@@ -295,8 +295,7 @@ export const proposeConsent = async (
 
 /**
  * Runs the tool only when what the yes covered is still what the card showed: a draft edited, a thread moved or an
- * event changed since makes the card show the new state and ask again (`ConsentChangedError`). Cards asked before
- * the state was kept carry none and run as before.
+ * event changed since makes the card show the new state and ask again (`ConsentChangedError`).
  */
 export const runConsent = async (
   userId: string,
@@ -305,17 +304,15 @@ export const runConsent = async (
 ) => {
   const name = payload?.tool as ConsentToolName
   const input = (payload?.input ?? {}) as ToolInput
-  if (payload && 'state' in payload) {
-    const now = await consentState(userId, name, input)
-    if (JSON.stringify(now) !== JSON.stringify(payload.state)) {
-      const snapshot = await consentSnapshot(userId, name, input)
-      await db
-        .update(actions)
-        .set({ payload: { ...payload, ...snapshot } })
-        .where(eq(actions.id, actionId))
-      await announceChange(userId, ['actions', 'today'])
-      throw new ConsentChangedError('The card changed since it was asked')
-    }
+  const now = await consentState(userId, name, input)
+  if (JSON.stringify(now) !== JSON.stringify(payload?.state)) {
+    const snapshot = await consentSnapshot(userId, name, input)
+    await db
+      .update(actions)
+      .set({ payload: { ...payload, ...snapshot } })
+      .where(eq(actions.id, actionId))
+    await announceChange(userId, ['actions', 'today'])
+    throw new ConsentChangedError('The card changed since it was asked')
   }
   return agentTools(userId)[name].run(input as never)
 }
@@ -457,7 +454,7 @@ export const botScope = (
     return `You are the user's bot "${own.name}" in this chat, their Board: the promises and last days the agent tracks (list_promises, set_promise_status). ${remind}`
   }
   const takes = own.instruction ?? `mail matching ${JSON.stringify(own.match)}`
-  return `You are the user's bot "${own.name ?? takes}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else; a new bot is made in Fewmail Bot's chat, so send them there for one. When the user asks you to take other mail, act differently, ask before acting, act on your own or pause, change yourself with update_bot, id "${bot}". ${remind}`
+  return `You are the user's bot "${own.name}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else; a new bot is made in Fewmail Bot's chat, so send them there for one. When the user asks you to take other mail, act differently, ask before acting, act on your own or pause, change yourself with update_bot, id "${bot}". ${remind}`
 }
 
 const quoteFor = (quote: { from: 'bot' | 'user'; text: string }) =>

@@ -1,1 +1,0 @@
-ALTER TABLE "usage" ADD COLUMN "speech" integer DEFAULT 0 NOT NULL;

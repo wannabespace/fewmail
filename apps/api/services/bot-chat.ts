@@ -772,10 +772,10 @@ const botName = async (
     return t.bots.fewmail
   }
   const [own] = await db
-    .select({ instruction: bots.instruction, name: bots.name })
+    .select({ name: bots.name })
     .from(bots)
     .where(and(eq(bots.id, bot), eq(bots.userId, userId)))
-  return own?.name ?? own?.instruction ?? t.bots.fewmail
+  return own?.name ?? t.bots.fewmail
 }
 
 /** Nudges that came due: each bot says it once, never at night, and notifies unless the user muted it. */

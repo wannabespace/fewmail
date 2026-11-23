@@ -693,7 +693,7 @@ const cardPayload = async (
   kind: ActionKind,
   output: {
     actionTitle: string
-    extracted: { meetingStart?: string | null }
+    extracted: { meetingStart: string | null }
     summary: string
   },
   context: { settings: Settings; writes: boolean }
@@ -806,7 +806,7 @@ const queueForAgent = async (
   message: Message,
   output: {
     actionTitle: string
-    extracted: { meetingStart?: string | null }
+    extracted: { meetingStart: string | null }
     importance: number
     needsReply: boolean
     reason: string

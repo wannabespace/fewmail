@@ -25,7 +25,6 @@ import { createDebouncedFn } from 'seitu'
 import { toast } from 'sonner'
 
 import { refreshBots } from '~/components/bot-chat'
-import { ownName } from '~/components/bot-list'
 import type { OwnBot } from '~/components/bot-list'
 import { confirm } from '~/components/confirm-dialog'
 import { botChats, ownBots } from '~/lib/home-db'
@@ -282,7 +281,7 @@ export const BotForm = ({
       action: t.bots.delete,
       description: t.bots.deleteHint,
       onConfirm: () => remove.mutate({ id: own.id }),
-      title: t.bots.deleteConfirm(ownName(own)),
+      title: t.bots.deleteConfirm(own.name),
       variant: 'destructive',
     })
   return (

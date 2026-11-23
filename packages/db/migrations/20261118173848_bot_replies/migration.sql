@@ -1,1 +1,0 @@
-ALTER TABLE "bot_posts" ADD COLUMN "reply_to" uuid;

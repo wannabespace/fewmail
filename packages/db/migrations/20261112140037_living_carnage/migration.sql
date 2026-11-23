@@ -1,1 +1,0 @@
-ALTER TABLE "user_settings" ADD COLUMN "voice_brief" boolean DEFAULT false NOT NULL;

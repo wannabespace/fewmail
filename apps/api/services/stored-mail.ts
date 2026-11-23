@@ -2,7 +2,7 @@ import { db } from '@fewmail/db'
 import { mailboxes, messages } from '@fewmail/db/schema'
 import { Result } from 'better-result'
 import { subDays } from 'date-fns'
-import { and, eq, inArray, isNotNull, isNull, lt } from 'drizzle-orm'
+import { and, eq, inArray, isNotNull, lt } from 'drizzle-orm'
 
 import { inBatches } from '../lib/batches'
 import { getMessage, isMissing, listThreadMessageIds } from '../lib/gmail'
@@ -96,35 +96,8 @@ export const insertMessages = async (
   return inserted
 }
 
-const INDEX_BATCH = 1000
-
-/** Mail stored before the search index existed, a batch a tick. */
-export const indexStoredMail = async () => {
-  const due = await db
-    .select({
-      fromEmail: messages.fromEmail,
-      fromName: messages.fromName,
-      id: messages.id,
-      subject: messages.subject,
-      userId: messages.userId,
-    })
-    .from(messages)
-    .where(isNull(messages.searchTokens))
-    .limit(INDEX_BATCH)
-  await inBatches(
-    due,
-    STORE_CONCURRENCY,
-    ({ fromEmail, fromName, id, subject, userId }) =>
-      db
-        .update(messages)
-        .set({
-          searchTokens: searchTokensOf(userId, [subject, fromName, fromEmail]),
-        })
-        .where(eq(messages.id, id))
-  )
-}
-
 const HTML_KEPT_DAYS = 30
+const HTML_BATCH = 1000
 
 /** Old mail keeps its text; its HTML, most of a row, is read again from Gmail when it is opened (`fillFromGmail`). */
 export const dropOldHtml = () =>
@@ -143,7 +116,7 @@ export const dropOldHtml = () =>
               lt(messages.receivedAt, subDays(new Date(), HTML_KEPT_DAYS))
             )
           )
-          .limit(INDEX_BATCH)
+          .limit(HTML_BATCH)
       )
     )
 

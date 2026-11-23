@@ -48,7 +48,7 @@ import {
   processDueReminders,
 } from './services/reminders'
 import { learnVoice, VOICE_EVERY_SENT } from './services/sent-mail'
-import { dropOldHtml, indexStoredMail } from './services/stored-mail'
+import { dropOldHtml } from './services/stored-mail'
 import {
   ensureMailbox,
   HELD_MONTHS,
@@ -333,7 +333,6 @@ const tick = async () => {
         await pruneBotPosts()
       }),
       once('known-domains', refreshKnownDomains),
-      once('search-index', indexStoredMail),
       once('bulk-prints', pruneBulkPrints),
       once('old-html', dropOldHtml),
     ])

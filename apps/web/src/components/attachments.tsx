@@ -24,9 +24,8 @@ const attachmentUrl = (messageId: string, partId: string) =>
 
 /** Draws an email's `cid:` images from its own files; without this they show as broken images. */
 export const cidSource =
-  (message: { attachments: MailAttachment[] | null; id: string }) =>
-  (src: string) => {
-    const file = attachmentOfCid(message.attachments ?? [], src)
+  (message: { attachments: MailAttachment[]; id: string }) => (src: string) => {
+    const file = attachmentOfCid(message.attachments, src)
     return file && attachmentUrl(message.id, file.partId)
   }
 
@@ -70,10 +69,10 @@ export const FileChip = ({
 
 /** The files an email's HTML does not draw itself: listed under it, and kept when it is forwarded. */
 export const listedAttachments = (message: {
-  attachments: MailAttachment[] | null
+  attachments: MailAttachment[]
   html: string | null
 }) =>
-  (message.attachments ?? []).filter(
+  message.attachments.filter(
     ({ contentId }) => !contentId || !message.html?.includes(`cid:${contentId}`)
   )
 
@@ -92,7 +91,7 @@ export const MessageAttachments = ({
   message,
 }: {
   message: {
-    attachments: MailAttachment[] | null
+    attachments: MailAttachment[]
     html: string | null
     id: string
     labelIds: string[]

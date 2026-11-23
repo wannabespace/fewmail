@@ -12,7 +12,7 @@ import { cn } from '@fewmail/ui/lib/utils'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { differenceInMinutes, isToday, subDays } from 'date-fns'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -787,24 +787,9 @@ const HomePage = () => {
 }
 
 export const Route = createFileRoute('/_app/home')({
-  beforeLoad: ({ search }) => {
-    // Digests and notifications already sent still open an issue on Home.
-    if (search.day) {
-      throw redirect({ search: { day: search.day }, to: '/reading' })
-    }
-    // Agent answers and older links still open an email with `?thread=`.
-    if (search.thread) {
-      throw redirect({
-        params: { threadId: search.thread },
-        to: '/mail/$threadId',
-      })
-    }
-  },
   component: HomePage,
   validateSearch: z.object({
     bot: z.optional(z.string()),
-    day: z.optional(z.string().check(z.regex(/^\d{4}-\d{2}-\d{2}$/u))),
-    thread: z.optional(z.string()),
   }),
   // Everything Home draws on its first frame: the list of bots and the open bot's chat come with the page.
   loader: async () => {

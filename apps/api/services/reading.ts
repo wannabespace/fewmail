@@ -173,6 +173,35 @@ const readingSummarySchema = type({
   worth: type({ n: 'number', why: 'string' }).array(),
 })
 
+const SOURCE_MARKERS =
+  /\s*(?:\[\d+(?:\s*,\s*\d+)*\]|\(n\d+(?:\s*,\s*n\d+)*\)|\([\p{L}\s]+:\s*\d+(?:\s*,\s*\d+)*\))/gu
+const withoutMarkers = (text: string) => text.replaceAll(SOURCE_MARKERS, '')
+
+const saysSomething = (text: string) => /[\p{L}\p{N}]/u.test(text)
+
+/**
+ * The model also numbers its sources in the text ("[2]", "(n2)", "(Sources: 3, 2)" in the user's language) and opens a topic with its title, though the sources
+ * show as chips and the title as a heading; on a day with nothing new it writes "…" as the intro.
+ */
+const withoutEchoes = ({ intro, sections, worth }: ReadingSummary) => ({
+  intro: saysSomething(intro) ? withoutMarkers(intro) : '',
+  sections: sections.map(({ sentences, title }) => ({
+    sentences: sentences.map(({ messageIds, text }) => ({
+      messageIds,
+      text: withoutMarkers(
+        text.toLowerCase().startsWith(`${title.toLowerCase()}:`)
+          ? text.slice(title.length + 1).trimStart()
+          : text
+      ),
+    })),
+    title,
+  })),
+  worth: worth.map(({ messageId, why }) => ({
+    messageId,
+    why: withoutMarkers(why),
+  })),
+})
+
 /** Written from each newsletter's own summary, never the bodies: the summaries already hold the facts. */
 const writeReadingSummary = async (
   userId: string,
@@ -203,7 +232,7 @@ const writeReadingSummary = async (
   })
   const idsOf = (numbers: number[]) =>
     numbers.flatMap((n) => rows[n - 1]?.id ?? [])
-  return {
+  return withoutEchoes({
     intro: output.intro,
     sections: output.sections.map(({ sentences, title }) => ({
       sentences: sentences.map(({ sources, text }) => ({
@@ -215,40 +244,8 @@ const writeReadingSummary = async (
     worth: output.worth.flatMap(({ n, why }) =>
       idsOf([n]).map((messageId) => ({ messageId, why }))
     ),
-  }
+  })
 }
-
-const SOURCE_MARKERS =
-  /\s*(?:\[\d+(?:\s*,\s*\d+)*\]|\(n\d+(?:\s*,\s*n\d+)*\)|\([\p{L}\s]+:\s*\d+(?:\s*,\s*\d+)*\))/gu
-const withoutMarkers = (text: string) => text.replaceAll(SOURCE_MARKERS, '')
-
-const saysSomething = (text: string) => /[\p{L}\p{N}]/u.test(text)
-
-/**
- * The model also numbers its sources in the text ("[2]", "(n2)", "(Sources: 3, 2)" in the user's language) and opens a topic with its title, though the sources
- * show as chips and the title as a heading; on a day with nothing new it writes "…" as the intro.
- */
-const withoutEchoes = ({ intro, sections, worth }: ReadingSummary) => ({
-  intro: saysSomething(intro) ? withoutMarkers(intro) : '',
-  sections: sections.map(({ sentences, title }) => ({
-    sentences: sentences.map(({ messageIds, text }) => ({
-      messageIds,
-      text: withoutMarkers(
-        text.toLowerCase().startsWith(`${title.toLowerCase()}:`)
-          ? text.slice(title.length + 1).trimStart()
-          : text
-      ),
-    })),
-    title,
-  })),
-  worth: worth.map(({ messageId, why }) => ({
-    messageId,
-    why: withoutMarkers(why),
-  })),
-})
-
-const shownSummary = (summary: ReadingSummary | null) =>
-  summary && withoutEchoes(summary)
 
 /**
  * One day of Reading: its issue once written (the morning after), else the day's newsletters so far with no summary.
@@ -272,7 +269,7 @@ export const getReadingDay = async (userId: string, day?: string) => {
       day: issue.day,
       isFinished: true,
       rows: await readIssueRows(userId, issue.messageIds),
-      summary: shownSummary(issue.summary),
+      summary: issue.summary,
     }
   }
   const shown = day ?? today
@@ -285,9 +282,8 @@ export const getReadingDay = async (userId: string, day?: string) => {
 }
 
 /** The user's own yes on Reading: every newsletter of the day it shows is marked read, one thread at a time like a tidy. */
-export const markReadingRead = async (userId: string, day?: string) => {
-  // A bot button sent before issues carries an empty day: it marks the latest.
-  const { rows } = await getReadingDay(userId, day || undefined)
+export const markReadingRead = async (userId: string, day: string) => {
+  const { rows } = await getReadingDay(userId, day)
   const threadIds = [
     ...new Set(
       rows.filter(({ isUnread }) => isUnread).map(({ threadId }) => threadId)
@@ -340,5 +336,5 @@ export const writeReadingIssue = (userId: string, day: string) =>
         userId,
       })
       .onConflictDoNothing()
-    return { ...current, isFinished: true, summary: shownSummary(summary) }
+    return { ...current, isFinished: true, summary }
   })

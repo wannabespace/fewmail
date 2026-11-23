@@ -1,1 +1,0 @@
-ALTER TABLE "user_settings" ADD COLUMN "asked_senders" jsonb DEFAULT '[]' NOT NULL;
