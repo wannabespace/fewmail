@@ -158,7 +158,7 @@ const inlineOf = (line: string) =>
 /** The answers' little Markdown (`**bold**`, `- ` lists, `> ` quotes) without a Markdown library: Home stays light. */
 const AnswerText = ({ text }: { text: string }) =>
   text.trim() && (
-    <MessageBubble>
+    <PostBubble>
       {text.split(/\n{2,}/u).map((block, index) => {
         const lines = block.split('\n')
         const isQuote = lines.every((line) => line.startsWith('>'))
@@ -191,7 +191,7 @@ const AnswerText = ({ text }: { text: string }) =>
           </p>
         )
       })}
-    </MessageBubble>
+    </PostBubble>
   )
 
 const CLOCK_SKEW_MS = 60_000
@@ -207,9 +207,9 @@ const STATUS_ICONS: Record<Card['action']['status'], IconSvgElement> = {
 /** What the bot says in words, in its bubble; nothing to say draws nothing. */
 const Speech = ({ children }: { children: ReactNode }) =>
   children ? (
-    <MessageBubble>
+    <PostBubble>
       <p>{children}</p>
-    </MessageBubble>
+    </PostBubble>
   ) : null
 
 /** The digest's one sentence, computed from its counts (no model text). */
@@ -275,8 +275,8 @@ const TimeOf = ({ at }: { at?: Date }) => {
 }
 
 /**
- * A bot's message: what it says in a bubble, what it did or offers under it, then a line with the user's reaction and
- * when. The chat's bar names the bot, so no message does.
+ * A bot's message: what it says in a bubble with the user's reaction on it, what it did or offers under it, then when.
+ * The chat's bar names the bot, so no message does.
  */
 const BotMessage = ({
   at,
@@ -294,16 +294,24 @@ const BotMessage = ({
       post={post}
       quote={post && { from: 'bot', id: post.id, text: post.text ?? '' }}
     >
-      {children}
-      {(at || post) && (
-        <div className="flex h-6 items-center gap-2">
-          <TimeOf at={at} />
-          {post && <ReactionPicker post={post} />}
-        </div>
-      )}
+      <ReactedPost value={post}>{children}</ReactedPost>
+      <TimeOf at={at} />
     </MessageMenu>
   </Message>
 )
+
+const ReactedPost = createContext<Post | undefined>(undefined)
+
+/** The bot's words in their bubble, the user's reaction over its edge when they are a post. */
+const PostBubble = ({ children }: { children: ReactNode }) => {
+  const post = use(ReactedPost)
+  return (
+    <MessageBubble>
+      {children}
+      {post && <ReactionPicker post={post} />}
+    </MessageBubble>
+  )
+}
 
 const setReaction = (id: string, reaction: BotReaction | null) =>
   queryClient.setQueriesData<InfiniteData<ChatPage>>(
@@ -747,14 +755,14 @@ const PostView = ({ entry }: { entry: Post }) => {
   }
   if (entry.kind === 'nudge') {
     return (
-      <MessageBubble>
+      <PostBubble>
         <p data-mask>{entry.text}</p>
         {entry.replied !== null && (
           <p className="text-muted-foreground">
             {entry.replied ? t.bots.nudge.replied : t.bots.nudge.noReply}
           </p>
         )}
-      </MessageBubble>
+      </PostBubble>
     )
   }
   if (entry.kind === 'no_plan') {

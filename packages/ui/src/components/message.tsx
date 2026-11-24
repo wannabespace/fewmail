@@ -66,7 +66,7 @@ const MessageBubble = ({ className, ...props }: ComponentProps<'div'>) => (
   <div
     data-slot="message-bubble"
     className={cn(
-      'bg-popover flex w-fit max-w-[85%] flex-col gap-2.5 rounded-2xl rounded-bl-md px-3.5 py-2.5',
+      'bg-popover relative flex w-fit max-w-[85%] flex-col gap-2.5 rounded-2xl rounded-bl-md px-3.5 py-2.5 has-data-[slot=message-reactions]:mb-3',
       className
     )}
     {...props}
@@ -102,8 +102,8 @@ const MessageDay = ({ className, ...props }: ComponentProps<'p'>) => (
 )
 
 /**
- * shadcn's `BubbleReactions`: on the user's bubble, over its edge, ringed in the chat's own background; on the
- * assistant's, in the line under its bubble. Goes inside `MessageContent`.
+ * shadcn's `BubbleReactions`: over the bubble's bottom edge, ringed in the chat's own background. Goes inside the
+ * user's `MessageContent` or the assistant's `MessageBubble`.
  */
 const MessageReactions = ({
   align = 'end',
@@ -111,26 +111,18 @@ const MessageReactions = ({
   ...props
 }: ComponentProps<'div'> & {
   align?: 'end' | 'start'
-}) => {
-  const { from } = use(MessageContext)
-  return (
-    <div
-      data-slot="message-reactions"
-      data-align={align}
-      className={cn(
-        'bg-popover inset-ring-foreground/10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full px-1.5 py-0.5 text-sm shadow-sm inset-ring has-[button]:p-0 [&>button]:rounded-full',
-        from === 'user'
-          ? [
-              'ring-body absolute bottom-0 z-10 translate-y-3/4 ring-3',
-              align === 'start' ? 'left-3' : 'right-3',
-            ]
-          : 'self-start',
-        className
-      )}
-      {...props}
-    />
-  )
-}
+}) => (
+  <div
+    data-slot="message-reactions"
+    data-align={align}
+    className={cn(
+      'bg-popover inset-ring-foreground/10 ring-body absolute bottom-0 z-10 flex w-fit shrink-0 translate-y-3/4 items-center justify-center gap-1 rounded-full px-1.5 py-0.5 text-sm shadow-sm ring-3 inset-ring has-[button]:p-0 [&>button]:rounded-full',
+      align === 'start' ? 'left-3' : 'right-3',
+      className
+    )}
+    {...props}
+  />
+)
 
 const MessageActions = ({ className, ...props }: ComponentProps<'div'>) => (
   <div
