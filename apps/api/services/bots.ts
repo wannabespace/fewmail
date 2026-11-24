@@ -1,5 +1,5 @@
 import { db } from '@fewmail/db'
-import { botPosts, bots } from '@fewmail/db/schema'
+import { botPosts, bots, userSettings } from '@fewmail/db/schema'
 import type { SimpleMatch } from '@fewmail/db/schema'
 import {
   BOARD_EFFECT,
@@ -14,9 +14,10 @@ import { choice } from '@typesafe-ai/sdk'
 import { and, desc, eq, isNull, lte, or, sql } from 'drizzle-orm'
 
 import { jev } from '../lib/jev'
+import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
-import { requireAgent } from './plan'
+import { getPlanInfo, hasAgent, requireAgent } from './plan'
 import { getSettings } from './settings'
 
 /** Jev matches bots on every plan and moving or collecting mail needs nothing more; drafting and pinning to Home need the agent. */
@@ -143,7 +144,7 @@ export const updateBot = async (
 export const createBot = async (
   userId: string,
   input: { effect: MailBotEffect; enabled?: boolean; name: string } & (
-    | { instruction: string }
+    | { instruction?: string }
     | { match: SimpleMatch }
   )
 ) => {
@@ -153,7 +154,9 @@ export const createBot = async (
     'match' in input
       ? bot.match?.field === input.match.field &&
         sameText(bot.match.value, input.match.value)
-      : bot.instruction !== null && sameText(bot.instruction, input.instruction)
+      : input.instruction !== undefined &&
+        bot.instruction !== null &&
+        sameText(bot.instruction, input.instruction)
   )
   if (twin) {
     return updateBot(userId, twin.id, {
@@ -167,6 +170,25 @@ export const createBot = async (
     .values({ ...input, userId })
     .returning()
   return expectRow(bot)
+}
+
+const PURPOSE_CHARS = 2000
+
+/** A new bot's first message is what it is for: its words become its instruction and what they say to do its effect, with no model (Jev reads it). */
+export const takePurpose = async (
+  userId: string,
+  bot: Pick<typeof bots.$inferSelect, 'id'>,
+  text: string,
+  canDraft: boolean
+) => {
+  const instruction = text.slice(0, PURPOSE_CHARS)
+  const read = await readBotEffect(instruction, false)
+  const effect =
+    read && (canDraft || (read !== 'draft_reply' && read !== 'always_show'))
+      ? read
+      : 'collect'
+  await updateBot(userId, bot.id, { effect, instruction })
+  return effect
 }
 
 /** A preset from New bot; the Board comes once, so asking for it again gives the one the user has. */
@@ -195,6 +217,36 @@ export const addPresetBot = async (userId: string, key: BotPreset) => {
   }
   const [created] = await db.insert(bots).values(row).returning()
   return expectRow(created)
+}
+
+/**
+ * The ready-made bots Fewmail Bot offers in its chat, in `BOT_PRESETS` order: never one whose effect a bot of the user's
+ * already has, one they said no to, or Important without the agent (keeping mail in a chat needs it).
+ */
+export const presetSuggestions = async (userId: string) => {
+  const [own, settings, plan] = await Promise.all([
+    listBots(userId),
+    getSettings(userId),
+    getPlanInfo(userId),
+  ])
+  const declined = new Set(settings?.declinedPresets)
+  return BOT_PRESETS.filter(
+    ({ effect, key }) =>
+      !declined.has(key) &&
+      !own.some((bot) => bot.effect === effect) &&
+      (effect !== 'always_show' || hasAgent(plan))
+  ).map(({ key }) => key)
+}
+
+/** "No" to a ready-made bot is kept, so Fewmail Bot never offers it again; New bot still makes one from words. */
+export const declinePreset = async (userId: string, key: BotPreset) => {
+  await db
+    .update(userSettings)
+    .set({
+      declinedPresets: sql`array_append(array_remove(${userSettings.declinedPresets}, ${key}), ${key})`,
+    })
+    .where(eq(userSettings.userId, userId))
+  await announceChange(userId, ['today'])
 }
 
 /** Its chat goes with it; what it did stays in the mail and under Fewmail's. */

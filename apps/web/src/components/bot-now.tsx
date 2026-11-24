@@ -30,7 +30,10 @@ import { toast } from 'sonner'
 import { BoardPane } from '~/components/board'
 import { DigestHeader, DigestLead, digestLead } from '~/components/bot-chat'
 import { BotAvatar, digestHeadline, useBots } from '~/components/bot-list'
-import { BotSuggestionRow } from '~/components/bot-suggestion'
+import {
+  BotSuggestionRow,
+  PresetSuggestionRow,
+} from '~/components/bot-suggestion'
 import { confirm } from '~/components/confirm-dialog'
 import { EmailRow } from '~/components/email-row'
 import { expandRow } from '~/components/expand-row'
@@ -238,7 +241,7 @@ const BotSuggestions = ({ today }: { today: Today | undefined }) =>
     />
   ))
 
-/** What Fewmail asks about senders (a suggested bot, a new list), one tool block of rows like every list in a chat. */
+/** What Fewmail asks (a ready-made bot, a sender's bot, a new list), one tool block of rows like every list in a chat. */
 export const SenderQuestions = ({
   canUseKeys,
   today,
@@ -248,7 +251,9 @@ export const SenderQuestions = ({
 }) => {
   const t = useT()
   const senders = today?.newSenders ?? []
-  const count = senders.length + (today?.botSuggestions.length ?? 0)
+  const presets = today?.presets ?? []
+  const count =
+    presets.length + senders.length + (today?.botSuggestions.length ?? 0)
   return (
     count > 0 && (
       <Tool open>
@@ -265,6 +270,13 @@ export const SenderQuestions = ({
           }
         />
         <ToolContent variant="rows">
+          {presets.map((preset) => (
+            <PresetSuggestionRow
+              key={preset}
+              preset={preset}
+              onAnswer={holdClicksUntilMove}
+            />
+          ))}
           <BotSuggestions today={today} />
           <NewSenders
             senders={senders}

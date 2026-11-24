@@ -5,9 +5,11 @@ import {
   BOARD_EFFECT,
   BOT_REACTIONS,
   BOT_REPLY_QUOTE_CHARS,
+  needsPurpose,
 } from '@fewmail/shared/agent'
 import type { BotReaction, ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
+import type { Messages } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import {
   generateText,
@@ -34,7 +36,7 @@ import {
   reactToPost,
 } from './bot-chat'
 import type { BotEntry } from './bot-chat'
-import { listBots } from './bots'
+import { listBots, takePurpose } from './bots'
 import { listEvents } from './calendar'
 import { ConsentChangedError } from './consent-error'
 import { NotFoundError } from './mail-errors'
@@ -487,6 +489,22 @@ const keepMessage = async (
   }
 }
 
+/** A bot made with only a name hears what it is for in its first message: no agent turn, so it works on every plan. Null for any other bot. */
+const answerPurpose = async (
+  userId: string,
+  bot: Bot | undefined,
+  text: string,
+  { hasAgent: canDraft, t }: { hasAgent: boolean; t: Messages }
+) => {
+  if (!bot || !needsPurpose(bot)) {
+    return null
+  }
+  const effect = await takePurpose(userId, bot, text, canDraft)
+  const answer = t.bots.purpose.taken(t.bots.effect[effect])
+  await addBotPost(userId, { bot: bot.id, kind: 'answer', text: answer })
+  return answer
+}
+
 /**
  * A message to one of Home's bots: kept in its chat with the answer, which streams as it is written. Without the agent
  * or past the allowance the bot says why instead of answering, and nothing is spent.
@@ -512,6 +530,15 @@ export const askBot = async function* askBot(
     replyTo,
     text,
   })
+  const t = dictionaries[settings?.language ?? 'en']
+  const purpose = await answerPurpose(userId, ownBot, text, {
+    hasAgent: hasAgent(plan),
+    t,
+  })
+  if (purpose) {
+    yield { text: purpose, type: 'text' } satisfies BotStep
+    return
+  }
   if (!hasAgent(plan) || !(await hasBudget(userId))) {
     await addBotPost(userId, {
       bot,
@@ -519,7 +546,6 @@ export const askBot = async function* askBot(
     })
     return
   }
-  const t = dictionaries[settings?.language ?? 'en']
   const asked: string[] = []
   const result = streamText({
     instructions: instructionsFor(

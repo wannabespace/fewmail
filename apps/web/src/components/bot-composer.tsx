@@ -1,4 +1,4 @@
-import { BOT_MESSAGE_CHARS } from '@fewmail/shared/agent'
+import { BOT_MESSAGE_CHARS, needsPurpose } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import {
   InputGroup,
@@ -10,6 +10,7 @@ import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import {
   ArrowUp02Icon,
   Cancel01Icon,
+  Clock01Icon,
   ReplyIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -33,12 +34,15 @@ declare module '@tanstack/react-router' {
   }
 }
 
+const purposeAsked = (bot: HomeBot) => !!bot.own && needsPurpose(bot.own)
+
 /** What the user may send the open bot in a tap, written by the agent for its chat as it stands; none without the agent or past the allowance, none while it answers. */
-const useSuggestions = (bot: string, isSending: boolean) => {
+const useSuggestions = (bot: HomeBot, isSending: boolean) => {
   const hasAgent = useHasAgent()
+  const isAsked = hasAgent && !isSending && !purposeAsked(bot)
   const { data } = useQuery(
     orpc.bots.suggestions.queryOptions({
-      input: hasAgent && !isSending ? { bot } : skipToken,
+      input: isAsked ? { bot: bot.bot } : skipToken,
     })
   )
   return data ?? []
@@ -61,7 +65,8 @@ export const BotComposer = ({
   const [text, setText] = useState('')
   const reply = useSubscription(replyStore)
   const replyTo = reply?.bot === bot.bot ? reply.quote : undefined
-  const suggestions = useSuggestions(bot.bot, isSending)
+  const suggestions = useSuggestions(bot, isSending)
+  const asksPurpose = purposeAsked(bot)
   useHotkey('/', () => ref.current?.focus(), { enabled: isActive })
   const isMobile = useIsMobile()
   const clickedAt = useLocation({
@@ -94,6 +99,17 @@ export const BotComposer = ({
         send()
       }}
     >
+      {asksPurpose && (
+        <p className="text-muted-foreground flex items-center justify-center gap-1.5 text-sm">
+          <HugeiconsIcon
+            icon={Clock01Icon}
+            strokeWidth={2}
+            className="text-primary size-4 shrink-0"
+          />
+          {t.bots.purpose.waiting}
+          <span className="text-primary font-medium">{t.bots.purpose.ask}</span>
+        </p>
+      )}
       {!text && !replyTo && !isSending && suggestions.length > 0 && (
         <div className="flex flex-wrap gap-1.5" data-mask>
           {suggestions.map((suggestion) => (
@@ -137,7 +153,9 @@ export const BotComposer = ({
         <InputGroupTextarea
           ref={ref}
           aria-label={t.bots.composer(bot.name)}
-          placeholder={t.bots.composer(bot.name)}
+          placeholder={
+            asksPurpose ? t.bots.purpose.placeholder : t.bots.composer(bot.name)
+          }
           maxLength={BOT_MESSAGE_CHARS}
           rows={1}
           value={text}

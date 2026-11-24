@@ -151,7 +151,14 @@ export type MailBotEffect = (typeof BOT_EFFECTS)[number]
 export const BOARD_EFFECT = 'promises'
 export type BotEffect = MailBotEffect | typeof BOARD_EFFECT
 
-/** What New bot offers and the first sign-in seeds, named in the user's language (`starterBots`); the Board at most once. */
+/** A bot made with only a name takes no mail: its first message in its chat says what it is for and becomes its instruction. */
+export const needsPurpose = (bot: {
+  effect: BotEffect
+  instruction: string | null
+  match: unknown
+}) => bot.effect !== BOARD_EFFECT && bot.instruction === null && !bot.match
+
+/** The ready-made bots Fewmail Bot offers in its chat, named in the user's language (`starterBots`); the Board at most once. */
 export const BOT_PRESETS = [
   { effect: BOARD_EFFECT, key: 'board' },
   { effect: 'tidy', key: 'quick' },

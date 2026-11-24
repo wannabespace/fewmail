@@ -1394,6 +1394,16 @@ export const es: Messages = {
       on: 'Encendido, actúa sin preguntar; todo lo que hace aparece en su chat.',
     },
     instruction: 'Qué correos y qué hacer con ellos',
+    purpose: {
+      ask: 'Dime para qué soy',
+      intro: (name: string) =>
+        `Hola, soy ${name}. Dime para qué soy: qué correos son míos y qué hacer con ellos. Hasta entonces no tomo ningún correo.`,
+      placeholder: 'p. ej. Facturas de Hetzner, márcalas como leídas',
+      status: 'Espera saber para qué es',
+      taken: (effect: string) =>
+        `Entendido, ese correo es mío a partir de ahora. Qué hago con él: ${effect}. Escríbeme para cambiarlo.`,
+      waiting: 'Te espero:',
+    },
     instructionPlaceholder:
       'p. ej. Marcar como leídas las facturas de Hetzner o archivar las notificaciones de LinkedIn',
     mute: 'Silenciar',
@@ -1414,7 +1424,6 @@ export const es: Messages = {
         many: (count) => `Anoté ${count} promesas.`,
         other: (count) => `Anoté ${count} promesas.`,
       }),
-    presets: 'Plantillas',
     react: 'Reaccionar',
     reaction: 'Reacción',
     reply: 'Responder',
@@ -1650,6 +1659,9 @@ export const es: Messages = {
   today: {
     working: 'En ello…',
     botSuggestion: {
+      board:
+        'Guarda las promesas y los últimos días de tu correo y te avisa cuando uno vence',
+      create: 'Crear este bot',
       done: {
         archive:
           'Un bot nuevo archiva desde ahora el correo de este remitente.',

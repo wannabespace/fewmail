@@ -1389,6 +1389,16 @@ export const it: Messages = {
       on: 'Se è acceso, agisce senza chiedere; tutto ciò che fa si vede nella sua chat.',
     },
     instruction: 'Quali email e cosa farne',
+    purpose: {
+      ask: 'Dimmi a cosa servo',
+      intro: (name: string) =>
+        `Ciao, sono ${name}. Dimmi a cosa servo: quali email sono mie e cosa farne. Finché non me lo dici, non prendo nessuna email.`,
+      placeholder: 'es. Fatture di Hetzner, segnale come lette',
+      status: 'Aspetta di sapere a cosa serve',
+      taken: (effect: string) =>
+        `Capito, quelle email da ora sono mie. Cosa ne faccio: ${effect}. Scrivimi per cambiarlo.`,
+      waiting: 'Aspetto te:',
+    },
     instructionPlaceholder:
       'es. Segna come lette le fatture di Hetzner o archivia le notifiche di LinkedIn',
     mute: 'Silenzia',
@@ -1409,7 +1419,6 @@ export const it: Messages = {
         many: (count) => `Ho annotato ${count} promesse.`,
         other: (count) => `Ho annotato ${count} promesse.`,
       }),
-    presets: 'Modelli',
     react: 'Reagisci',
     reaction: 'Reazione',
     reply: 'Rispondi',
@@ -1640,6 +1649,9 @@ export const it: Messages = {
   today: {
     working: 'In corso…',
     botSuggestion: {
+      board:
+        'Tiene le promesse e le scadenze della tua posta e ti avvisa quando una arriva',
+      create: 'Crea questo bot',
       done: {
         archive: 'Da ora un nuovo bot archivia la posta di questo mittente.',
         mark_read:

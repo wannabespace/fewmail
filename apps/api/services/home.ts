@@ -27,6 +27,7 @@ import {
 import { localClock } from '../lib/clock'
 import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
+import { presetSuggestions } from './bots'
 import { newSenders, botSuggestions } from './cleanup'
 import {
   countWaiting,
@@ -168,6 +169,7 @@ export const getToday = async (userId: string) => {
     senders,
     reading,
     suggestions,
+    presets,
   ] = await Promise.all([
     listQueue(userId),
     handledSince(userId, since),
@@ -182,6 +184,7 @@ export const getToday = async (userId: string) => {
     newSenders(userId),
     readingNow(userId),
     botSuggestions(userId),
+    presetSuggestions(userId),
   ])
   // What the agent proposes to tidy is noise by its own judgement, so Worth knowing never offers it to read as well.
   const shown = new Set([
@@ -216,6 +219,7 @@ export const getToday = async (userId: string) => {
     botSuggestions: suggestions.filter(
       ({ fromEmail }) => !askedSenders.has(fromEmail)
     ),
+    presets,
     saved,
     tidy,
   }

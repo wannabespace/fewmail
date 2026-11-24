@@ -723,6 +723,16 @@ export const ko: Messages = {
       on: '켜면 묻지 않고 처리해요. 한 일은 모두 채팅에 보여요.',
     },
     instruction: '맡을 메일과 처리 방법',
+    purpose: {
+      ask: '제가 무엇을 하면 될지 알려 주세요',
+      intro: (name: string) =>
+        `안녕하세요! 저는 「${name}」 봇이에요. 제가 무엇을 하면 될지 알려 주세요: 어떤 메일이 제 몫이고 그걸 어떻게 할지요. 알려 주시기 전까지는 메일을 받지 않아요.`,
+      placeholder: '예: Hetzner 청구서, 읽음 처리',
+      status: '무엇을 할지 듣기를 기다리는 중',
+      taken: (effect: string) =>
+        `알겠어요, 이제부터 그 메일은 제가 맡을게요. 하는 일: ${effect}. 바꾸고 싶으면 말해 주세요.`,
+      waiting: '답을 기다리고 있어요:',
+    },
     instructionPlaceholder:
       '예: Hetzner 청구서는 읽음 처리, LinkedIn 알림은 보관',
     mute: '알림 끄기',
@@ -738,7 +748,6 @@ export const ko: Messages = {
       replied: '그 뒤로 그 스레드에 답장이 왔어요.',
     },
     promises: (n: number) => `약속 ${n}개를 적어 뒀어요.`,
-    presets: '템플릿',
     react: '반응 남기기',
     reaction: '반응',
     reply: '답장',
@@ -1540,6 +1549,8 @@ export const ko: Messages = {
   today: {
     working: '처리 중…',
     botSuggestion: {
+      board: '메일 속 약속과 마감일을 적어 두고, 그날이 오면 알려 드려요',
+      create: '이 봇 만들기',
       done: {
         archive: '이제부터 새 봇이 이 보낸 사람의 메일을 보관해요.',
         mark_read: '이제부터 새 봇이 이 보낸 사람의 메일을 읽음으로 표시해요.',

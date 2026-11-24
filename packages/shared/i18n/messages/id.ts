@@ -921,6 +921,16 @@ export const id: Messages = {
       on: 'Jika aktif, ia bertindak tanpa bertanya; semua yang dilakukannya tampil di obrolannya.',
     },
     instruction: 'Email mana dan apa yang dilakukan dengannya',
+    purpose: {
+      ask: 'Beri tahu aku untuk apa aku ada',
+      intro: (name: string) =>
+        `Hai, aku ${name}. Beri tahu aku untuk apa aku ada: email mana yang jadi bagianku dan apa yang harus kulakukan. Sampai kamu bilang, aku tidak mengambil email apa pun.`,
+      placeholder: 'mis. Tagihan dari Hetzner, tandai sudah dibaca',
+      status: 'Menunggu tahu untuk apa ia ada',
+      taken: (effect: string) =>
+        `Oke, email itu jadi bagianku mulai sekarang. Yang kulakukan: ${effect}. Tulis padaku untuk mengubahnya.`,
+      waiting: 'Menunggumu:',
+    },
     instructionPlaceholder:
       'mis. Tandai tagihan dari Hetzner sudah dibaca, atau arsipkan notifikasi LinkedIn',
     mute: 'Bisukan',
@@ -939,7 +949,6 @@ export const id: Messages = {
       plural('id', n, {
         other: (count) => `Aku mencatat ${count} janji.`,
       }),
-    presets: 'Templat',
     react: 'Beri reaksi',
     reaction: 'Reaksi',
     reply: 'Balas',
@@ -1759,6 +1768,9 @@ export const id: Messages = {
   today: {
     working: 'Sedang dikerjakan…',
     botSuggestion: {
+      board:
+        'Mencatat janji dan tenggat dari emailmu dan mengingatkanmu saat jatuh tempo',
+      create: 'Buat bot ini',
       done: {
         archive:
           'Mulai sekarang, bot baru mengarsipkan email dari pengirim ini.',

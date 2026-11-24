@@ -709,6 +709,16 @@ export const zh: Messages = {
       on: '开启时，它会直接处理，做过的一切都会显示在它的聊天里。',
     },
     instruction: '哪些邮件，以及怎么处理',
+    purpose: {
+      ask: '告诉我我是做什么的',
+      intro: (name: string) =>
+        `你好，我是「${name}」。告诉我我是做什么的：哪些邮件归我，要怎么处理。在你告诉我之前，我不接任何邮件。`,
+      placeholder: '例如：来自 Hetzner 的发票，标为已读',
+      status: '等你告诉它做什么',
+      taken: (effect: string) =>
+        `明白了，从现在起这些邮件归我。我会这样处理：${effect}。想改的话直接告诉我。`,
+      waiting: '等你回复：',
+    },
     instructionPlaceholder:
       '例如：来自 Hetzner 的发票标为已读，LinkedIn 通知归档',
     mute: '静音',
@@ -724,7 +734,6 @@ export const zh: Messages = {
       replied: '那之后，那个会话里有了回复。',
     },
     promises: (n: number) => `我记下了 ${n} 个承诺。`,
-    presets: '模板',
     react: '添加回应',
     reaction: '回应',
     reply: '回复',
@@ -1511,6 +1520,8 @@ export const zh: Messages = {
   today: {
     working: '处理中…',
     botSuggestion: {
+      board: '记下你邮件里的承诺和截止日期，到期时提醒你',
+      create: '创建这个机器人',
       done: {
         archive: '从现在起，一个新机器人会归档此发件人的邮件。',
         mark_read: '从现在起，一个新机器人会把此发件人的邮件标为已读。',

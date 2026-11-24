@@ -1374,6 +1374,16 @@ export const de: Messages = {
       on: 'An: Er handelt ohne zu fragen, alles, was er tut, steht in seinem Chat.',
     },
     instruction: 'Welche Mails und was er damit macht',
+    purpose: {
+      ask: 'Sag mir, wofür ich da bin',
+      intro: (name: string) =>
+        `Hallo, ich bin ${name}. Sag mir, wofür ich da bin: welche E-Mails meine sind und was ich mit ihnen tun soll. Bis dahin nehme ich keine Mail.`,
+      placeholder: 'z. B. Rechnungen von Hetzner, als gelesen markieren',
+      status: 'Wartet darauf, wofür er da ist',
+      taken: (effect: string) =>
+        `Verstanden, diese Mail ist ab jetzt meine. Was ich damit tue: ${effect}. Schreib mir, um das zu ändern.`,
+      waiting: 'Ich warte auf dich:',
+    },
     instructionPlaceholder:
       'z. B. Rechnungen von Hetzner als gelesen markieren oder LinkedIn-Benachrichtigungen archivieren',
     mute: 'Stummschalten',
@@ -1393,7 +1403,6 @@ export const de: Messages = {
         one: () => 'Ich habe ein Versprechen notiert.',
         other: (count) => `Ich habe ${count} Versprechen notiert.`,
       }),
-    presets: 'Vorlagen',
     react: 'Reagieren',
     reaction: 'Reaktion',
     reply: 'Antworten',
@@ -1633,6 +1642,9 @@ export const de: Messages = {
   today: {
     working: 'Wird erledigt…',
     botSuggestion: {
+      board:
+        'Hält Versprechen und letzte Tage aus deiner Mail fest und erinnert dich, wenn einer fällig wird',
+      create: 'Bot erstellen',
       done: {
         archive:
           'Ein neuer Bot archiviert ab jetzt die Mails dieses Absenders.',

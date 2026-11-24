@@ -926,6 +926,16 @@ export const en = {
       on: 'On, it acts without asking; everything it does shows in its chat.',
     },
     instruction: 'Which emails, and what to do with them',
+    purpose: {
+      ask: 'Tell me what I’m for',
+      intro: (name: string) =>
+        `Hi, I’m ${name}. Tell me what I’m for: which emails are mine and what to do with them. Until you do, I take no mail.`,
+      placeholder: 'e.g. Invoices from Hetzner, mark them read',
+      status: 'Waiting to hear what it’s for',
+      taken: (effect: string) =>
+        `Got it, that mail is mine from now on. What I do with it: ${effect}. Write to me to change it.`,
+      waiting: 'Waiting on you:',
+    },
     instructionPlaceholder:
       'e.g. Mark invoices from Hetzner read, or archive LinkedIn notifications',
     mute: 'Mute',
@@ -945,7 +955,6 @@ export const en = {
         one: () => 'I wrote down a promise.',
         other: (count) => `I wrote down ${count} promises.`,
       }),
-    presets: 'Templates',
     react: 'React',
     reaction: 'Reaction',
     reply: 'Reply',
@@ -1756,6 +1765,9 @@ export const en = {
   today: {
     working: 'Working on it…',
     botSuggestion: {
+      board:
+        'Keeps the promises and last days from your mail and reminds you when one comes due',
+      create: 'Make this bot',
       done: {
         archive: 'A new bot archives this sender’s mail from now on.',
         mark_read: 'A new bot marks this sender’s mail read from now on.',

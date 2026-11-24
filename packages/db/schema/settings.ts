@@ -44,6 +44,8 @@ export const userSettings = d.snakeCase.table('user_settings', {
   /** When the user last looked at each bot's chat (ISO), by bot: what came after is new. */
   botsReadAt: d.jsonb().$type<Record<string, string>>().default({}).notNull(),
   cleanupCheckedAt: d.timestamp({ withTimezone: true }),
+  /** Ready-made bots (`BOT_PRESETS` keys) the user said no to in Fewmail Bot's chat: never offered again. */
+  declinedPresets: d.text().array().default([]).notNull(),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
   morningSentAt: d.timestamp({ withTimezone: true }),

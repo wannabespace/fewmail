@@ -1,0 +1,1 @@
+ALTER TABLE "user_settings" ADD COLUMN "declined_presets" text[] DEFAULT '{}'::text[] NOT NULL;

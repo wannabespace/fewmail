@@ -46,6 +46,7 @@ import {
 } from '../services/bot-chat'
 import {
   addPresetBot,
+  declinePreset,
   createBot,
   deleteBot,
   listBots,
@@ -193,7 +194,7 @@ const sendInput = draftInput.and({
 const botInput = type({
   effect: type.enumerated(...BOT_EFFECTS),
   'enabled?': 'boolean',
-  instruction: 'string > 2',
+  'instruction?': 'string > 2',
   name: '0 < string <= 60',
 })
 
@@ -543,6 +544,13 @@ export const router = {
     createSimple: authed
       .input(simpleBotInput)
       .handler(({ context, input }) => createBot(context.user.id, input)),
+    declinePreset: authed
+      .input(
+        type({ preset: type.enumerated(...BOT_PRESETS.map(({ key }) => key)) })
+      )
+      .handler(({ context, input }) =>
+        declinePreset(context.user.id, input.preset)
+      ),
     declineSuggestion: authed
       .input(type({ fromEmail: 'string > 0' }))
       .handler(({ context, input }) =>
