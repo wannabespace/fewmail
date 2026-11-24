@@ -1,11 +1,12 @@
 import { db } from '@fewmail/db'
-import { botPosts, bots } from '@fewmail/db/schema'
+import { botPosts, bots, userSettings } from '@fewmail/db/schema'
 import type { SimpleMatch } from '@fewmail/db/schema'
 import {
   BOARD_EFFECT,
   BOT_EFFECTS,
   BOT_PRESETS,
   GMAIL_EFFECTS,
+  isGmailEffect,
 } from '@fewmail/shared/agent'
 import type { BotEffect, BotPreset, MailBotEffect } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
@@ -14,6 +15,7 @@ import { choice } from '@typesafe-ai/sdk'
 import { and, desc, eq, isNull, lte, or, sql } from 'drizzle-orm'
 
 import { jev } from '../lib/jev'
+import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
 import { requireAgent } from './plan'
@@ -114,16 +116,38 @@ export const readBotEffect = async (text: string, simple: boolean) => {
 export const sameText = (a: string, b: string) =>
   a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase()
 
+type BotChange = Partial<{
+  effect: MailBotEffect
+  enabled: boolean
+  instruction: string
+  name: string
+  pausedUntil: Date | null
+}>
+
+const allowedChange = (
+  current: typeof bots.$inferSelect,
+  input: BotChange
+): BotChange => {
+  // The Board takes no mail: words or an effect would make Jev hand it mail and stop it being the Board.
+  if (current.effect === BOARD_EFFECT) {
+    return { name: input.name }
+  }
+  if (!current.match) {
+    return input
+  }
+  // A simple bot is its match: words would make Jev hand it mail its form never shows, and only a Gmail effect runs on it without a model.
+  return {
+    ...input,
+    effect:
+      input.effect && isGmailEffect(input.effect) ? input.effect : undefined,
+    instruction: undefined,
+  }
+}
+
 export const updateBot = async (
   userId: string,
   id: string,
-  input: Partial<{
-    effect: MailBotEffect
-    enabled: boolean
-    instruction: string
-    name: string
-    pausedUntil: Date | null
-  }>
+  input: BotChange
 ) => {
   await requireAgentFor(userId, input.effect)
   const own = and(eq(bots.id, id), eq(bots.userId, userId))
@@ -131,12 +155,12 @@ export const updateBot = async (
   if (!current) {
     throw new NotFoundError('Bot not found')
   }
-  // The Board takes no mail: words or an effect would make Jev hand it mail and stop it being the Board.
-  const change = current.effect === BOARD_EFFECT ? { name: input.name } : input
+  const change = allowedChange(current, input)
   if (Object.values(change).every((value) => value === undefined)) {
     return current
   }
   const [bot] = await db.update(bots).set(change).where(own).returning()
+  await announceChange(userId, ['bots'])
   return expectRow(bot)
 }
 
@@ -166,48 +190,71 @@ export const createBot = async (
     .insert(bots)
     .values({ ...input, userId })
     .returning()
+  await announceChange(userId, ['bots'])
   return expectRow(bot)
 }
 
-/** A preset from New bot; the Board comes once, so asking for it again gives the one the user has. */
+/** A preset from New bot; one the user already has opens as it is, since its name, its acting on its own and its pause are the user's now. */
 export const addPresetBot = async (userId: string, key: BotPreset) => {
   const preset = BOT_PRESETS.find((each) => each.key === key)
   if (!preset) {
     throw new NotFoundError('Preset not found')
   }
-  const settings = await getSettings(userId)
+  const [settings, own] = await Promise.all([
+    getSettings(userId),
+    listBots(userId),
+  ])
   const row = presetBot(
     userId,
     preset,
     dictionaries[settings?.language ?? 'en']
   )
-  if (preset.effect !== BOARD_EFFECT && row.instruction) {
-    return createBot(userId, {
-      effect: preset.effect,
-      enabled: row.enabled,
-      instruction: row.instruction,
-      name: row.name,
-    })
+  const had = own.find((bot) =>
+    preset.effect === BOARD_EFFECT
+      ? bot.effect === BOARD_EFFECT
+      : bot.instruction !== null &&
+        row.instruction !== null &&
+        sameText(bot.instruction, row.instruction)
+  )
+  if (had) {
+    return had
   }
-  const [board] = await db.select().from(bots).where(boardOf(userId))
-  if (board) {
-    return board
-  }
+  await requireAgentFor(userId, preset.effect)
   const [created] = await db.insert(bots).values(row).returning()
+  await announceChange(userId, ['bots'])
   return expectRow(created)
 }
 
-/** Its chat goes with it; what it did stays in the mail and under Fewmail's. */
+/** Its chat goes with it, and so does what the sidebar kept of it; what it did stays in the mail and under Fewmail's. */
 export const deleteBot = async (userId: string, id: string) => {
-  await db.transaction(async (tx) => {
-    const [deleted] = await tx
+  const settings = await getSettings(userId)
+  const deleted = await db.transaction(async (tx) => {
+    const [row] = await tx
       .delete(bots)
       .where(and(eq(bots.id, id), eq(bots.userId, userId)))
       .returning({ id: bots.id })
-    if (deleted) {
-      await tx
-        .delete(botPosts)
-        .where(and(eq(botPosts.userId, userId), eq(botPosts.bot, id)))
+    if (!row) {
+      return false
     }
+    await tx
+      .delete(botPosts)
+      .where(and(eq(botPosts.userId, userId), eq(botPosts.bot, id)))
+    await tx
+      .update(userSettings)
+      .set({
+        botFolders: settings?.botFolders?.map((folder) => ({
+          ...folder,
+          bots: folder.bots.filter((bot) => bot !== id),
+        })),
+        botsClearedAt: sql`${userSettings.botsClearedAt} - ${id}::text`,
+        botsReadAt: sql`${userSettings.botsReadAt} - ${id}::text`,
+        mutedBots: sql`array_remove(${userSettings.mutedBots}, ${id}::text)`,
+        pinnedBots: sql`array_remove(${userSettings.pinnedBots}, ${id}::text)`,
+      })
+      .where(eq(userSettings.userId, userId))
+    return true
   })
+  if (deleted) {
+    await announceChange(userId, ['bots'])
+  }
 }

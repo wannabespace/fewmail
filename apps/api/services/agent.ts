@@ -463,7 +463,9 @@ const isNoiseFor = (
   bot: Bot | undefined,
   simple: Bot | null | undefined
 ) =>
-  (!!simple?.enabled && decisions.importance < IMPORTANCE.high) ||
+  (!!simple?.enabled &&
+    actsOnGmail(simple) &&
+    decisions.importance < IMPORTANCE.high) ||
   (decisions.importance === 0 &&
     !decisions.needsReply &&
     (!bot || movesMail(bot)))

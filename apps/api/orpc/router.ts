@@ -209,7 +209,7 @@ const simpleBotInput = type({
   name: '0 < string <= 60',
   match: {
     field: type.enumerated(...SIMPLE_MATCH_FIELDS),
-    value: 'string',
+    value: type('string.trim').to('0 < string <= 320'),
   },
 })
 

@@ -388,7 +388,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   update_bot: define({
     description:
-      "Change one of the user's bots when they ask in its chat (or in Fewmail Bot's): its name, which mail it takes and what it does with it (instruction, written as create_bot's: both which mail and what it does), its effect, whether it acts on its own (enabled: off, it asks the user for a yes on each email) or a pause (pausedUntil: ISO 8601 with the user's UTC offset; it takes no mail until then and its mail is Fewmail Bot's; null ends the pause). Send only what changes. id: the bot's id (list_bots). The Board takes only a new name.",
+      "Change one of the user's bots when they ask in its chat (or in Fewmail Bot's): its name, which mail it takes and what it does with it (instruction, written as create_bot's: both which mail and what it does), its effect, whether it acts on its own (enabled: off, it asks the user for a yes on each email) or a pause (pausedUntil: ISO 8601 with the user's UTC offset; it takes no mail until then and its mail is Fewmail Bot's; null ends the pause). Send only what changes. id: the bot's id (list_bots). The Board takes only a new name; a bot with a match keeps it, takes no instruction and only archive, mark_read, unsubscribe or trash.",
     input: {
       effect: z.enum(BOT_EFFECTS).optional(),
       enabled: z.boolean().optional(),

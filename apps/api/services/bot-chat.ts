@@ -834,7 +834,6 @@ const deliverNudge = async (nudge: {
   await announceChange(nudge.userId, ['bots'])
 }
 
+/** By when it came due: a nudge set `NUDGE_MAX_DAYS` ahead is as old as `KEEP_DAYS` before it is said. */
 export const pruneBotPosts = () =>
-  db
-    .delete(botPosts)
-    .where(lt(botPosts.createdAt, subDays(new Date(), KEEP_DAYS)))
+  db.delete(botPosts).where(lt(botPosts.dueAt, subDays(new Date(), KEEP_DAYS)))
