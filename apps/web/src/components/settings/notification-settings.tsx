@@ -1,3 +1,4 @@
+import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
   SettingsRow,
@@ -15,6 +16,7 @@ import {
   enablePush,
   pushStateQuery,
   pushSupported,
+  testPush,
 } from '~/lib/push'
 
 const MessengerPush = ({ channel }: { channel: keyof typeof MESSENGERS }) => {
@@ -57,10 +59,16 @@ export const NotificationSettings = () => {
   const queryClient = useQueryClient()
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
   const { data: state } = useQuery(pushStateQuery)
+  const test = useMutation({
+    meta: { event: 'push_tested' },
+    mutationFn: () => testPush(publicKey ?? ''),
+  })
   const toggle = useMutation({
     meta: { event: 'push_toggled' },
-    mutationFn: (on: boolean) =>
-      on && publicKey ? enablePush(publicKey) : disablePush(),
+    mutationFn: async (on: boolean) => {
+      await (on && publicKey ? enablePush(publicKey) : disablePush())
+    },
+    onMutate: () => test.reset(),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: pushStateQuery.queryKey }),
   })
@@ -77,7 +85,16 @@ export const NotificationSettings = () => {
     if (state?.permission === 'denied') {
       return copy.blocked
     }
-    return state?.subscribed ? copy.on : copy.off
+    if (!state?.subscribed) {
+      return copy.off
+    }
+    if (test.isError || (test.data && test.data !== 'sent')) {
+      return copy.testFailed
+    }
+    if (test.data) {
+      return isDesktop ? copy.testSentDesktop : copy.testSent
+    }
+    return copy.on
   }
 
   return (
@@ -87,6 +104,16 @@ export const NotificationSettings = () => {
         description={description()}
         htmlFor="browser-notifications"
       >
+        {available && state?.subscribed && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={test.isPending}
+            onClick={() => test.mutate()}
+          >
+            {copy.test}
+          </Button>
+        )}
         {available && (
           <Switch
             id="browser-notifications"

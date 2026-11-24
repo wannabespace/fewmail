@@ -565,6 +565,8 @@ export const ja: Messages = {
   },
   notifications: {
     many: (n: number) => `Fewmail から ${n} 件のお知らせ`,
+    testBody: '緊急のメールはこのように表示されます。',
+    testTitle: '通知は動作しています',
   },
   plan: {
     used: (percent: number) => `${percent}% 使用`,
@@ -858,6 +860,13 @@ export const ja: Messages = {
       off: 'Fewmail を閉じていても、緊急のメールをここで受け取れます。',
       on: '緊急のメールがここに届きます。同時に複数届いたときは 1 件にまとめます。',
       title: '通知',
+      test: 'テストを送信',
+      testFailed:
+        '届きませんでした。通知をオフにして、もう一度オンにしてください。',
+      testSent:
+        '送信しました。表示されない場合は、コンピューターの設定でブラウザの通知を許可してください。',
+      testSentDesktop:
+        '送信しました。表示されない場合は、コンピューターの設定で Fewmail の通知を許可してください。',
       unsupported: 'このブラウザは通知を表示できません。',
     },
     telegram: {

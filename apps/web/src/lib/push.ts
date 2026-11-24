@@ -30,7 +30,7 @@ export const enablePush = async (publicKey: string) => {
     await client.devices.register({ kind: 'desktop', token })
     desktopDeviceStore.set(token)
     reopenLiveStream()
-    return
+    return token
   }
   await navigator.serviceWorker.register(WORKER_URL)
   // `register` resolves while the worker still installs, and Chrome refuses to subscribe without an active one.
@@ -48,7 +48,14 @@ export const enablePush = async (publicKey: string) => {
     kind: 'web',
     token: endpoint,
   })
+  return endpoint
 }
+
+/** A browser registers again first: its subscription outlives a server row lost to a failed register or a 410. */
+export const testPush = async (publicKey: string) =>
+  client.devices.test({
+    token: isDesktop ? desktopDeviceStore.get() : await enablePush(publicKey),
+  })
 
 export const disablePush = async () => {
   const token = desktopDeviceStore.get()

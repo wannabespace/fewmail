@@ -1199,6 +1199,8 @@ export const fr: Messages = {
       plural('fr', total, {
         other: (n) => `${n} nouveautés de Fewmail`,
       }),
+    testBody: 'Voici comment le courrier urgent apparaîtra.',
+    testTitle: 'Les notifications fonctionnent',
   },
   plan: {
     used: (percent: number) => `${percent} % utilisé`,
@@ -1541,6 +1543,13 @@ export const fr: Messages = {
       off: 'Recevez ici les e-mails urgents, même quand Fewmail est fermé.',
       on: 'Les e-mails urgents s’affichent ici. Plusieurs à la fois arrivent en une seule.',
       title: 'Notifications',
+      test: 'Envoyer un test',
+      testFailed:
+        'Rien n’est arrivé. Désactivez puis réactivez les notifications.',
+      testSent:
+        'Envoyé. Rien à l’écran ? Autorisez les notifications de votre navigateur dans les réglages de votre ordinateur.',
+      testSentDesktop:
+        'Envoyé. Rien à l’écran ? Autorisez les notifications de Fewmail dans les réglages de votre ordinateur.',
       unsupported: 'Ce navigateur ne peut pas afficher de notifications.',
     },
     telegram: {

@@ -712,6 +712,8 @@ export const en = {
       plural('en', total, {
         other: (n) => `${n} new from Fewmail`,
       }),
+    testBody: 'This is how urgent mail shows up.',
+    testTitle: 'Notifications work',
   },
   plan: {
     used: (percent: number) => `${percent}% used`,
@@ -1062,6 +1064,12 @@ export const en = {
       off: 'Get urgent mail here, even with Fewmail closed.',
       on: 'Urgent mail shows up here. Several at once arrive as one.',
       title: 'Notifications',
+      test: 'Send a test',
+      testFailed: 'It didn’t arrive. Turn notifications off and on again.',
+      testSent:
+        'Sent. Not on screen? Allow notifications for your browser in your computer’s settings.',
+      testSentDesktop:
+        'Sent. Not on screen? Allow notifications for Fewmail in your computer’s settings.',
       unsupported: 'This browser cannot show notifications.',
     },
     telegram: {

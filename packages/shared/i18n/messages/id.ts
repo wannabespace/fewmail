@@ -713,6 +713,8 @@ export const id: Messages = {
       plural('id', total, {
         other: (n) => `${n} kabar baru dari Fewmail`,
       }),
+    testBody: 'Beginilah email mendesak akan muncul.',
+    testTitle: 'Notifikasi berfungsi',
   },
   plan: {
     used: (percent: number) => `${percent}% terpakai`,
@@ -1058,6 +1060,12 @@ export const id: Messages = {
       off: 'Terima email mendesak di sini, bahkan saat Fewmail ditutup.',
       on: 'Email mendesak muncul di sini. Beberapa sekaligus datang sebagai satu.',
       title: 'Notifikasi',
+      test: 'Kirim tes',
+      testFailed: 'Tidak sampai. Matikan notifikasi lalu nyalakan lagi.',
+      testSent:
+        'Terkirim. Tidak muncul? Izinkan notifikasi untuk browser Anda di pengaturan komputer.',
+      testSentDesktop:
+        'Terkirim. Tidak muncul? Izinkan notifikasi untuk Fewmail di pengaturan komputer.',
       unsupported: 'Browser ini tidak dapat menampilkan notifikasi.',
     },
     telegram: {

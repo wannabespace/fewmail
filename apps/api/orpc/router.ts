@@ -130,6 +130,7 @@ import {
   keepDeviceSeen,
   registerDevice,
   removeDevice,
+  sendTestPush,
   webPushKey,
 } from '../services/notifications'
 import { cancelMail, scheduleMail } from '../services/outbox'
@@ -326,6 +327,11 @@ export const router = {
       .handler(async ({ context, input }) => {
         await removeDevice(context.user.id, input.token)
       }),
+    test: authed
+      .input(type({ token: 'string' }))
+      .handler(({ context, input }) =>
+        sendTestPush(context.user.id, input.token)
+      ),
     webPushKey: authed.handler(() => webPushKey()),
   },
   integrations: {

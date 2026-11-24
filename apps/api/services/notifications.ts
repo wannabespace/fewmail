@@ -126,6 +126,31 @@ export const keepDeviceSeen = (
   signal?.addEventListener('abort', () => clearInterval(timer))
 }
 
+/** Settings' test goes to the one device, past the batch: the user is watching for it now. */
+export const sendTestPush = async (
+  userId: string,
+  token: string
+): Promise<DeviceOutcome> => {
+  const [device] = await db
+    .select()
+    .from(devices)
+    .where(and(eq(devices.userId, userId), eq(devices.token, token)))
+  if (!device) {
+    return 'gone'
+  }
+  const settings = await getSettings(userId)
+  const t = messages[settings?.language ?? 'en']
+  const outcome = await senders[device.kind](device, {
+    body: t.notifications.testBody,
+    title: t.notifications.testTitle,
+    url: '/settings',
+  })
+  if (outcome === 'gone') {
+    await db.delete(devices).where(eq(devices.id, device.id))
+  }
+  return outcome
+}
+
 const combine = async (userId: string, batch: DeliveryNotice[]) => {
   const [single] = batch
   if (single && batch.length === 1) {

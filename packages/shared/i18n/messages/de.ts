@@ -1186,6 +1186,8 @@ export const de: Messages = {
       plural('de', total, {
         other: (n) => `${n} Neuigkeiten von Fewmail`,
       }),
+    testBody: 'So erscheint dringende Mail.',
+    testTitle: 'Benachrichtigungen funktionieren',
   },
   plan: {
     used: (percent: number) => `${percent} % verbraucht`,
@@ -1516,6 +1518,13 @@ export const de: Messages = {
       off: 'Erhalte dringende Mails hier, auch wenn Fewmail geschlossen ist.',
       on: 'Dringende Mails erscheinen hier. Mehrere auf einmal kommen als eine.',
       title: 'Benachrichtigungen',
+      test: 'Test senden',
+      testFailed:
+        'Nicht angekommen. Schalte die Benachrichtigungen aus und wieder ein.',
+      testSent:
+        'Gesendet. Nicht zu sehen? Erlaube Benachrichtigungen für deinen Browser in den Einstellungen deines Computers.',
+      testSentDesktop:
+        'Gesendet. Nicht zu sehen? Erlaube Benachrichtigungen für Fewmail in den Einstellungen deines Computers.',
       unsupported: 'Dieser Browser kann keine Benachrichtigungen anzeigen.',
     },
     telegram: {

@@ -705,6 +705,8 @@ export const tr: Messages = {
       plural('tr', total, {
         other: (n) => `Fewmail’den ${n} yeni bildirim`,
       }),
+    testBody: 'Acil e-postalar böyle görünecek.',
+    testTitle: 'Bildirimler çalışıyor',
   },
   plan: {
     used: (percent: number) => `%${percent} kullanıldı`,
@@ -1050,6 +1052,12 @@ export const tr: Messages = {
       off: 'Fewmail kapalıyken bile acil e-postaları burada al.',
       on: 'Acil e-postalar burada görünür. Aynı anda gelenler tek bildirimde toplanır.',
       title: 'Bildirimler',
+      test: 'Test gönder',
+      testFailed: 'Ulaşmadı. Bildirimleri kapatıp yeniden aç.',
+      testSent:
+        'Gönderildi. Ekranda yok mu? Bilgisayarının ayarlarında tarayıcının bildirimlerine izin ver.',
+      testSentDesktop:
+        'Gönderildi. Ekranda yok mu? Bilgisayarının ayarlarında Fewmail’in bildirimlerine izin ver.',
       unsupported: 'Bu tarayıcı bildirim gösteremiyor.',
     },
     telegram: {

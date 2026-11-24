@@ -739,6 +739,8 @@ export const pl: Messages = {
         few: (n) => `${n} nowe powiadomienia z Fewmail`,
         other: (n) => `${n} nowych powiadomień z Fewmail`,
       }),
+    testBody: 'Tak będzie wyglądać pilna poczta.',
+    testTitle: 'Powiadomienia działają',
   },
   plan: {
     used: (percent: number) => `Wykorzystano ${percent}%`,
@@ -1111,6 +1113,12 @@ export const pl: Messages = {
       off: 'Odbieraj tutaj pilne maile, nawet gdy Fewmail jest zamknięty.',
       on: 'Pilne maile pojawiają się tutaj. Kilka naraz przychodzi jako jedno.',
       title: 'Powiadomienia',
+      test: 'Wyślij test',
+      testFailed: 'Nie dotarło. Wyłącz powiadomienia i włącz je ponownie.',
+      testSent:
+        'Wysłano. Nie widać? Zezwól przeglądarce na powiadomienia w ustawieniach komputera.',
+      testSentDesktop:
+        'Wysłano. Nie widać? Zezwól Fewmail na powiadomienia w ustawieniach komputera.',
       unsupported: 'Ta przeglądarka nie może wyświetlać powiadomień.',
     },
     telegram: {

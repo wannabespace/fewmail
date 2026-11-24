@@ -716,6 +716,8 @@ export const nl: Messages = {
       plural('nl', total, {
         other: (n) => `${n} nieuwe meldingen van Fewmail`,
       }),
+    testBody: 'Zo verschijnt dringende mail.',
+    testTitle: 'Meldingen werken',
   },
   plan: {
     used: (percent: number) => `${percent}% gebruikt`,
@@ -1070,6 +1072,12 @@ export const nl: Messages = {
       off: 'Ontvang dringende mail hier, ook als Fewmail dicht is.',
       on: 'Dringende mail verschijnt hier. Meerdere tegelijk komen als één.',
       title: 'Meldingen',
+      test: 'Stuur een test',
+      testFailed: 'Niet aangekomen. Zet meldingen uit en weer aan.',
+      testSent:
+        'Verstuurd. Niet te zien? Sta meldingen voor je browser toe in de instellingen van je computer.',
+      testSentDesktop:
+        'Verstuurd. Niet te zien? Sta meldingen voor Fewmail toe in de instellingen van je computer.',
       unsupported: 'Deze browser kan geen meldingen tonen.',
     },
     telegram: {

@@ -565,6 +565,8 @@ export const ko: Messages = {
   },
   notifications: {
     many: (n: number) => `Fewmail 새 알림 ${n}개`,
+    testBody: '긴급한 메일은 이렇게 표시돼요.',
+    testTitle: '알림이 작동해요',
   },
   plan: {
     used: (percent: number) => `${percent}% 사용`,
@@ -849,6 +851,12 @@ export const ko: Messages = {
       off: 'Fewmail을 닫아 두어도 긴급 메일을 여기서 받아요.',
       on: '긴급 메일이 여기에 표시돼요. 한꺼번에 여러 개가 오면 하나로 묶어요.',
       title: '알림',
+      test: '테스트 보내기',
+      testFailed: '도착하지 않았어요. 알림을 껐다가 다시 켜 주세요.',
+      testSent:
+        '보냈어요. 화면에 안 보이나요? 컴퓨터 설정에서 브라우저 알림을 허용해 주세요.',
+      testSentDesktop:
+        '보냈어요. 화면에 안 보이나요? 컴퓨터 설정에서 Fewmail 알림을 허용해 주세요.',
       unsupported: '이 브라우저는 알림을 표시할 수 없어요.',
     },
     telegram: {

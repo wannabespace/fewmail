@@ -555,6 +555,8 @@ export const zh: Messages = {
   },
   notifications: {
     many: (n: number) => `Fewmail 有 ${n} 条新通知`,
+    testBody: '紧急邮件会这样显示。',
+    testTitle: '通知可以正常使用',
   },
   plan: {
     used: (percent: number) => `已用 ${percent}%`,
@@ -829,6 +831,10 @@ export const zh: Messages = {
       off: '即使关闭 Fewmail，也能在这里收到紧急邮件。',
       on: '紧急邮件会在这里显示。同时到达的多条会合并为一条。',
       title: '通知',
+      test: '发送测试',
+      testFailed: '没有送达。请关闭通知后再重新打开。',
+      testSent: '已发送。没看到？请在电脑设置中允许浏览器的通知。',
+      testSentDesktop: '已发送。没看到？请在电脑设置中允许 Fewmail 的通知。',
       unsupported: '此浏览器无法显示通知。',
     },
     telegram: {
