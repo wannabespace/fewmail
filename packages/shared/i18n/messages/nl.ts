@@ -1415,7 +1415,7 @@ export const nl: Messages = {
         },
         codes: {
           description:
-            'Een verse code staat bovenaan je chats en naast de e-mail, klaar om te kopiëren zonder iets te openen. Gratis.',
+            'Een verse code staat bovenaan elke pagina en naast de e-mail, klaar om te kopiëren zonder iets te openen. Gratis.',
           title: 'Inlogcodes',
         },
         messengers: {
@@ -1919,7 +1919,6 @@ export const nl: Messages = {
       `Fewmail heeft je deze week ongeveer ${formatMinutes('nl', minutes)} bespaard`,
     recent: (period: string) => `Ook ${period}`,
     sent: 'Verstuurd',
-    codes: 'Inlogcodes',
   },
   upgrade: {
     hints: {

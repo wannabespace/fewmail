@@ -66,7 +66,7 @@ const notificationsDeclinedStore = createWebStorageValue({
 })
 
 /** `Y` already means something on these pages (the cursor row's code, the year view). */
-const OWNS_Y = ['/home', '/mail', '/calendar', '/wrapped']
+const OWNS_Y = ['/mail', '/calendar', '/wrapped']
 
 interface Notice {
   /** A step with consequences of its own (sign in, reconnect), named on its button. */
@@ -123,7 +123,7 @@ const useFreshCodes = () => {
 /**
  * The one place for what the user must act on, above every page; the most pressing shows first, one at a time, the
  * rest a click away. A fresh code, a risk and a request waiting for approval come before mailbox trouble; urgent
- * mail waits on Home alone. Home shows its own codes and cards, so here it keeps only mailbox trouble. Nothing here
+ * mail waits on Home alone. Home shows its own cards, so there it keeps codes and mailbox trouble only. Nothing here
  * changes Gmail or approves anything except a code's own Copy and archive: the rest opens where the decision is.
  */
 export const NoticeBar = () => {
@@ -168,7 +168,7 @@ export const NoticeBar = () => {
   const sendBlocked = mailboxes.find(
     ({ sendBlockedUntil }) => sendBlockedUntil && isFuture(sendBlockedUntil)
   )
-  const newest = isHome ? undefined : codes[0]
+  const [newest] = codes
   const canCopyWithY =
     !!newest && !OWNS_Y.some((page) => pathname.startsWith(page))
   const copyCode = (code: string) => {
@@ -187,7 +187,7 @@ export const NoticeBar = () => {
   }
 
   const notices: (Notice | false)[] = [
-    ...(isHome ? [] : codes).map((message): Notice => ({
+    ...codes.map((message): Notice => ({
       description: <span data-mask>{message.subject}</span>,
       dismiss: () => {
         posthog.capture('banner_dismissed', { kind: 'code' })

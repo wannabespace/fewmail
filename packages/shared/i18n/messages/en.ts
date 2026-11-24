@@ -1407,7 +1407,7 @@ export const en = {
         },
         codes: {
           description:
-            'A fresh code waits at the top of your chats and beside its email, ready to copy without opening anything. Free.',
+            'A fresh code waits at the top of every page and beside its email, ready to copy without opening anything. Free.',
           title: 'Sign-in codes',
         },
         messengers: {
@@ -1899,7 +1899,6 @@ export const en = {
       `Fewmail saved you about ${formatMinutes('en', minutes)} this week`,
     recent: (period: string) => `Also ${period}`,
     sent: 'Sent',
-    codes: 'Sign-in codes',
   },
   upgrade: {
     hints: {

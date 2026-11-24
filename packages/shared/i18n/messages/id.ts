@@ -1401,7 +1401,7 @@ export const id: Messages = {
         },
         codes: {
           description:
-            'Kode terbaru menunggu di atas obrolanmu dan di samping emailnya, siap disalin tanpa membuka apa pun. Gratis.',
+            'Kode terbaru menunggu di atas setiap halaman dan di samping emailnya, siap disalin tanpa membuka apa pun. Gratis.',
           title: 'Kode masuk',
         },
         messengers: {
@@ -1897,7 +1897,6 @@ export const id: Messages = {
       `Fewmail menghemat sekitar ${formatMinutes('id', minutes)} untukmu minggu ini`,
     recent: (period: string) => `Juga ${period}`,
     sent: 'Terkirim',
-    codes: 'Kode masuk',
   },
   upgrade: {
     hints: {

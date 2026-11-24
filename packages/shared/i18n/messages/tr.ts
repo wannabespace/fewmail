@@ -1396,7 +1396,7 @@ export const tr: Messages = {
         },
         codes: {
           description:
-            'Yeni bir kod sohbetlerinin en üstünde ve e-postasının yanında, hiçbir şey açmadan kopyalanmaya hazır bekler. Ücretsiz.',
+            'Yeni bir kod her sayfanın en üstünde ve e-postasının yanında, hiçbir şey açmadan kopyalanmaya hazır bekler. Ücretsiz.',
           title: 'Giriş kodları',
         },
         messengers: {
@@ -1893,7 +1893,6 @@ export const tr: Messages = {
       `Fewmail bu hafta sana yaklaşık ${formatMinutes('tr', minutes)} kazandırdı`,
     recent: (period: string) => `${period} ayrıca`,
     sent: 'Gönderildi',
-    codes: 'Giriş kodları',
   },
   upgrade: {
     hints: {

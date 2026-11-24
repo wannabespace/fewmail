@@ -39,7 +39,6 @@ import type { HomeBot } from '~/components/bot-list'
 import {
   BoardNow,
   CardGroups,
-  FreshCodes,
   HomeHeader,
   openWorthRow,
   PickedActions,
@@ -183,9 +182,6 @@ const homeHints = (
           ['U', t.actionKind.unsubscribe] as [string, string],
           ['I', t.today.newSender.keep] as [string, string],
         ]
-      : []),
-    ...(state.today?.codes.length
-      ? [['Y', t.mail.oneTimeCode.copy] as [string, string]]
       : []),
     ...bots,
   ]
@@ -415,10 +411,7 @@ const waitsOnAnything = ({
 }) =>
   (isBoard && (board.isPending || board.ordered.length > 0)) ||
   queue + proposals + worth > 0 ||
-  (data?.newSenders.length ?? 0) +
-    (data?.botSuggestions.length ?? 0) +
-    (data?.codes.length ?? 0) >
-    0 ||
+  (data?.newSenders.length ?? 0) + (data?.botSuggestions.length ?? 0) > 0 ||
   (botId === 'fewmail' && journal > 0)
 
 /** The open bot's own part of Today: Fewmail keeps what no bot of the user's takes, and what is not anyone's mail. */
@@ -433,7 +426,6 @@ const todayOf = (today: Today | undefined, bot: string): Today | undefined => {
     ...today,
     awaiting: isFewmail ? today.awaiting : [],
     botSuggestions: isFewmail ? today.botSuggestions : [],
-    codes: isFewmail ? today.codes : [],
     dates: today.dates.filter(isMine),
     newSenders: isFewmail ? today.newSenders : [],
     recent: today.recent.filter(isMine),
@@ -697,7 +689,6 @@ const HomePage = () => {
   )
   const now = (
     <>
-      <FreshCodes today={data} canUseKeys={isFocused} />
       {isBoard && <BoardNow isActive={isFocused} />}
       {picked.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">

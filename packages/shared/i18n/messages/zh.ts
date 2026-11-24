@@ -1166,7 +1166,7 @@ export const zh: Messages = {
         },
         codes: {
           description:
-            '新验证码会出现在聊天顶部和对应邮件旁，无需打开任何内容即可复制。免费。',
+            '新验证码会出现在每个页面顶部和对应邮件旁，无需打开任何内容即可复制。免费。',
           title: '登录验证码',
         },
         messengers: {
@@ -1632,7 +1632,6 @@ export const zh: Messages = {
       `本周 Fewmail 为你节省了约 ${formatMinutes('zh', minutes)}`,
     recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
-    codes: '验证码',
   },
   bulk: {
     badge: (n: number) => `已发给 ${n}+ 位 Fewmail 用户`,

@@ -472,7 +472,7 @@ export const de: Messages = {
         },
         codes: {
           description:
-            'Ein frischer Code wartet oben in deinen Chats und neben seiner Mail, zum Kopieren, ohne etwas zu öffnen. Kostenlos.',
+            'Ein frischer Code wartet oben auf jeder Seite und neben seiner Mail, zum Kopieren, ohne etwas zu öffnen. Kostenlos.',
           title: 'Anmeldecodes',
         },
         messengers: {
@@ -1779,7 +1779,6 @@ export const de: Messages = {
       `Fewmail hat dir diese Woche etwa ${formatMinutes('de', minutes)} gespart`,
     recent: (period: string) => `Außerdem ${period}`,
     sent: 'Gesendet',
-    codes: 'Anmeldecodes',
   },
   bulk: {
     badge: (n: number) => `An ${n}+ Fewmail-Nutzer gesendet`,

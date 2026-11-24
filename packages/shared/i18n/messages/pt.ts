@@ -1438,7 +1438,7 @@ export const pt: Messages = {
         },
         codes: {
           description:
-            'Um código recente espera no topo dos seus chats e ao lado do e-mail, pronto para copiar sem abrir nada. Grátis.',
+            'Um código recente espera no topo de cada página e ao lado do e-mail, pronto para copiar sem abrir nada. Grátis.',
           title: 'Códigos de acesso',
         },
         messengers: {
@@ -1972,7 +1972,6 @@ export const pt: Messages = {
       `O Fewmail te poupou cerca de ${formatMinutes('pt', minutes)} esta semana`,
     recent: (period: string) => `Também ${period}`,
     sent: 'Enviado',
-    codes: 'Códigos de acesso',
   },
   upgrade: {
     hints: {

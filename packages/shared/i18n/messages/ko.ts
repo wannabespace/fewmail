@@ -1191,7 +1191,7 @@ export const ko: Messages = {
         },
         codes: {
           description:
-            '새 코드는 채팅 맨 위와 해당 메일 옆에 있어 아무것도 열지 않고 복사할 수 있어요. 무료.',
+            '새 코드는 모든 페이지 맨 위와 해당 메일 옆에 있어 아무것도 열지 않고 복사할 수 있어요. 무료.',
           title: '로그인 코드',
         },
         messengers: {
@@ -1667,7 +1667,6 @@ export const ko: Messages = {
       `이번 주 Fewmail이 아껴 준 시간: 약 ${formatMinutes('ko', minutes)}`,
     recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
-    codes: '인증 코드',
   },
   bulk: {
     badge: (n: number) => `Fewmail 사용자 ${n}명 이상에게 발송됨`,

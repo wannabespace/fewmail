@@ -6,17 +6,14 @@ import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { Accordion } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
-import { SettingsRows } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
-import { copy } from '@fewmail/ui/lib/copy'
 import {
   BookOpen01Icon,
   Calendar03Icon,
   Mail01Icon,
   MailAdd01Icon,
-  PasswordValidationIcon,
   Tick02Icon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
@@ -45,7 +42,7 @@ import type { RowPlace } from '~/components/pane-rows'
 import { foldedVerb } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import { closeSender, SenderRow, showSender } from '~/components/sender-card'
-import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
+import { sweepOf, useMailActions } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
 import { todayLists, useWaiting } from '~/lib/home-db'
@@ -274,69 +271,6 @@ export const SenderQuestions = ({
             canUseKeys={canUseKeys}
             onSettle={holdClicksUntilMove}
           />
-        </ToolContent>
-      </Tool>
-    )
-  )
-}
-
-export const FreshCodes = ({
-  canUseKeys,
-  today,
-}: {
-  canUseKeys: boolean
-  today: Today | undefined
-}) => {
-  const t = useT()
-  const codes = today?.codes ?? []
-  const actions = useMailActions(undefined, (messageId) => {
-    if (todayLists.codes.has(messageId)) {
-      todayLists.codes.delete(messageId)
-    }
-  })
-  const sweep = sweepOf(actions, t, 'inbox')
-  const newest = codes[0]?.code
-  useHotkey('Y', () => newest && copy(newest, t.mail.oneTimeCode.copied), {
-    enabled: canUseKeys && !!newest,
-  })
-
-  return (
-    codes.length > 0 && (
-      <Tool open>
-        <ToolHeader
-          icon={PasswordValidationIcon}
-          isOpenable={false}
-          title={
-            <>
-              {t.today.codes}
-              <span className="text-muted-foreground ml-1.5 tabular-nums">
-                {codes.length}
-              </span>
-            </>
-          }
-        />
-        <ToolContent variant="rows">
-          <SettingsRows>
-            {codes.map(
-              (message) =>
-                message.code && (
-                  <EmailRow
-                    key={message.id}
-                    actions={actions}
-                    from="home"
-                    message={message}
-                    description={<span data-mask>{message.subject}</span>}
-                  >
-                    <CodeActions
-                      actions={actions}
-                      code={message.code}
-                      messageIds={[message.id]}
-                      sweep={sweep}
-                    />
-                  </EmailRow>
-                )
-            )}
-          </SettingsRows>
         </ToolContent>
       </Tool>
     )

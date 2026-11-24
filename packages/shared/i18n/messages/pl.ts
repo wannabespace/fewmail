@@ -1455,7 +1455,7 @@ export const pl: Messages = {
         },
         codes: {
           description:
-            'Świeży kod czeka na górze twoich czatów i obok swojego e-maila, gotowy do skopiowania bez otwierania. Za darmo.',
+            'Świeży kod czeka na górze każdej strony i obok swojego e-maila, gotowy do skopiowania bez otwierania. Za darmo.',
           title: 'Kody logowania',
         },
         messengers: {
@@ -2003,7 +2003,6 @@ export const pl: Messages = {
       `W tym tygodniu Fewmail zaoszczędził ci około ${formatMinutes('pl', minutes)}`,
     recent: (period: string) => `Też ${period}`,
     sent: 'Wysłano',
-    codes: 'Kody logowania',
   },
   upgrade: {
     hints: {

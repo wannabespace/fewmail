@@ -1202,7 +1202,7 @@ export const ja: Messages = {
         },
         codes: {
           description:
-            '新しいコードはチャットの上部とそのメールの横に表示され、何も開かずにコピーできます。無料。',
+            '新しいコードはどのページでも上部と、そのメールの横に表示され、何も開かずにコピーできます。無料。',
           title: 'ログインコード',
         },
         messengers: {
@@ -1691,7 +1691,6 @@ export const ja: Messages = {
       `今週 Fewmail が節約した時間: 約${formatMinutes('ja', minutes)}`,
     recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
-    codes: '認証コード',
   },
   bulk: {
     badge: (n: number) => `${n}人以上のFewmailユーザーに送信`,

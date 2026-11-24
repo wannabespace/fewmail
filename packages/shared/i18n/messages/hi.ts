@@ -1230,7 +1230,7 @@ export const hi: Messages = {
         },
         codes: {
           description:
-            'ताज़ा कोड आपकी चैट के ऊपर और अपने ईमेल के पास मिलता है, बिना कुछ खोले कॉपी करने को तैयार। मुफ़्त।',
+            'ताज़ा कोड हर पेज के ऊपर और अपने ईमेल के पास मिलता है, बिना कुछ खोले कॉपी करने को तैयार। मुफ़्त।',
           title: 'साइन-इन कोड',
         },
         messengers: {
@@ -1722,7 +1722,6 @@ export const hi: Messages = {
       `इस हफ़्ते Fewmail ने आपके लगभग ${formatMinutes('hi', minutes)} बचाए`,
     recent: (period: string) => `${period} और`,
     sent: 'भेजा गया',
-    codes: 'साइन-इन कोड',
   },
   bulk: {
     badge: (n: number) => `${n}+ Fewmail उपयोगकर्ताओं को भेजा गया`,

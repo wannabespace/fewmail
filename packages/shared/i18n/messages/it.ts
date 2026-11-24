@@ -474,7 +474,7 @@ export const it: Messages = {
         },
         codes: {
           description:
-            'Un codice recente ti aspetta in cima alle tue chat e accanto alla sua email, pronto da copiare senza aprire nulla. Gratis.',
+            'Un codice recente ti aspetta in cima a ogni pagina e accanto alla sua email, pronto da copiare senza aprire nulla. Gratis.',
           title: 'Codici di accesso',
         },
         messengers: {
@@ -1783,7 +1783,6 @@ export const it: Messages = {
       `Questa settimana Fewmail ti ha fatto risparmiare circa ${formatMinutes('it', minutes)}`,
     recent: (period: string) => `Anche ${period}`,
     sent: 'Inviata',
-    codes: 'Codici di accesso',
   },
   bulk: {
     badge: (n: number) => `Inviata a oltre ${n} utenti Fewmail`,
