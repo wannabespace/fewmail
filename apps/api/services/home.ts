@@ -34,7 +34,7 @@ import {
   handledSince,
   listHandled,
   listQueue,
-  notBinned,
+  isCardShown,
   listTidy,
   mailPulse,
   mailWithDates,
@@ -44,6 +44,7 @@ import {
 import { listMailboxes } from './mailboxes'
 import { awaitingReplies } from './reminders'
 import { getSettings } from './settings'
+import { isMailboxOn } from './stored-mail'
 
 const CATCH_UP_MIN_HOURS = 24
 const CATCH_UP_MAX_DAYS = 7
@@ -123,6 +124,7 @@ const readingNow = async (userId: string) => {
         eq(messages.isFromMe, false),
         arrayContains(messages.labelIds, ['INBOX']),
         gte(messages.receivedAt, subDays(new Date(), 1)),
+        isMailboxOn(messages),
         exists(
           db
             .select({ id: mailboxRows.id })
@@ -344,7 +346,7 @@ export const listBanner = async (userId: string) => {
       and(
         eq(actions.userId, userId),
         eq(actions.status, 'pending'),
-        notBinned,
+        isCardShown,
         isNull(actions.bannerDismissedAt),
         gte(actions.createdAt, subHours(new Date(), BANNER_HOURS)),
         inArray(actions.kind, ['security', 'consent'])

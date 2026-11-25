@@ -457,7 +457,7 @@ export const de: Messages = {
       },
       {
         answer:
-          'Derzeit Konten von Gmail und Google Workspace. Füge mehrere Postfächer zu einem Fewmail hinzu, und ihre Mails landen bei denselben Bots und im selben Posteingang.',
+          'Derzeit Konten von Gmail und Google Workspace. Füge mehrere Postfächer zu einem Fewmail hinzu, und ihre Mails landen bei denselben Bots und im selben Posteingang. Ein hinzugefügtes Postfach lässt sich ausschalten und später wieder einschalten.',
         question: 'Welche E-Mail-Konten funktionieren?',
       },
     ],
@@ -1477,6 +1477,7 @@ export const de: Messages = {
       failed:
         'Das Postfach konnte nicht hinzugefügt werden. Erlaube den Gmail-Zugriff und versuche es erneut.',
       lost: 'Der Gmail-Zugriff ging verloren. Füge es erneut hinzu, um es wieder zu verbinden.',
+      off: 'Aus. Fewmail liest das Postfach nicht und blendet seine Mails aus, bis du es wieder einschaltest.',
       reading: 'Mails werden gelesen…',
       remove: 'Entfernen',
       retrying:

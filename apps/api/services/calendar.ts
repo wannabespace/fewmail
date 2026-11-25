@@ -2,7 +2,7 @@ import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
 import type { EventScope } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
-import { and, asc, eq, isNull } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 
 import { CALENDAR_SCOPE, hasSignInScope } from '../lib/auth'
 import type { CalendarEventFields } from '../lib/calendar'
@@ -15,6 +15,7 @@ import {
 import { logError } from '../lib/log'
 import { NotFoundError } from './mail-errors'
 import { ownMailbox } from './mailboxes'
+import { activeMailboxes } from './stored-mail'
 
 interface EventRef {
   id: string
@@ -41,10 +42,7 @@ const isConnected = async (mailbox: Mailbox) =>
 
 /** Any calendar of the user's: without one the web hides the Calendar page and everything leading to it. */
 export const hasCalendar = async (userId: string) => {
-  const owned = await db
-    .select()
-    .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+  const owned = await activeMailboxes(userId)
   const connected = await Promise.all(owned.map(isConnected))
   return connected.some(Boolean)
 }
@@ -106,11 +104,7 @@ export const listEvents = async (
   userId: string,
   range: { from: Date; to: Date }
 ) => {
-  const owned = await db
-    .select()
-    .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
-    .orderBy(asc(mailboxes.createdAt))
+  const owned = await activeMailboxes(userId)
   const perMailbox = await Promise.all(
     owned.map(async (mailbox) => {
       const calendar = {

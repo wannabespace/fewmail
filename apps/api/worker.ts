@@ -80,9 +80,12 @@ const syncDueMailboxes = async () => {
     .select()
     .from(mailboxes)
     .where(
-      or(
-        isNull(mailboxes.lastSyncedAt),
-        lt(mailboxes.lastSyncedAt, subMinutes(new Date(), SYNC_EVERY_MINUTES))
+      and(
+        eq(mailboxes.enabled, true),
+        or(
+          isNull(mailboxes.lastSyncedAt),
+          lt(mailboxes.lastSyncedAt, subMinutes(new Date(), SYNC_EVERY_MINUTES))
+        )
       )
     )
   const withoutMailbox = await db
@@ -115,6 +118,7 @@ const holdDueMail = async () => {
     .from(mailboxes)
     .where(
       and(
+        eq(mailboxes.enabled, true),
         isNotNull(mailboxes.lastSyncedAt),
         gt(
           mailboxes.heldSince,

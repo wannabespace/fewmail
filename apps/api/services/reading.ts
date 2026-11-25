@@ -29,6 +29,7 @@ import { JEV_MODEL_ID } from '../lib/jev'
 import { rowPlace } from './mail'
 import { finishPaid, hasBudget } from './plan'
 import { getSettings } from './settings'
+import { isMailboxOn } from './stored-mail'
 import { changeThreadLabels, MARK_READ } from './thread-labels'
 
 export const READING_SHOWN = 30
@@ -87,12 +88,15 @@ const clockOf = async (userId: string) => {
 }
 
 // A newsletter trashed from its row leaves the issue; archived ones stay, since a bot of the user's may archive them all.
-const notTrashed = not(arrayContains(messages.labelIds, ['TRASH']))
+const isShown = and(
+  not(arrayContains(messages.labelIds, ['TRASH'])),
+  isMailboxOn(messages)
+)
 
 const isReading = (userId: string, day: string, timezone: string) =>
   and(
     eq(messages.userId, userId),
-    notTrashed,
+    isShown,
     eq(messages.isFromMe, false),
     eq(analyses.category, 'newsletter'),
     gte(
@@ -157,7 +161,7 @@ const readIssueRows = async (userId: string, messageIds: string[]) => {
       and(
         eq(messages.userId, userId),
         inArray(messages.id, messageIds),
-        notTrashed
+        isShown
       )
     )
     .orderBy(desc(messages.receivedAt))

@@ -461,7 +461,7 @@ export const fr: Messages = {
       },
       {
         answer:
-          'Les comptes Gmail et Google Workspace, pour l’instant. Ajoutez plusieurs boîtes à un même Fewmail : leurs e-mails rejoignent les mêmes bots et la même boîte de réception.',
+          'Les comptes Gmail et Google Workspace, pour l’instant. Ajoutez plusieurs boîtes à un même Fewmail : leurs e-mails rejoignent les mêmes bots et la même boîte de réception. Une boîte ajoutée peut être désactivée, puis réactivée plus tard.',
         question: 'Quels comptes e-mail sont compatibles ?',
       },
     ],
@@ -1501,6 +1501,7 @@ export const fr: Messages = {
       failed:
         'Impossible d’ajouter la boîte. Autorisez l’accès à Gmail et réessayez.',
       lost: 'L’accès à Gmail a été perdu. Ajoutez-la de nouveau pour la reconnecter.',
+      off: 'Désactivée. Fewmail ne la lit pas et masque son courrier jusqu’à ce que vous la réactiviez.',
       reading: 'Lecture du courrier…',
       remove: 'Retirer',
       retrying:

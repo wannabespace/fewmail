@@ -34,6 +34,7 @@ import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { NotFoundError } from './mail-errors'
 import { getPlanInfo, hasAgent, hasAgentSql } from './plan'
 import { getSettings } from './settings'
+import { isThreadOn } from './stored-mail'
 import { changeThreadLabels } from './thread-labels'
 
 const pendingOn = (userId: string, threadId: string, kind: ReminderKind) =>
@@ -122,7 +123,8 @@ export const awaitingReplies = async (userId: string) => {
       and(
         eq(reminders.userId, userId),
         eq(reminders.kind, 'followup'),
-        eq(reminders.status, 'pending')
+        eq(reminders.status, 'pending'),
+        isThreadOn(reminders)
       )
     )
     .orderBy(asc(reminders.since))
@@ -262,7 +264,11 @@ export const processDueReminders = async () => {
     .select()
     .from(reminders)
     .where(
-      and(eq(reminders.status, 'pending'), lte(reminders.dueAt, new Date()))
+      and(
+        eq(reminders.status, 'pending'),
+        lte(reminders.dueAt, new Date()),
+        isThreadOn(reminders)
+      )
     )
 
   await Promise.all(
@@ -388,6 +394,7 @@ export const processDueCommitments = async () => {
       and(
         inArray(commitments.status, ACTIVE_COMMITMENT_STATUSES),
         isNull(commitments.remindedAt),
+        isThreadOn(commitments),
         lte(
           commitments.dueAt,
           addDays(

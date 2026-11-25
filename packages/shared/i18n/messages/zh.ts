@@ -797,6 +797,7 @@ export const zh: Messages = {
       added: '邮箱已添加，邮件将在一分钟内出现。',
       failed: '无法添加邮箱。请允许访问 Gmail 后重试。',
       lost: 'Gmail 访问已失效。请重新添加以重新连接。',
+      off: '已关闭。在你重新开启之前，Fewmail 不会读取这个邮箱，并会隐藏其中的邮件。',
       reading: '正在读取邮件…',
       remove: '移除',
       retrying: 'Gmail 暂时没有响应，Fewmail 会自动重试。',
@@ -1151,7 +1152,7 @@ export const zh: Messages = {
       },
       {
         answer:
-          '目前支持 Gmail 和 Google Workspace 账户。把多个邮箱添加到同一个 Fewmail，它们的邮件会汇入同一批机器人和收件箱。',
+          '目前支持 Gmail 和 Google Workspace 账户。把多个邮箱添加到同一个 Fewmail，它们的邮件会汇入同一批机器人和收件箱。添加的邮箱可以关闭，之后再重新开启。',
         question: '支持哪些邮箱账户？',
       },
     ],

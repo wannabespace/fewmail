@@ -11,6 +11,7 @@ import { announceChange } from '../lib/live'
 import { logError } from '../lib/log'
 import { keepsPromises } from './bots'
 import { NotFoundError } from './mail-errors'
+import { isThreadOn } from './stored-mail'
 
 type Commitment = typeof commitments.$inferSelect
 
@@ -221,7 +222,7 @@ export const listCommitments = async (userId: string) => {
     .from(commitments)
     .leftJoin(messages, eq(messages.id, commitments.messageId))
     .leftJoin(evidence, eq(evidence.id, commitments.evidenceMessageId))
-    .where(eq(commitments.userId, userId))
+    .where(and(eq(commitments.userId, userId), isThreadOn(commitments)))
     .orderBy(asc(commitments.dueAt))
   const history = rows.length
     ? await db

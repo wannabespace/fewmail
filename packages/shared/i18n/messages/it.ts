@@ -459,7 +459,7 @@ export const it: Messages = {
       },
       {
         answer:
-          'Per ora account Gmail e Google Workspace. Aggiungi più caselle a un solo Fewmail e la loro posta arriva agli stessi bot e nella stessa casella.',
+          'Per ora account Gmail e Google Workspace. Aggiungi più caselle a un solo Fewmail e la loro posta arriva agli stessi bot e nella stessa casella. Una casella aggiunta si può disattivare e riattivare più tardi.',
         question: 'Quali account email funzionano?',
       },
     ],
@@ -1491,6 +1491,7 @@ export const it: Messages = {
       failed:
         'Impossibile aggiungere la casella. Consenti l’accesso a Gmail e riprova.',
       lost: 'Accesso a Gmail perso. Aggiungila di nuovo per ricollegarla.',
+      off: 'Disattivata. Fewmail non la legge e ne nasconde la posta finché non la riattivi.',
       reading: 'Lettura della posta…',
       remove: 'Rimuovi',
       retrying: 'Gmail non risponde al momento. Fewmail riproverà da solo.',

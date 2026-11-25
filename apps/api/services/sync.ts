@@ -5,6 +5,8 @@ import { Result } from 'better-result'
 import { max, subDays, subMinutes, subMonths } from 'date-fns'
 import {
   and,
+  arrayContains,
+  desc,
   eq,
   gt,
   gte,
@@ -12,7 +14,9 @@ import {
   isNull,
   lt,
   notExists,
+  notInArray,
   or,
+  sql,
 } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
@@ -59,6 +63,8 @@ const HELD_STEP_LIMIT = 5000
 /** A sync that died without releasing its claim (a crash, a deploy) is taken over after this. */
 const SYNC_CLAIM_MINUTES = 15
 
+const seconds = (date: Date) => Math.floor(date.getTime() / 1000)
+
 type Mailbox = typeof mailboxes.$inferSelect
 type Message = typeof messages.$inferSelect
 
@@ -91,7 +97,7 @@ const newMessageIds = async (mailbox: Mailbox) => {
   if (since) {
     const history = await Result.tryPromise(() => listHistory(mailbox, since))
     if (history.isOk()) {
-      return history.value
+      return { ...history.value, hasGap: false }
     }
     if (!isMissing(history.error.cause)) {
       throw history.error.cause
@@ -106,6 +112,8 @@ const newMessageIds = async (mailbox: Mailbox) => {
   return {
     historyId,
     ids: [...new Set([...inbox, ...sent])],
+    // Gmail forgot the history since the last sync (a mailbox turned off for over a week): `closeGap` catches it up.
+    hasGap: since !== null,
     labelChanges: new Map<string, string[]>(),
   }
 }
@@ -256,6 +264,7 @@ const claimSync = async (mailboxId: string) => {
     .where(
       and(
         eq(mailboxes.id, mailboxId),
+        eq(mailboxes.enabled, true),
         or(
           isNull(mailboxes.syncStartedAt),
           lt(
@@ -294,14 +303,74 @@ const writeFirstIssues = async (mailbox: Mailbox) => {
   await announceChange(mailbox.userId, ['mail', 'reading'])
 }
 
-/** While another process syncs the same mailbox, leaves it a request to go again instead. */
+/** Takes the label off held mail Gmail no longer lists with it. */
+const dropLabel = async (
+  mailbox: Mailbox,
+  label: 'INBOX' | 'UNREAD',
+  query: string
+) => {
+  const listed = await listMessageIds(
+    mailbox,
+    `${query} after:${seconds(mailbox.heldSince) - 1}`,
+    HELD_STEP_LIMIT
+  )
+  // A list cut at the limit says nothing about the mail past it.
+  if (listed.length >= HELD_STEP_LIMIT) {
+    return
+  }
+  await db
+    .update(messages)
+    .set({
+      labelIds: sql`array_remove(${messages.labelIds}, ${label})`,
+      ...(label === 'UNREAD' && { isUnread: false }),
+    })
+    .where(
+      and(
+        eq(messages.mailboxId, mailbox.id),
+        gte(messages.receivedAt, mailbox.heldSince),
+        arrayContains(messages.labelIds, [label]),
+        notInArray(messages.gmailId, listed)
+      )
+    )
+}
+
+/**
+ * Before the sync stores its own `fresh` mail, whose rows would hide the gap from a retry: the rest of the gap is for
+ * reading only, never `processIncoming`, and what Gmail archived or read meanwhile follows.
+ */
+const closeGap = async (mailbox: Mailbox, fresh: string[]) => {
+  const [newest] = await db
+    .select({ receivedAt: messages.receivedAt })
+    .from(messages)
+    .where(eq(messages.mailboxId, mailbox.id))
+    .orderBy(desc(messages.receivedAt))
+    .limit(1)
+  const missed = await listMessageIds(
+    mailbox,
+    `in:anywhere after:${seconds(newest?.receivedAt ?? mailbox.heldSince)}`,
+    HELD_STEP_LIMIT
+  )
+  await insertMessages(
+    mailbox,
+    missed.filter((id) => !fresh.includes(id)),
+    { keepsHtml: false }
+  )
+  await dropLabel(mailbox, 'INBOX', 'in:inbox')
+  await dropLabel(mailbox, 'UNREAD', 'in:anywhere is:unread')
+}
+
+/** While another process syncs the same mailbox, leaves it a request to go again instead; a mailbox that is off is not read. */
 export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
   const mailbox = await claimSync(id)
   if (!mailbox) {
     return
   }
   const synced = await Result.tryPromise(async () => {
-    const { historyId, ids, labelChanges } = await newMessageIds(mailbox)
+    const { hasGap, historyId, ids, labelChanges } =
+      await newMessageIds(mailbox)
+    if (hasGap) {
+      await closeGap(mailbox, ids)
+    }
     const byLabels = Map.groupBy(labelChanges, ([, labelIds]) =>
       labelIds.toSorted().join(' ')
     )
@@ -346,7 +415,7 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
       })
       .where(eq(mailboxes.id, mailbox.id))
       .returning({ syncRequested: mailboxes.syncRequested })
-    if (hasChanges || !mailbox.lastSyncedAt || mailbox.syncError) {
+    if (hasChanges || hasGap || !mailbox.lastSyncedAt || mailbox.syncError) {
       await announceChange(mailbox.userId, MAIL_TOPICS)
     }
     if (!mailbox.historyId) {
@@ -398,8 +467,6 @@ export const syncMailboxes = async (userId: string) => {
     .where(eq(mailboxes.userId, userId))
   await Promise.allSettled(owned.map((mailbox) => syncMailbox(mailbox)))
 }
-
-const seconds = (date: Date) => Math.floor(date.getTime() / 1000)
 
 /**
  * Stores a week of the mail before `heldSince` per call, back to `HELD_MONTHS` before the mailbox was added. Reading

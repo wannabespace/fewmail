@@ -86,7 +86,7 @@ import { z } from 'zod/mini'
 import type { Expanded } from '~/components/expand-row'
 import { queueCards } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
-import { useMailboxes } from '~/lib/lists-db'
+import { useAllMailboxes } from '~/lib/lists-db'
 import {
   hideThread,
   showThreadPinned,
@@ -1571,7 +1571,7 @@ const personKeyOf = ({ fromEmail, isFromMe }: Participant) =>
  */
 const ThreadPeople = ({ thread }: { thread: Thread }) => {
   const t = useT()
-  const mailboxes = useMailboxes()
+  const mailboxes = useAllMailboxes()
   const messages = thread.messages
     .map(({ message }) => message)
     .filter((message) => !message.labelIds.includes('DRAFT'))

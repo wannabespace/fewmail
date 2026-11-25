@@ -1043,6 +1043,7 @@ export const pt: Messages = {
       failed:
         'Não foi possível adicionar a caixa. Permita o acesso ao Gmail e tente de novo.',
       lost: 'O acesso ao Gmail foi perdido. Adicione de novo para reconectar.',
+      off: 'Desativada. O Fewmail não a lê e oculta os e-mails dela até você ativá-la.',
       reading: 'Lendo os e-mails…',
       remove: 'Remover',
       retrying:
@@ -1423,7 +1424,7 @@ export const pt: Messages = {
       },
       {
         answer:
-          'Contas do Gmail e do Google Workspace, por enquanto. Adicione várias caixas de e-mail a um mesmo Fewmail e os e-mails delas chegam aos mesmos bots e à mesma caixa de entrada.',
+          'Contas do Gmail e do Google Workspace, por enquanto. Adicione várias caixas de e-mail a um mesmo Fewmail e os e-mails delas chegam aos mesmos bots e à mesma caixa de entrada. Uma caixa adicionada pode ser desativada e reativada depois.',
         question: 'Quais contas de e-mail funcionam?',
       },
     ],

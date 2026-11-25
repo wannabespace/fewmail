@@ -1064,6 +1064,7 @@ export const pl: Messages = {
       failed:
         'Nie udało się dodać skrzynki. Zezwól na dostęp do Gmaila i spróbuj ponownie.',
       lost: 'Utracono dostęp do Gmaila. Dodaj skrzynkę ponownie, aby ją połączyć.',
+      off: 'Wyłączona. Fewmail jej nie czyta i ukrywa jej pocztę, dopóki jej nie włączysz.',
       reading: 'Czytam pocztę…',
       remove: 'Usuń',
       retrying: 'Gmail teraz nie odpowiada. Fewmail sam spróbuje ponownie.',
@@ -1440,7 +1441,7 @@ export const pl: Messages = {
       },
       {
         answer:
-          'Na razie konta Gmail i Google Workspace. Dodaj kilka skrzynek do jednego Fewmail, a ich poczta trafi do tych samych botów i do tej samej skrzynki.',
+          'Na razie konta Gmail i Google Workspace. Dodaj kilka skrzynek do jednego Fewmail, a ich poczta trafi do tych samych botów i do tej samej skrzynki. Dodaną skrzynkę można wyłączyć i później znów włączyć.',
         question: 'Jakie konta e-mail działają?',
       },
     ],

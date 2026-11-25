@@ -51,6 +51,7 @@ import { availableChannels, enqueueDelivery } from './notifications'
 import { hasBudget } from './plan'
 import { hasReplySince } from './reminders'
 import { getSettings } from './settings'
+import { isMailboxOn, isThreadOn } from './stored-mail'
 
 /** What a bot's chat loads at a time; older days come on demand. */
 const WINDOW_DAYS = 14
@@ -151,6 +152,7 @@ const cardsBetween = (userId: string, from: Date, to: Date, where?: SQL) =>
         eq(actions.userId, userId),
         gte(actions.createdAt, from),
         lt(actions.createdAt, to),
+        isMailboxOn(messages),
         where
       )
     )
@@ -184,7 +186,8 @@ const promisesBetween = (userId: string, from: Date, to: Date) =>
       and(
         eq(commitments.userId, userId),
         gte(commitments.createdAt, from),
-        lt(commitments.createdAt, to)
+        lt(commitments.createdAt, to),
+        isThreadOn(commitments)
       )
     )
     .orderBy(asc(commitments.createdAt))
@@ -248,7 +251,11 @@ const postEntries = async (userId: string, posts: Post[]) => {
   const cards =
     asked.length > 0
       ? await selectCards().where(
-          and(eq(actions.userId, userId), inArray(actions.id, asked))
+          and(
+            eq(actions.userId, userId),
+            inArray(actions.id, asked),
+            isMailboxOn(messages)
+          )
         )
       : []
   const quotes = await quotesOf(
@@ -330,7 +337,11 @@ const earlierAt = async (
     .select({ at: commitments.createdAt })
     .from(commitments)
     .where(
-      and(eq(commitments.userId, userId), lt(commitments.createdAt, before))
+      and(
+        eq(commitments.userId, userId),
+        lt(commitments.createdAt, before),
+        isThreadOn(commitments)
+      )
     )
     .orderBy(desc(commitments.createdAt))
     .limit(1)
@@ -342,6 +353,7 @@ const earlierAt = async (
       and(
         eq(actions.userId, userId),
         lt(actions.createdAt, before),
+        isThreadOn(actions),
         cardsOf(bot)
       )
     )

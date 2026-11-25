@@ -4,7 +4,7 @@ import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
 import { Result } from 'better-result'
 import { addDays } from 'date-fns'
-import { eq, isNull, lt, or } from 'drizzle-orm'
+import { and, eq, isNull, lt, or } from 'drizzle-orm'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 import { env } from '../env'
@@ -25,9 +25,12 @@ export const mailboxesToWatch = () =>
         .select()
         .from(mailboxes)
         .where(
-          or(
-            isNull(mailboxes.watchExpiresAt),
-            lt(mailboxes.watchExpiresAt, addDays(new Date(), 1))
+          and(
+            eq(mailboxes.enabled, true),
+            or(
+              isNull(mailboxes.watchExpiresAt),
+              lt(mailboxes.watchExpiresAt, addDays(new Date(), 1))
+            )
           )
         )
     : Promise.resolve([])

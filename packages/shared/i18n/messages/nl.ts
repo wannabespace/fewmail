@@ -1025,6 +1025,7 @@ export const nl: Messages = {
       failed:
         'De mailbox kon niet worden toegevoegd. Sta Gmail-toegang toe en probeer het opnieuw.',
       lost: 'Gmail-toegang is verloren. Voeg hem opnieuw toe om opnieuw te verbinden.',
+      off: 'Uit. Fewmail leest deze mailbox niet en verbergt de mail tot je hem weer aanzet.',
       reading: 'Mail wordt gelezen…',
       remove: 'Verwijderen',
       retrying: 'Gmail reageert nu niet. Fewmail probeert het vanzelf opnieuw.',
@@ -1400,7 +1401,7 @@ export const nl: Messages = {
       },
       {
         answer:
-          'Voorlopig accounts van Gmail en Google Workspace. Voeg meerdere mailboxen toe aan één Fewmail en hun mail komt bij dezelfde bots en in dezelfde inbox terecht.',
+          'Voorlopig accounts van Gmail en Google Workspace. Voeg meerdere mailboxen toe aan één Fewmail en hun mail komt bij dezelfde bots en in dezelfde inbox terecht. Een toegevoegde mailbox kun je uitzetten en later weer aanzetten.',
         question: 'Welke e-mailaccounts werken?',
       },
     ],

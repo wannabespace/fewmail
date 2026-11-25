@@ -70,6 +70,7 @@ const senderMailboxId = async (userId: string, mailboxId?: string) => {
     .where(
       and(
         eq(mailboxes.userId, userId),
+        eq(mailboxes.enabled, true),
         mailboxId
           ? eq(mailboxes.id, mailboxId)
           : isNull(mailboxes.googleAccountId)

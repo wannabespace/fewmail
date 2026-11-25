@@ -12,6 +12,7 @@ import type { Exchange } from './ask'
 import { askMail, earlierLines } from './ask'
 import { draftReply, redraftAction } from './mail'
 import { finishPaid, requireBudget } from './plan'
+import { isMailboxOn } from './stored-mail'
 
 const RECENT_DAYS = 7
 const CANDIDATES = 15
@@ -41,7 +42,8 @@ const understand = async (
         and(
           eq(actions.userId, userId),
           eq(actions.status, 'pending'),
-          eq(actions.kind, 'reply')
+          eq(actions.kind, 'reply'),
+          isMailboxOn(messages)
         )
       )
       .limit(CANDIDATES),
@@ -59,7 +61,8 @@ const understand = async (
         and(
           eq(messages.userId, userId),
           eq(messages.isFromMe, false),
-          gte(messages.receivedAt, subDays(new Date(), RECENT_DAYS))
+          gte(messages.receivedAt, subDays(new Date(), RECENT_DAYS)),
+          isMailboxOn(messages)
         )
       )
       .orderBy(desc(messages.receivedAt))

@@ -1,9 +1,9 @@
 import { db } from '@fewmail/db'
+import type { mailboxes } from '@fewmail/db/schema'
 import {
   actions,
   analyses,
   declinedBotSuggestions,
-  mailboxes,
   messages,
   bots,
   unsubscribes,
@@ -38,7 +38,12 @@ import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { findOrCreateLabel } from './labels'
 import { getSettings } from './settings'
-import { ownMessage, insertMessages } from './stored-mail'
+import {
+  activeMailboxes,
+  insertMessages,
+  isMailboxOn,
+  ownMessage,
+} from './stored-mail'
 import { unsubscribe, unsubscribeMessage } from './thread-effects'
 import { isOpened } from './thread-labels'
 import { leftShares, listHashOf } from './zombies'
@@ -71,6 +76,7 @@ const receivedLists = (userId: string) =>
         eq(messages.userId, userId),
         eq(messages.isFromMe, false),
         isNotNull(messages.listUnsubscribe),
+        isMailboxOn(messages),
         gte(messages.receivedAt, subDays(new Date(), LOOKBACK_DAYS))
       )
     )
@@ -171,7 +177,8 @@ export const newSenders = async (userId: string) => {
         and(
           eq(messages.userId, userId),
           eq(messages.isFromMe, false),
-          isNotNull(messages.listUnsubscribe)
+          isNotNull(messages.listUnsubscribe),
+          isMailboxOn(messages)
         )
       )
       .groupBy(sql`coalesce(${messages.listId}, ${messages.fromEmail})`)
@@ -250,7 +257,13 @@ const stillAsked = async (
             messageId: messages.id,
           })
           .from(messages)
-          .where(and(eq(messages.userId, userId), inArray(messages.id, ids)))
+          .where(
+            and(
+              eq(messages.userId, userId),
+              inArray(messages.id, ids),
+              isMailboxOn(messages)
+            )
+          )
       : []
   const kept = asked.flatMap((each) => {
     const row = rows.find(({ messageId }) => messageId === each.messageId)
@@ -338,6 +351,7 @@ export const botSuggestions = async (userId: string, fromEmail?: string) => {
           eq(messages.userId, userId),
           eq(messages.isFromMe, false),
           gte(messages.receivedAt, subDays(new Date(), SUGGESTION_DAYS)),
+          isMailboxOn(messages),
           fromEmail === undefined
             ? undefined
             : eq(messages.fromEmail, fromEmail)
@@ -464,9 +478,6 @@ const runLabelOf = (run: string) => `${CLEARED_LABEL}/${run}`
 const labelQueryOf = (name: string) =>
   `label:${name.toLowerCase().replaceAll('/', '-')}`
 
-const ownedMailboxes = (userId: string) =>
-  db.select().from(mailboxes).where(eq(mailboxes.userId, userId))
-
 type Headers = Awaited<ReturnType<typeof getMessageHeaders>>
 
 /** A list as the scan showed it: the run leaves exactly these, never lists it finds on its own. */
@@ -561,7 +572,7 @@ const scanMailbox = async (mailbox: Mailbox) => {
  * without counting an email twice.
  */
 export const scanClearOut = async (userId: string) => {
-  const owned = await ownedMailboxes(userId)
+  const owned = await activeMailboxes(userId)
   const scans = await Promise.all(owned.map(scanMailbox))
   const overlaps = new Map<string, { count: number; groups: ClearOutGroup[] }>()
   for (const { groups, inbox } of scans) {
@@ -656,7 +667,7 @@ export const runClearOut = async (
   groups: ClearOutGroup[],
   lists: ClearOutList[]
 ) => {
-  const owned = await ownedMailboxes(userId)
+  const owned = await activeMailboxes(userId)
   const run = new Date()
     .toISOString()
     .slice(0, 19)
@@ -686,7 +697,7 @@ export const runClearOut = async (
 
 /** Brings back one run, the latest unless `run` names it, and drops its label. Unsubscribes stay: a list once left cannot be rejoined from here. */
 export const undoClearOut = async (userId: string, run?: string) => {
-  const owned = await ownedMailboxes(userId)
+  const owned = await activeMailboxes(userId)
   const labelled = await Promise.all(
     owned.map(async (mailbox) => {
       const labels = await listLabels(mailbox)

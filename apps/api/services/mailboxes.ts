@@ -9,9 +9,11 @@ import { and, asc, eq, gt, isNotNull } from 'drizzle-orm'
 
 import { exchangeMailboxCode, mailboxConsentUrl } from '../lib/auth'
 import { listMessageIds } from '../lib/gmail'
+import { forgetGoogleContacts } from '../lib/google-contacts'
 import { jev } from '../lib/jev'
-import { announceChange } from '../lib/live'
+import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { NotFoundError } from './mail-errors'
+import { activeMailboxes } from './stored-mail'
 
 const CONSENT_PREFIX = 'mailbox-consent:'
 const CONSENT_MINUTES = 10
@@ -26,6 +28,7 @@ export const listMailboxes = (userId: string) =>
   db
     .select({
       email: mailboxes.email,
+      enabled: mailboxes.enabled,
       googleAccountId: mailboxes.googleAccountId,
       historyId: mailboxes.historyId,
       id: mailboxes.id,
@@ -177,7 +180,7 @@ export const finishAddingMailbox = async (
       userId: signedInUserId,
     })
     .onConflictDoUpdate({
-      set: { refreshToken: grant.refreshToken, syncError: null },
+      set: { enabled: true, refreshToken: grant.refreshToken, syncError: null },
       target: [mailboxes.userId, mailboxes.googleAccountId],
     })
     .returning({ id: mailboxes.id })
@@ -204,6 +207,30 @@ export const removeMailbox = async (userId: string, id: string) => {
   }
 }
 
+/** The Gmail watch is left to lapse: stopping it would stop pushes for every Fewmail account that holds this Google account. */
+export const setMailboxEnabled = async (
+  userId: string,
+  id: string,
+  enabled: boolean
+) => {
+  const [changed] = await db
+    .update(mailboxes)
+    .set({ enabled })
+    .where(
+      and(
+        eq(mailboxes.id, id),
+        eq(mailboxes.userId, userId),
+        isNotNull(mailboxes.googleAccountId)
+      )
+    )
+    .returning({ id: mailboxes.id })
+  if (!changed) {
+    throw new NotFoundError('Mailbox not found')
+  }
+  forgetGoogleContacts(userId)
+  await announceChange(userId, MAIL_TOPICS)
+}
+
 /** Gmail's own search per mailbox, since subjects and bodies are encrypted in our DB. */
 export const searchMailboxes = async (
   userId: string,
@@ -211,15 +238,7 @@ export const searchMailboxes = async (
   limit: number,
   mailboxId?: string
 ) => {
-  const owned = await db
-    .select()
-    .from(mailboxes)
-    .where(
-      and(
-        eq(mailboxes.userId, userId),
-        mailboxId ? eq(mailboxes.id, mailboxId) : undefined
-      )
-    )
+  const owned = await activeMailboxes(userId, mailboxId)
   return Promise.all(
     owned.map(async (mailbox) => ({
       ids: await listMessageIds(mailbox, query, limit),

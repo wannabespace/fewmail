@@ -1,5 +1,5 @@
 import { db } from '@fewmail/db'
-import { mailboxes, messages, outbox } from '@fewmail/db/schema'
+import { messages, outbox } from '@fewmail/db/schema'
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 
 import {
@@ -12,6 +12,7 @@ import { toGmailQueries } from './ask'
 import { ownMailbox } from './mailboxes'
 import type { DraftRef, OutgoingMail } from './outbox'
 import { filesOf, mailHeaders } from './outbox'
+import { activeMailboxes } from './stored-mail'
 
 const PAGE_SIZE = 50
 
@@ -49,10 +50,7 @@ export const saveDraft = async (
 
 /** Gmail's own total, so the sidebar never reads every draft; a failed send waits among them too. */
 export const countDrafts = async (userId: string) => {
-  const owned = await db
-    .select()
-    .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+  const owned = await activeMailboxes(userId)
   const [counts, failed] = await Promise.all([
     Promise.all(owned.map((mailbox) => getLabelCounts(mailbox, 'DRAFT'))),
     db.$count(
@@ -74,15 +72,7 @@ export const listDrafts = async (
   userId: string,
   input: { mailboxId?: string; search?: string }
 ) => {
-  const owned = await db
-    .select()
-    .from(mailboxes)
-    .where(
-      and(
-        eq(mailboxes.userId, userId),
-        input.mailboxId ? eq(mailboxes.id, input.mailboxId) : undefined
-      )
-    )
+  const owned = await activeMailboxes(userId, input.mailboxId)
   const [query = ''] = input.search
     ? await toGmailQueries(userId, input.search)
     : []

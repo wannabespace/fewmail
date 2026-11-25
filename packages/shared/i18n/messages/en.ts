@@ -1016,6 +1016,7 @@ export const en = {
       added: 'Mailbox added. Its mail shows up in a minute.',
       failed: 'Could not add the mailbox. Allow Gmail access and try again.',
       lost: 'Gmail access was lost. Add it again to reconnect.',
+      off: 'Off. Fewmail does not read it and hides its mail until you turn it on.',
       reading: 'Reading mail…',
       remove: 'Remove',
       retrying:
@@ -1392,7 +1393,7 @@ export const en = {
       },
       {
         answer:
-          'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail joins the same bots and inbox.',
+          'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail joins the same bots and inbox. An added mailbox can be turned off and back on later.',
         question: 'Which email accounts work?',
       },
     ],

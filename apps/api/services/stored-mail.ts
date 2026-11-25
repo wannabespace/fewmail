@@ -2,7 +2,9 @@ import { db } from '@fewmail/db'
 import { mailboxes, messages } from '@fewmail/db/schema'
 import { Result } from 'better-result'
 import { subDays } from 'date-fns'
-import { and, eq, inArray, isNotNull, lt } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNotNull, lt, notExists } from 'drizzle-orm'
+import type { AnyPgColumn } from 'drizzle-orm/pg-core'
+import { alias } from 'drizzle-orm/pg-core'
 
 import { inBatches } from '../lib/batches'
 import { getMessage, isMissing, listThreadMessageIds } from '../lib/gmail'
@@ -14,6 +16,41 @@ type Mailbox = typeof mailboxes.$inferSelect
 type Message = typeof messages.$inferSelect
 
 const STORE_CONCURRENCY = 4
+
+const offMessage = alias(messages, 'off_message')
+
+/** Not in a mailbox the user turned off: such mail stays stored and is shown nowhere. A row without an email passes. */
+export const isMailboxOn = ({ mailboxId }: { mailboxId: AnyPgColumn }) =>
+  notExists(
+    db
+      .select({ id: mailboxes.id })
+      .from(mailboxes)
+      .where(and(eq(mailboxes.id, mailboxId), eq(mailboxes.enabled, false)))
+  )
+
+/** `isMailboxOn` for a row that knows only its thread; nothing acts on a thread of a mailbox that is off. */
+export const isThreadOn = (row: {
+  threadId: AnyPgColumn
+  userId: AnyPgColumn
+}) =>
+  notExists(
+    db
+      .select({ id: offMessage.id })
+      .from(offMessage)
+      .innerJoin(
+        mailboxes,
+        and(
+          eq(mailboxes.id, offMessage.mailboxId),
+          eq(mailboxes.enabled, false)
+        )
+      )
+      .where(
+        and(
+          eq(offMessage.userId, row.userId),
+          eq(offMessage.threadId, row.threadId)
+        )
+      )
+  )
 
 /** A vanished email or a draft is nothing to store. */
 const readStorable = async (mailbox: Mailbox, id: string) => {
@@ -120,12 +157,23 @@ export const dropOldHtml = () =>
       )
     )
 
-const ownedMailboxes = (userId: string) =>
-  db.select().from(mailboxes).where(eq(mailboxes.userId, userId))
+/** The mailboxes the user keeps on. */
+export const activeMailboxes = (userId: string, mailboxId?: string) =>
+  db
+    .select()
+    .from(mailboxes)
+    .where(
+      and(
+        eq(mailboxes.userId, userId),
+        eq(mailboxes.enabled, true),
+        mailboxId ? eq(mailboxes.id, mailboxId) : undefined
+      )
+    )
+    .orderBy(asc(mailboxes.createdAt))
 
 /** A thread read live from Gmail is stored whole once it is opened or acted on; a thread id belongs to one mailbox. */
 export const holdThread = async (userId: string, threadId: string) => {
-  for (const mailbox of await ownedMailboxes(userId)) {
+  for (const mailbox of await activeMailboxes(userId)) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- the other mailboxes are not asked once one has the thread
     const ids = await Result.tryPromise(() =>
       listThreadMessageIds(mailbox, threadId)
@@ -145,7 +193,7 @@ const holdMessage = async (
   userId: string,
   { gmailId, mailboxPrefix }: { gmailId: string; mailboxPrefix: string }
 ) => {
-  const owned = await ownedMailboxes(userId)
+  const owned = await activeMailboxes(userId)
   const mailbox = owned.find(({ id }) =>
     id.replaceAll('-', '').startsWith(mailboxPrefix)
   )

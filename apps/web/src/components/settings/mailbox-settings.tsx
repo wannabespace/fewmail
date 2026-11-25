@@ -6,18 +6,22 @@ import {
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { Switch } from '@fewmail/ui/components/switch'
 import { useMutation } from '@tanstack/react-query'
 
 import { confirm } from '~/components/confirm-dialog'
 import { useDates, useT } from '~/lib/i18n'
-import { mailboxes as mailboxRows, useMailboxes } from '~/lib/lists-db'
+import { mailboxes as mailboxRows, useAllMailboxes } from '~/lib/lists-db'
+import { forgetOlderRows } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
+import type { Settle } from '~/lib/query-client'
 import { queryClient, showUntilSettled } from '~/lib/query-client'
 import { pendingToast, settleToast } from '~/lib/undo'
 
 const mailboxStatus = (
   copy: Messages['settings']['mailboxes'],
   mailbox: {
+    enabled: boolean
     hasLostAccess: boolean
     lastSyncedAt: Date | null
     signIn: boolean
@@ -25,6 +29,9 @@ const mailboxStatus = (
   },
   ago: (date: Date) => string
 ) => {
+  if (!mailbox.enabled) {
+    return copy.off
+  }
   if (mailbox.hasLostAccess) {
     return mailbox.signIn ? copy.signInLost : copy.lost
   }
@@ -39,10 +46,17 @@ const mailboxStatus = (
 
 const REMOVE_TOAST = 'mailbox-remove'
 
+/** A mailbox that comes or goes changes every list, calendar and count. */
+const refetchAll = async (settle?: Settle) => {
+  forgetOlderRows()
+  await queryClient.invalidateQueries()
+  settle?.(undefined)
+}
+
 export const MailboxSettings = () => {
   const copy = useT().settings.mailboxes
   const dates = useDates()
-  const mailboxes = useMailboxes()
+  const mailboxes = useAllMailboxes()
   const add = useMutation(
     orpc.mailboxes.add.mutationOptions({
       onSuccess: ({ url }) => location.assign(url),
@@ -59,11 +73,18 @@ export const MailboxSettings = () => {
         })
       },
       onSettled: (_, __, ___, settle) =>
-        settle?.(
-          queryClient
-            .invalidateQueries({ queryKey: orpc.mailboxes.key() })
-            .finally(settleToast(REMOVE_TOAST))
-        ),
+        refetchAll(settle).finally(settleToast(REMOVE_TOAST)),
+    })
+  )
+  const setEnabled = useMutation(
+    orpc.mailboxes.setEnabled.mutationOptions({
+      onMutate: ({ enabled, id }) =>
+        showUntilSettled(() => {
+          mailboxRows.update(id, (mailbox) => {
+            mailbox.enabled = enabled
+          })
+        }),
+      onSettled: (_, __, ___, settle) => refetchAll(settle),
     })
   )
 
@@ -77,21 +98,30 @@ export const MailboxSettings = () => {
             description={mailboxStatus(copy, mailbox, dates.fromNow)}
           >
             {!mailbox.signIn && (
-              <Button
-                size="sm"
-                variant="ghost-destructive"
-                onClick={() =>
-                  confirm({
-                    action: copy.remove,
-                    description: copy.removeHint,
-                    onConfirm: () => remove.mutate({ id: mailbox.id }),
-                    title: copy.removeConfirm(mailbox.email),
-                    variant: 'destructive',
-                  })
-                }
-              >
-                {copy.remove}
-              </Button>
+              <>
+                <Button
+                  size="sm"
+                  variant="ghost-destructive"
+                  onClick={() =>
+                    confirm({
+                      action: copy.remove,
+                      description: copy.removeHint,
+                      onConfirm: () => remove.mutate({ id: mailbox.id }),
+                      title: copy.removeConfirm(mailbox.email),
+                      variant: 'destructive',
+                    })
+                  }
+                >
+                  {copy.remove}
+                </Button>
+                <Switch
+                  aria-label={mailbox.email}
+                  checked={mailbox.enabled}
+                  onCheckedChange={(enabled) =>
+                    setEnabled.mutate({ enabled, id: mailbox.id })
+                  }
+                />
+              </>
             )}
           </SettingsRow>
         ))}

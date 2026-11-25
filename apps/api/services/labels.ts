@@ -13,6 +13,7 @@ import {
 } from '../lib/gmail'
 import { logError } from '../lib/log'
 import { getSettings } from './settings'
+import { activeMailboxes, isMailboxOn } from './stored-mail'
 
 type Message = typeof messages.$inferSelect
 type Mailbox = typeof mailboxes.$inferSelect
@@ -105,7 +106,8 @@ export const backfillAgentLabels = async (userId: string) => {
     .where(
       and(
         eq(messages.userId, userId),
-        gte(messages.receivedAt, subDays(new Date(), BACKFILL_DAYS))
+        gte(messages.receivedAt, subDays(new Date(), BACKFILL_DAYS)),
+        isMailboxOn(messages)
       )
     )
     .limit(BACKFILL_LIMIT)
@@ -121,10 +123,7 @@ const labelQuery = (name: string) =>
 
 /** The user's own Gmail labels across mailboxes, merged by name; a mailbox Gmail refuses is left out instead of failing the list. */
 export const listUserLabels = async (userId: string) => {
-  const owned = await db
-    .select()
-    .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+  const owned = await activeMailboxes(userId)
   const perMailbox = await Promise.all(
     owned.map(async (mailbox) => {
       const result = await Result.tryPromise(() => listLabels(mailbox))

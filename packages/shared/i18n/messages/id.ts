@@ -1012,6 +1012,7 @@ export const id: Messages = {
       failed:
         'Kotak surat tidak bisa ditambahkan. Izinkan akses Gmail lalu coba lagi.',
       lost: 'Akses Gmail hilang. Tambahkan lagi untuk menyambungkan ulang.',
+      off: 'Nonaktif. Fewmail tidak membacanya dan menyembunyikan emailnya sampai kamu mengaktifkannya.',
       reading: 'Membaca email…',
       remove: 'Hapus',
       retrying:
@@ -1386,7 +1387,7 @@ export const id: Messages = {
       },
       {
         answer:
-          'Saat ini akun Gmail dan Google Workspace. Tambahkan beberapa kotak surat ke satu Fewmail, dan emailnya masuk ke bot dan kotak masuk yang sama.',
+          'Saat ini akun Gmail dan Google Workspace. Tambahkan beberapa kotak surat ke satu Fewmail, dan emailnya masuk ke bot dan kotak masuk yang sama. Kotak surat tambahan bisa dinonaktifkan dan diaktifkan lagi nanti.',
         question: 'Akun email apa saja yang bisa dipakai?',
       },
     ],

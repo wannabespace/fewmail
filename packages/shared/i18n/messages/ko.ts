@@ -815,6 +815,7 @@ export const ko: Messages = {
       failed:
         '메일함을 추가하지 못했습니다. Gmail 접근을 허용하고 다시 시도하세요.',
       lost: 'Gmail 접근이 끊겼습니다. 다시 연결하려면 다시 추가하세요.',
+      off: '꺼져 있어요. 다시 켤 때까지 Fewmail이 이 메일함을 읽지 않고 메일을 숨겨요.',
       reading: '메일을 읽는 중…',
       remove: '삭제',
       retrying: 'Gmail이 지금 응답하지 않아요. Fewmail이 알아서 다시 시도해요.',
@@ -1176,7 +1177,7 @@ export const ko: Messages = {
       },
       {
         answer:
-          '지금은 Gmail과 Google Workspace 계정이에요. 여러 메일함을 하나의 Fewmail에 추가하면 모든 메일이 같은 봇과 받은편지함으로 모여요.',
+          '지금은 Gmail과 Google Workspace 계정이에요. 여러 메일함을 하나의 Fewmail에 추가하면 모든 메일이 같은 봇과 받은편지함으로 모여요. 추가한 메일함은 껐다가 나중에 다시 켤 수 있어요.',
         question: '어떤 메일 계정을 쓸 수 있나요?',
       },
     ],

@@ -43,6 +43,8 @@ export const mailboxes = d.snakeCase.table(
     /** Keyed hash of `email`: Gmail push names a mailbox only by its address, and `email` cannot be queried. */
     addressHash: d.text(),
     email: encryptedText().notNull(),
+    /** Off, it is not read and its mail is shown nowhere, but all of it stays; the sign-in mailbox is always on. */
+    enabled: d.boolean().default(true).notNull(),
     /** Null for the sign-in mailbox. */
     googleAccountId: searchableText(),
     /** Every email received since then is in `messages`; older mail is read live from Gmail. The worker moves it back to `HELD_MONTHS` before `createdAt`. */

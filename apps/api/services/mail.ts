@@ -77,7 +77,12 @@ import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { getSettings } from './settings'
 import { reportSpam } from './spam'
-import { holdThread, ownMessage } from './stored-mail'
+import {
+  activeMailboxes,
+  holdThread,
+  isMailboxOn,
+  ownMessage,
+} from './stored-mail'
 import { applyThreadEffect } from './thread-effects'
 import {
   changeThreadLabels,
@@ -134,16 +139,23 @@ export const selectCards = () =>
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
     .leftJoin(bots, eq(bots.id, actions.botId))
 
-/** A card waits only while its email is out of Trash and Spam: a card of a binned email comes back with it on Undo. */
-export const notBinned = or(
-  isNull(messages.id),
-  not(arrayOverlaps(messages.labelIds, ['SPAM', 'TRASH']))
+/** A card waits only while its email is out of Trash and Spam and its mailbox is on: it comes back with them. */
+export const isCardShown = and(
+  isMailboxOn(messages),
+  or(
+    isNull(messages.id),
+    not(arrayOverlaps(messages.labelIds, ['SPAM', 'TRASH']))
+  )
 )
 
 export const listQueue = (userId: string) =>
   selectCards()
     .where(
-      and(eq(actions.userId, userId), eq(actions.status, 'pending'), notBinned)
+      and(
+        eq(actions.userId, userId),
+        eq(actions.status, 'pending'),
+        isCardShown
+      )
     )
     .orderBy(
       sql`${analyses.importance} desc nulls last`,
@@ -161,7 +173,7 @@ export const countWaiting = async (userId: string) => {
       and(
         eq(actions.userId, userId),
         eq(actions.status, 'pending'),
-        notBinned,
+        isCardShown,
         notInArray(actions.kind, [...PROPOSAL_KINDS])
       )
     )
@@ -270,7 +282,8 @@ export const listHandled = (
       and(
         eq(actions.userId, userId),
         inArray(actions.status, ['done', 'auto_done', 'failed']),
-        gte(actedAt, since)
+        gte(actedAt, since),
+        isMailboxOn(messages)
       )
     )
     .orderBy(desc(actedAt))
@@ -357,17 +370,6 @@ const isSent = (message: MessageTable) =>
     not(arrayContains(message.labelIds, ['TRASH']))
   )
 
-const mailboxesOf = (userId: string, mailboxId?: string) =>
-  db
-    .select()
-    .from(mailboxes)
-    .where(
-      and(
-        eq(mailboxes.userId, userId),
-        mailboxId ? eq(mailboxes.id, mailboxId) : undefined
-      )
-    )
-
 // Snoozed threads are out of the inbox too, so Archive must leave them to Snoozed.
 const snoozedOf = async (userId: string, { filter, mailboxId }: ListInput) => {
   if (filter !== 'snoozed' && filter !== 'archive') {
@@ -375,7 +377,7 @@ const snoozedOf = async (userId: string, { filter, mailboxId }: ListInput) => {
   }
   const [inFewmail, inGmail] = await Promise.all([
     snoozedThreadIds(userId),
-    mailboxesOf(userId, mailboxId).then((owned) =>
+    activeMailboxes(userId, mailboxId).then((owned) =>
       Promise.all(owned.map(listSnoozedInGmail))
     ),
   ])
@@ -456,6 +458,7 @@ const searchIndex = async (
         eq(messages.userId, userId),
         mailboxId ? eq(messages.mailboxId, mailboxId) : undefined,
         arrayContains(messages.searchTokens, tokens),
+        isMailboxOn(messages),
         not(arrayOverlaps(messages.labelIds, ['SPAM', 'TRASH']))
       )
     )
@@ -583,6 +586,7 @@ const listHeldMail = (
     .where(
       and(
         matches(messages, analyses),
+        eq(mailboxes.enabled, true),
         snoozed,
         // Older mail a thread opened from the live list left behind is listed live with the rest of its age.
         isBounded ? gte(messages.receivedAt, mailboxes.heldSince) : undefined,
@@ -633,7 +637,7 @@ const listOlderMail = async (
 ) => {
   const heldFloor =
     held.length === PAGE_SIZE ? held.at(-1)?.message.receivedAt : undefined
-  const owned = await mailboxesOf(userId, input.mailboxId)
+  const owned = await activeMailboxes(userId, input.mailboxId)
   // A failed mailbox fails the page: an empty answer for it let the next page start past all of its older mail.
   const read = await Promise.all(
     owned
@@ -748,7 +752,7 @@ export const withParticipants = async <Row extends ListedThread>(
 
 /** Conversations in the inbox as Gmail counts them, held by Fewmail or not. */
 export const countInboxInGmail = async (userId: string, mailboxId?: string) => {
-  const owned = await mailboxesOf(userId, mailboxId)
+  const owned = await activeMailboxes(userId, mailboxId)
   const counts = await Promise.all(
     owned.map((mailbox) => getLabelCounts(mailbox, 'INBOX'))
   )
@@ -768,6 +772,7 @@ export const countUnread = async (userId: string, mailboxId?: string) => {
         isReceived(messages),
         eq(messages.isUnread, true),
         mailboxId ? eq(messages.mailboxId, mailboxId) : undefined,
+        isMailboxOn(messages),
         arrayContains(messages.labelIds, ['INBOX'])
       )
     )
@@ -1149,6 +1154,7 @@ const worthKnowingSince = (userId: string, since: Date, where?: SQL) =>
         eq(messages.userId, userId),
         gte(messages.receivedAt, since),
         gte(analyses.importance, 1),
+        isMailboxOn(messages),
         where
       )
     )
@@ -1210,6 +1216,7 @@ export const freshCodes = (userId: string) =>
       and(
         eq(messages.userId, userId),
         isNotNull(messages.code),
+        isMailboxOn(messages),
         arrayContains(messages.labelIds, ['INBOX']),
         gte(messages.receivedAt, subMinutes(new Date(), CODE_FRESH_MINUTES))
       )
@@ -1234,7 +1241,8 @@ export const mailPulse = async (userId: string, since: Date) => {
       and(
         eq(messages.userId, userId),
         eq(messages.isFromMe, false),
-        gte(messages.receivedAt, since)
+        gte(messages.receivedAt, since),
+        isMailboxOn(messages)
       )
     )
     .groupBy(analyses.category, messages.fromEmail)
@@ -1310,6 +1318,7 @@ const tidyCandidates = (userId: string, where?: SQL) =>
         ),
         isNewestInThread,
         isUntouched,
+        isMailboxOn(messages),
         or(
           isNull(analyses.botId),
           inArray(

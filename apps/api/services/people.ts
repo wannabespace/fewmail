@@ -35,6 +35,7 @@ import { logErrorAs } from '../lib/log'
 import { listMailboxes } from './mailboxes'
 import { hasBudget } from './plan'
 import { getSettings } from './settings'
+import { isMailboxOn, isThreadOn } from './stored-mail'
 
 const NOTE_MAX_AGE_DAYS = 7
 const NOTE_MIN_MESSAGES = 3
@@ -47,6 +48,7 @@ const SENT_WEIGHT = 3
 const withPerson = (userId: string, email: string) =>
   and(
     eq(messages.userId, userId),
+    isMailboxOn(messages),
     or(
       eq(messages.fromEmail, email),
       arrayContains(messages.to, [email]),
@@ -216,6 +218,7 @@ export const getPerson = async (userId: string, rawEmail: string) => {
           and(
             eq(commitments.userId, userId),
             eq(commitments.recipient, email),
+            isThreadOn(commitments),
             inArray(commitments.kind, ['mine', 'theirs']),
             inArray(commitments.status, ACTIVE_COMMITMENT_STATUSES)
           )
@@ -271,7 +274,13 @@ const rankContacts = async (
       receivedAt: messages.receivedAt,
     })
     .from(messages)
-    .where(and(eq(messages.userId, userId), eq(messages.isFromMe, true)))
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, true),
+        isMailboxOn(messages)
+      )
+    )
     .as('sent_to')
   const [sent, received, own] = await Promise.all([
     db
@@ -299,6 +308,7 @@ const rankContacts = async (
         and(
           eq(messages.userId, userId),
           eq(messages.isFromMe, false),
+          isMailboxOn(messages),
           isNull(messages.listId),
           isNull(messages.suspicion),
           not(arrayContains(messages.labelIds, ['SPAM'])),

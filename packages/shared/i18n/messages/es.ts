@@ -458,7 +458,7 @@ export const es: Messages = {
       },
       {
         answer:
-          'Por ahora, cuentas de Gmail y Google Workspace. Añade varios buzones a un mismo Fewmail y su correo llega a los mismos bots y a la misma bandeja.',
+          'Por ahora, cuentas de Gmail y Google Workspace. Añade varios buzones a un mismo Fewmail y su correo llega a los mismos bots y a la misma bandeja. Un buzón añadido se puede desactivar y volver a activar más tarde.',
         question: '¿Qué cuentas de correo funcionan?',
       },
     ],
@@ -1498,6 +1498,7 @@ export const es: Messages = {
       failed:
         'No se pudo añadir el buzón. Permite el acceso a Gmail e inténtalo de nuevo.',
       lost: 'Se perdió el acceso a Gmail. Añádelo de nuevo para reconectarlo.',
+      off: 'Desactivado. Fewmail no lo lee y oculta su correo hasta que lo actives.',
       reading: 'Leyendo el correo…',
       remove: 'Quitar',
       retrying:

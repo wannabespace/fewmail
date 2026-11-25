@@ -651,6 +651,7 @@ const THEME_ICONS = {
 } as const
 
 interface MailboxSync {
+  enabled: boolean
   email: string
   lastSyncedAt: Date | null
   signIn: boolean
@@ -663,8 +664,12 @@ const useAccountStatus = (mailboxes?: MailboxSync[]) => {
   const { plan, usage } = useMe()
   const hasAgent = useHasAgent()
   const percent = plan.kind === 'free' ? 0 : usedPercent(plan.kind, usage.spent)
-  const failed = mailboxes?.find(({ syncError }) => syncError)
-  const reading = mailboxes?.find(({ lastSyncedAt }) => !lastSyncedAt)
+  const failed = mailboxes?.find(
+    ({ enabled, syncError }) => enabled && syncError
+  )
+  const reading = mailboxes?.find(
+    ({ enabled, lastSyncedAt }) => enabled && !lastSyncedAt
+  )
 
   if (hasAgent && failed) {
     return {

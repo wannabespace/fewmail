@@ -1,7 +1,7 @@
 import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
 import { Result } from 'better-result'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 import type { GmailAccount } from './auth'
 import { CONTACTS_SCOPE, gmailAccessToken, hasScope } from './auth'
@@ -107,7 +107,7 @@ const fetchContacts = async (userId: string) => {
       userId: mailboxes.userId,
     })
     .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+    .where(and(eq(mailboxes.userId, userId), eq(mailboxes.enabled, true)))
   const lists = await Promise.all(
     accounts.flatMap((account) =>
       (['otherContacts', 'connections'] as const).map((field) =>
@@ -149,6 +149,10 @@ export const googleContacts = (userId: string) => {
   return contacts
 }
 
+export const forgetGoogleContacts = (userId: string) => {
+  cache.delete(userId)
+}
+
 export const deleteGoogleContacts = async (
   userId: string,
   saved: SavedContact[]
@@ -169,7 +173,7 @@ export const deleteGoogleContacts = async (
       }
     })
   )
-  cache.delete(userId)
+  forgetGoogleContacts(userId)
 }
 
 const isGooglePhoto = (url: string) => {

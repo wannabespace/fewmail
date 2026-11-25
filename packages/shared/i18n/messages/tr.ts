@@ -1004,6 +1004,7 @@ export const tr: Messages = {
       failed:
         'Posta kutusu eklenemedi. Gmail erişimine izin verip tekrar deneyin.',
       lost: 'Gmail erişimi kesildi. Yeniden bağlamak için tekrar ekleyin.',
+      off: 'Kapalı. Siz açana kadar Fewmail bu kutuyu okumaz ve postalarını gizler.',
       reading: 'Postalar okunuyor…',
       remove: 'Kaldır',
       retrying:
@@ -1381,7 +1382,7 @@ export const tr: Messages = {
       },
       {
         answer:
-          'Şimdilik Gmail ve Google Workspace hesapları. Tek bir Fewmail’e birden fazla posta kutusu ekle; hepsinin postaları aynı botlara ve gelen kutusuna düşer.',
+          'Şimdilik Gmail ve Google Workspace hesapları. Tek bir Fewmail’e birden fazla posta kutusu ekle; hepsinin postaları aynı botlara ve gelen kutusuna düşer. Eklenen bir posta kutusu kapatılıp sonra yeniden açılabilir.',
         question: 'Hangi e-posta hesaplarıyla çalışır?',
       },
     ],

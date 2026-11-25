@@ -124,6 +124,7 @@ import {
 import {
   listMailboxes,
   removeMailbox,
+  setMailboxEnabled,
   startAddingMailbox,
 } from '../services/mailboxes'
 import {
@@ -145,6 +146,7 @@ import { saveSettings } from '../services/save-settings'
 import { getSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
+import { syncMailbox } from '../services/sync'
 import { unsubscribeMessage } from '../services/thread-effects'
 import { getWrapped, readSharedWrapped } from '../services/wrapped'
 
@@ -372,6 +374,14 @@ export const router = {
     remove: authed.input(id).handler(async ({ context, input }) => {
       await removeMailbox(context.user.id, input.id)
     }),
+    setEnabled: authed
+      .input(id.and({ enabled: 'boolean' }))
+      .handler(async ({ context, input }) => {
+        await setMailboxEnabled(context.user.id, input.id, input.enabled)
+        if (input.enabled) {
+          void syncMailbox(input).catch(logErrorAs('turned-on sync'))
+        }
+      }),
   },
   mail: {
     archive: authed

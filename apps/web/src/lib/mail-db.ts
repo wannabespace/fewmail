@@ -130,6 +130,14 @@ export const loadOlderRows = async (
   rows.utils.writeInsert(fresh)
 }
 
+/** After a mailbox comes or goes: its pages past the first would otherwise stay through every refetch. */
+export const forgetOlderRows = () => {
+  endedLists.clear()
+  for (const rows of mailRowsByMailbox.values()) {
+    rows.utils.writeDelete([...rows.keys()])
+  }
+}
+
 const threadKey = (threadId?: string) =>
   threadId ? [[...mailKey, 'thread'], { threadId }] : [[...mailKey, 'thread']]
 

@@ -29,4 +29,8 @@ export const connectedApps = listCollection({
   queryKey: orpc.integrations.apps.list.key(),
 })
 
-export const useMailboxes = () => useRanked(mailboxes).data ?? []
+export const useAllMailboxes = () => useRanked(mailboxes).data ?? []
+
+/** The ones the user keeps on; Settings alone shows the rest. */
+export const useMailboxes = () =>
+  useAllMailboxes().filter(({ enabled }) => enabled)
