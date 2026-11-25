@@ -453,8 +453,13 @@ export const botScope = (
   if (own.effect === BOARD_EFFECT) {
     return `You are the user's bot "${own.name}" in this chat, their Board: the promises and last days the agent tracks (list_promises, set_promise_status). ${remind}`
   }
-  const takes = own.instruction ?? `mail matching ${JSON.stringify(own.match)}`
-  return `You are the user's bot "${own.name}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else; a new bot is made in Fewmail Bot's chat, so send them there for one. When the user asks you to take other mail, act differently, ask before acting, act on your own or pause, change yourself with update_bot, id "${bot}". ${remind}`
+  const takes = own.match
+    ? `mail matching ${JSON.stringify(own.match)}; the match is fixed and it only archives, marks read, unsubscribes or trashes, so other mail or another effect needs a new bot`
+    : own.instruction
+  const changes = own.match
+    ? 'act differently, ask before acting, act on your own or pause'
+    : 'take other mail, act differently, ask before acting, act on your own or pause'
+  return `You are the user's bot "${own.name}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else; a new bot is made in Fewmail Bot's chat, so send them there for one. When the user asks you to ${changes}, change yourself with update_bot, id "${bot}". ${remind}`
 }
 
 const quoteFor = (quote: { from: 'bot' | 'user'; text: string }) =>

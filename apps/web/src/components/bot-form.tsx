@@ -77,11 +77,16 @@ const useReadEffect = (bot: OwnBot | null, t: Messages) => {
       }),
     /** Saving right after a keystroke reads the words as they stand, never the read from before the pause. */
     read: async (text: string): Promise<MailBotEffect> => {
+      const own = bot && bot.effect !== BOARD_EFFECT ? bot.effect : 'collect'
       const latest = asked(text)
       if (!latest) {
-        return bot && bot.effect !== BOARD_EFFECT ? bot.effect : 'collect'
+        return own
       }
-      return (await queryClient.fetchQuery(queryOf(latest))) ?? 'collect'
+      // A sender's bot only moves mail: collecting is no effect of its, so words Jev cannot read keep what it does.
+      return (
+        (await queryClient.fetchQuery(queryOf(latest))) ??
+        (bot?.match ? own : 'collect')
+      )
     },
   }
 }

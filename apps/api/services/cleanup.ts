@@ -38,6 +38,7 @@ import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { findOrCreateLabel } from './labels'
 import { getSettings } from './settings'
+import { fromMatches } from './simple-bots'
 import { ownMessage, insertMessages } from './stored-mail'
 import { unsubscribe, unsubscribeMessage } from './thread-effects'
 import { isOpened } from './thread-labels'
@@ -199,11 +200,11 @@ export const newSenders = async (userId: string) => {
     unsubscribedRows.map(({ senderHash }) => senderHash)
   )
   const fromBots = ownBots.flatMap(({ match }) =>
-    match?.field === 'from' ? [match.value.toLowerCase()] : []
+    match?.field === 'from' ? [match.value] : []
   )
   const isOpen = (list: { fromEmail: string; listId: string | null }) =>
     !unsubscribed.has(listHashOf(list)) &&
-    !fromBots.some((value) => list.fromEmail.toLowerCase().includes(value))
+    !fromBots.some((value) => fromMatches(value, list.fromEmail, null))
   const fresh = namedLists(lists)
     .filter(isOpen)
     .toSorted((left, right) => right.count - left.count)
@@ -363,14 +364,14 @@ export const botSuggestions = async (userId: string, fromEmail?: string) => {
   ])
   const declinedHashes = new Set(declined.map(({ senderHash }) => senderHash))
   const fromBots = ownBots.flatMap(({ match }) =>
-    match?.field === 'from' ? [match.value.toLowerCase()] : []
+    match?.field === 'from' ? [match.value] : []
   )
   return senders
     .filter(
       (sender) =>
         !declinedHashes.has(senderHashOf(sender.fromEmail)) &&
         !fromBots.some((value) =>
-          sender.fromEmail.toLowerCase().includes(value)
+          fromMatches(value, sender.fromEmail, sender.fromName)
         )
     )
     .toSorted((left, right) => right.count - left.count)
