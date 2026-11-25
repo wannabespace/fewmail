@@ -2799,7 +2799,12 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const moveCursor = (step: number) => {
     // A focused tab or button owns Enter, so the list's Enter would never fire.
     ;(document.activeElement as HTMLElement | null)?.blur()
-    moveCursorTo(Math.min(total - 1, Math.max(0, cursor + step)), true)
+    // An unlit cursor (a row clicked, its thread closed) lights where it is: stepping from a row nobody sees skips the one lit next.
+    const next =
+      thread || shownCursor !== HIDDEN_CURSOR
+        ? cursor + step
+        : Math.max(0, cursor)
+    moveCursorTo(Math.min(total - 1, Math.max(0, next)), true)
   }
   useHotkey('J', () => moveCursor(1))
   useHotkey('ArrowDown', () => moveCursor(1))

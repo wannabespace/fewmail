@@ -433,4 +433,8 @@ export const agentTools = (userId: string) =>
     ])
   ) as Record<AgentToolName, AgentTool>
 
-export const toolAccess = (name: string) => AGENT_TOOLS[name as AgentToolName]
+/** A bot changes at once when the user asks in a chat; letting it act on its own moves their mail, so that alone waits for a yes. */
+export const toolAccess = (name: string, input?: unknown) =>
+  name === 'update_bot' && (input as { enabled?: boolean })?.enabled !== true
+    ? 'write'
+    : AGENT_TOOLS[name as AgentToolName]
