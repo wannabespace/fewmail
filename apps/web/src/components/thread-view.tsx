@@ -428,8 +428,22 @@ const HtmlBody = ({
       frameHeights.set(id, measured)
       setHeight(measured)
     })
+    // A click in the mail moves focus into the frame, and its keys never reach the page's shortcuts: Escape stopped closing the mail.
+    const passKeyOn = (event: KeyboardEvent) => {
+      const isTyping = (event.target as Element).matches?.(
+        'input, textarea, select, [contenteditable]'
+      )
+      if (
+        !isTyping &&
+        !frame.dispatchEvent(new KeyboardEvent(event.type, event))
+      ) {
+        event.preventDefault()
+      }
+    }
     const observeBody = () => {
       frame.contentDocument?.addEventListener('click', jumpWithinMail)
+      frame.contentDocument?.addEventListener('keydown', passKeyOn)
+      frame.contentDocument?.addEventListener('keyup', passKeyOn)
       const body = frame.contentDocument?.body
       if (body) {
         observer.observe(body)
