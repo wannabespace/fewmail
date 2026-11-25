@@ -95,7 +95,7 @@ const createServer = (userId: string, app: string, withAgent: boolean) => {
         capture(userId, 'mcp_tool_called', { access, tool: name })
         const started = performance.now()
         const result = await Result.tryPromise(async () =>
-          access === 'consent'
+          toolAccess(name, input) === 'consent'
             ? await waitForYes(userId, server, name as ConsentToolName, input)
             : await tool.run(input as never)
         )
