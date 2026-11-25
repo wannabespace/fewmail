@@ -335,7 +335,7 @@ const toolsFor = (
         tool({
           description: agentTool.description,
           execute: async (input: unknown) => {
-            if (toolAccess(name) !== 'consent') {
+            if (toolAccess(name, input) !== 'consent') {
               return agentTool.run(input as never)
             }
             const { id } = await proposeConsent(userId, {

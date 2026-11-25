@@ -95,7 +95,10 @@ export const BotComposer = ({
       }}
     >
       {!text && !replyTo && !isSending && suggestions.length > 0 && (
-        <div className="flex flex-wrap gap-1.5" data-mask>
+        <div
+          className="scroll-fade-x -m-1 flex scrollbar-none gap-1.5 overflow-x-auto overscroll-x-contain p-1"
+          data-mask
+        >
           {suggestions.map((suggestion) => (
             <Button
               key={suggestion}
