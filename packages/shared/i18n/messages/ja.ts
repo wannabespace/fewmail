@@ -725,6 +725,16 @@ export const ja: Messages = {
       on: 'オンのときは確認せずに動きます。行ったことはすべてチャットに表示されます。',
     },
     instruction: '担当するメールと、その扱い',
+    purpose: {
+      ask: '私が何をすればいいか教えてください',
+      intro: (name: string) =>
+        `こんにちは、「${name}」です。私が何をすればいいか教えてください：どのメールが担当で、それをどうするか。教えてもらうまで、メールは受け取りません。`,
+      placeholder: '例：Hetzner からの請求書、既読にする',
+      status: '役目を教えてもらうのを待っています',
+      taken: (effect: string) =>
+        `わかりました。これからそのメールは私の担当です。やること：${effect}。変えたいときはここに書いてください。`,
+      waiting: 'あなたの返事を待っています：',
+    },
     instructionPlaceholder:
       '例：Hetzner からの請求書は既読にする、LinkedIn の通知はアーカイブする',
     mute: 'ミュート',
@@ -740,7 +750,6 @@ export const ja: Messages = {
       replied: 'その後、そのスレッドに返信が届きました。',
     },
     promises: (n: number) => `約束を${n}件書き留めました。`,
-    presets: 'テンプレート',
     react: 'リアクション',
     reaction: 'リアクション',
     reply: '返信',
@@ -1562,6 +1571,8 @@ export const ja: Messages = {
   today: {
     working: '処理中…',
     botSuggestion: {
+      board: 'メールの中の約束や期限を記録し、その日が来たら知らせます',
+      create: 'このボットを作る',
       done: {
         archive: '今後、この送信者のメールは新しいボットがアーカイブします。',
         mark_read: '今後、この送信者のメールは新しいボットが既読にします。',

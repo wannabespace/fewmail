@@ -411,7 +411,10 @@ const waitsOnAnything = ({
 }) =>
   (isBoard && (board.isPending || board.ordered.length > 0)) ||
   queue + proposals + worth > 0 ||
-  (data?.newSenders.length ?? 0) + (data?.botSuggestions.length ?? 0) > 0 ||
+  (data?.newSenders.length ?? 0) +
+    (data?.botSuggestions.length ?? 0) +
+    (data?.presets.length ?? 0) >
+    0 ||
   (botId === 'fewmail' && journal > 0)
 
 /** The open bot's own part of Today: Fewmail keeps what no bot of the user's takes, and what is not anyone's mail. */
@@ -426,6 +429,7 @@ const todayOf = (today: Today | undefined, bot: string): Today | undefined => {
     ...today,
     awaiting: isFewmail ? today.awaiting : [],
     botSuggestions: isFewmail ? today.botSuggestions : [],
+    presets: isFewmail ? today.presets : [],
     dates: today.dates.filter(isMine),
     newSenders: isFewmail ? today.newSenders : [],
     recent: today.recent.filter(isMine),

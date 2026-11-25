@@ -3,6 +3,7 @@ import {
   BOARD_EFFECT,
   BOT_FOLDER_NAME_CHARS,
   BOT_FOLDERS_MAX,
+  needsPurpose,
 } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
@@ -151,11 +152,12 @@ export const useBots = (): HomeBot[] => {
       ? [
           {
             ...chat,
-            job:
-              bot.instruction ??
-              (bot.match
-                ? t.bots.simple.title[bot.match.field](bot.match.value)
-                : t.bots.effect[bot.effect]),
+            job: needsPurpose(bot)
+              ? t.bots.purpose.ask
+              : (bot.instruction ??
+                (bot.match
+                  ? t.bots.simple.title[bot.match.field](bot.match.value)
+                  : t.bots.effect[bot.effect])),
             name: bot.name,
             own: bot,
           },

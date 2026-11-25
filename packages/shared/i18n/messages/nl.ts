@@ -932,6 +932,16 @@ export const nl: Messages = {
       on: 'Staat dit aan, dan handelt hij zonder te vragen; alles wat hij doet staat in zijn chat.',
     },
     instruction: 'Welke e-mails en wat hij ermee doet',
+    purpose: {
+      ask: 'Vertel me waar ik voor ben',
+      intro: (name: string) =>
+        `Hoi, ik ben ${name}. Vertel me waar ik voor ben: welke e-mails van mij zijn en wat ik ermee moet doen. Tot dan neem ik geen mail.`,
+      placeholder: 'bijv. Facturen van Hetzner, markeer ze als gelezen',
+      status: 'Wacht tot je zegt waar hij voor is',
+      taken: (effect: string) =>
+        `Begrepen, die mail is vanaf nu van mij. Wat ik ermee doe: ${effect}. Schrijf me om dat te veranderen.`,
+      waiting: 'Ik wacht op jou:',
+    },
     instructionPlaceholder:
       'bijv. Facturen van Hetzner als gelezen markeren, of meldingen van LinkedIn archiveren',
     mute: 'Dempen',
@@ -951,7 +961,6 @@ export const nl: Messages = {
         one: () => 'Ik heb een belofte genoteerd.',
         other: (count) => `Ik heb ${count} beloftes genoteerd.`,
       }),
-    presets: 'Sjablonen',
     react: 'Reageren',
     reaction: 'Reactie',
     reply: 'Beantwoorden',
@@ -1774,6 +1783,9 @@ export const nl: Messages = {
   today: {
     working: 'Bezig…',
     botSuggestion: {
+      board:
+        'Houdt de beloftes en laatste dagen uit je mail bij en herinnert je als er een afloopt',
+      create: 'Deze bot maken',
       done: {
         archive:
           'Een nieuwe bot archiveert vanaf nu de mail van deze afzender.',

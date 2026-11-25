@@ -1,13 +1,10 @@
 import { db } from '@fewmail/db'
-import { bots, userSettings } from '@fewmail/db/schema'
-import { BOT_PRESETS } from '@fewmail/shared/agent'
-import { messages } from '@fewmail/shared/i18n'
+import { userSettings } from '@fewmail/db/schema'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { eq } from 'drizzle-orm'
 
 import { logErrorAs } from '../lib/log'
 import { expectRow } from '../lib/rows'
-import { presetBot } from './bots'
 import { backfillAgentLabels } from './labels'
 import { trialUsedBy } from './plan'
 import { getSettings } from './settings'
@@ -15,7 +12,7 @@ import { syncMailboxes } from './sync'
 
 // Apart from `settings.ts` because sync and labels import `getSettings`: saving starts both.
 
-/** The first save (the first sign-in) seeds the presets and reads the inbox at once; turning Gmail labels on labels recent mail. */
+/** The first save (the first sign-in) reads the inbox at once (the ready-made bots are Fewmail Bot's to offer); turning Gmail labels on labels recent mail. */
 export const saveSettings = async (
   userId: string,
   input: {
@@ -35,14 +32,6 @@ export const saveSettings = async (
     .returning()
 
   if (inserted) {
-    // Home lists the last first, so the Board ends the list.
-    await db
-      .insert(bots)
-      .values(
-        BOT_PRESETS.map((preset) =>
-          presetBot(userId, preset, messages[input.language])
-        )
-      )
     void syncMailboxes(userId).catch(logErrorAs('first sync'))
     return inserted
   }

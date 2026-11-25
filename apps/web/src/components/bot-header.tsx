@@ -1,3 +1,4 @@
+import { needsPurpose } from '@fewmail/shared/agent'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,6 +53,11 @@ export const BotStatus = ({ bot }: { bot: HomeBot }) => {
       <span className="text-primary font-medium">
         {t.bots.status.waiting(pending)}
       </span>
+    )
+  }
+  if (bot.own && needsPurpose(bot.own)) {
+    return (
+      <span className="text-primary font-medium">{t.bots.purpose.status}</span>
     )
   }
   const how =

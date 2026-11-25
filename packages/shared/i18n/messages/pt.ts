@@ -951,6 +951,16 @@ export const pt: Messages = {
       on: 'Ligado, ele age sem perguntar; tudo o que faz aparece no chat dele.',
     },
     instruction: 'Quais e-mails e o que fazer com eles',
+    purpose: {
+      ask: 'Me diga para que eu sirvo',
+      intro: (name: string) =>
+        `Oi, eu sou ${name}. Me diga para que eu sirvo: quais e-mails são meus e o que fazer com eles. Até lá, não pego nenhum e-mail.`,
+      placeholder: 'ex.: Faturas da Hetzner, marque como lidas',
+      status: 'Esperando saber para que serve',
+      taken: (effect: string) =>
+        `Entendi, esses e-mails são meus a partir de agora. O que faço com eles: ${effect}. Me escreva para mudar isso.`,
+      waiting: 'Esperando por você:',
+    },
     instructionPlaceholder:
       'ex.: Marcar como lidas as faturas da Hetzner ou arquivar as notificações do LinkedIn',
     mute: 'Silenciar',
@@ -971,7 +981,6 @@ export const pt: Messages = {
         many: (count) => `Anotei ${count} promessas.`,
         other: (count) => `Anotei ${count} promessas.`,
       }),
-    presets: 'Modelos',
     react: 'Reagir',
     reaction: 'Reação',
     reply: 'Responder',
@@ -1804,6 +1813,9 @@ export const pt: Messages = {
   today: {
     working: 'Fazendo…',
     botSuggestion: {
+      board:
+        'Guarda as promessas e os prazos do seu e-mail e te lembra quando um vence',
+      create: 'Criar este bot',
       done: {
         archive:
           'Um bot novo arquiva os e-mails deste remetente a partir de agora.',

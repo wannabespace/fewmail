@@ -1,5 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { BOT_REACTIONS, cardPayload } from '@fewmail/shared/agent'
+import { BOT_REACTIONS, cardPayload, needsPurpose } from '@fewmail/shared/agent'
 import type { BotReaction, DigestCounts } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
@@ -915,6 +915,15 @@ const BotIntro = ({ bot }: { bot: HomeBot }) => {
     return (
       <BotMessage>
         <Speech>{t.bots.intro.board}</Speech>
+      </BotMessage>
+    )
+  }
+  if (needsPurpose(bot.own)) {
+    return (
+      <BotMessage>
+        <MessageBubble>
+          <p data-mask>{t.bots.purpose.intro(bot.name)}</p>
+        </MessageBubble>
       </BotMessage>
     )
   }

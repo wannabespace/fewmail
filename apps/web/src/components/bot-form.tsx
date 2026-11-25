@@ -1,4 +1,4 @@
-import { BOARD_EFFECT, BOT_PRESETS } from '@fewmail/shared/agent'
+import { BOARD_EFFECT } from '@fewmail/shared/agent'
 import type { MailBotEffect } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
@@ -30,7 +30,7 @@ import { confirm } from '~/components/confirm-dialog'
 import { botChats, ownBots } from '~/lib/home-db'
 import { useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
-import { queryClient, showUntilSettled, useRanked } from '~/lib/query-client'
+import { queryClient, showUntilSettled } from '~/lib/query-client'
 
 interface BotDraft {
   enabled: boolean
@@ -91,12 +91,14 @@ const BotFields = ({
   draft,
   hasMatch,
   isBoard,
+  isNew,
   onChange,
 }: {
   draft: BotDraft
   hasMatch: boolean
   /** It takes no mail and moves none: only its name is the user's to change. */
   isBoard: boolean
+  isNew: boolean
   onChange: (change: Partial<BotDraft>) => void
 }) => {
   const t = useT()
@@ -114,37 +116,46 @@ const BotFields = ({
         />
       </Field>
       {!isBoard && (
-        <BotMailFields draft={draft} hasMatch={hasMatch} onChange={onChange} />
+        <BotMailFields
+          draft={draft}
+          hasMatch={hasMatch}
+          isNew={isNew}
+          onChange={onChange}
+        />
       )}
     </FieldGroup>
   )
 }
 
-/** Which mail is its and what it does with it, and whether it acts alone. */
+/** Which mail is its and what it does with it, and whether it acts alone; a new bot is told what it is for in its chat. */
 const BotMailFields = ({
   draft,
   hasMatch,
+  isNew,
   onChange,
 }: {
   draft: BotDraft
   hasMatch: boolean
+  isNew: boolean
   onChange: (change: Partial<BotDraft>) => void
 }) => {
   const t = useT()
   return (
     <>
-      <Field>
-        <FieldLabel htmlFor="bot-text">
-          {hasMatch ? t.bots.whatItDoes : t.bots.instruction}
-        </FieldLabel>
-        <Textarea
-          id="bot-text"
-          data-mask
-          placeholder={hasMatch ? undefined : t.bots.instructionPlaceholder}
-          value={draft.text}
-          onChange={(event) => onChange({ text: event.target.value })}
-        />
-      </Field>
+      {!isNew && (
+        <Field>
+          <FieldLabel htmlFor="bot-text">
+            {hasMatch ? t.bots.whatItDoes : t.bots.instruction}
+          </FieldLabel>
+          <Textarea
+            id="bot-text"
+            data-mask
+            placeholder={hasMatch ? undefined : t.bots.instructionPlaceholder}
+            value={draft.text}
+            onChange={(event) => onChange({ text: event.target.value })}
+          />
+        </Field>
+      )}
       <Field orientation="horizontal">
         <Switch
           id="bot-enabled"
@@ -159,39 +170,6 @@ const BotMailFields = ({
         </div>
       </Field>
     </>
-  )
-}
-
-/** New bot's ready-made ones, in the user's language; the Board only while the user has none. */
-const BotPresets = ({ onCreated }: { onCreated: (id: string) => void }) => {
-  const t = useT()
-  const { data: own = [] } = useRanked(ownBots)
-  const add = useMutation(
-    orpc.bots.addPreset.mutationOptions({
-      onSettled: refreshBots,
-      onSuccess: ({ id }) => onCreated(id),
-    })
-  )
-  const hasBoard = own.some(({ effect }) => effect === BOARD_EFFECT)
-  return (
-    <Field>
-      <FieldLabel>{t.bots.presets}</FieldLabel>
-      <div className="flex flex-wrap gap-2">
-        {BOT_PRESETS.filter(
-          ({ effect }) => effect !== BOARD_EFFECT || !hasBoard
-        ).map(({ key }) => (
-          <Button
-            key={key}
-            size="sm"
-            variant="secondary"
-            disabled={add.isPending}
-            onClick={() => add.mutate({ preset: key })}
-          >
-            {t.starterBots[key].name}
-          </Button>
-        ))}
-      </div>
-    </Field>
   )
 }
 
@@ -218,7 +196,7 @@ export const BotForm = ({
       onSettled: refreshBots,
       onSuccess: ({ id }) => {
         onCreated?.(id)
-        done(t.bots.created)
+        onClose?.()
       },
     })
   )
@@ -253,9 +231,17 @@ export const BotForm = ({
   const isBoard = bot?.effect === BOARD_EFFECT
   const canSave =
     !!draft.name.trim() &&
-    (isBoard || !!bot?.match || draft.text.trim().length > 2)
+    (isBoard || !bot || !!bot.match || draft.text.trim().length > 2)
   const save = async () => {
-    if (bot && isBoard) {
+    if (!bot) {
+      create.mutate({
+        effect: 'collect',
+        enabled: draft.enabled,
+        name: draft.name.trim(),
+      })
+      return
+    }
+    if (isBoard) {
       update.mutate({ id: bot.id, name: draft.name.trim() })
       return
     }
@@ -263,10 +249,6 @@ export const BotForm = ({
       effect: await readEffect.read(draft.text),
       enabled: draft.enabled,
       name: draft.name.trim(),
-    }
-    if (!bot) {
-      create.mutate({ ...fields, instruction: draft.text.trim() })
-      return
     }
     update.mutate({
       id: bot.id,
@@ -292,18 +274,11 @@ export const BotForm = ({
         }
       }}
     >
-      {!bot && (
-        <BotPresets
-          onCreated={(id) => {
-            onCreated?.(id)
-            done(t.bots.created)
-          }}
-        />
-      )}
       <BotFields
         draft={draft}
         hasMatch={!!bot?.match}
         isBoard={isBoard}
+        isNew={!bot}
         onChange={(change) => {
           if (change.text !== undefined) {
             readEffect.readAhead(change.text)

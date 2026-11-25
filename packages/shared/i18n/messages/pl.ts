@@ -968,6 +968,16 @@ export const pl: Messages = {
       on: 'Włączony działa bez pytania; wszystko, co zrobi, widać w jego czacie.',
     },
     instruction: 'Które maile i co z nimi robić',
+    purpose: {
+      ask: 'Powiedz mi, do czego jestem',
+      intro: (name: string) =>
+        `Cześć, jestem ${name}. Powiedz mi, do czego jestem: które maile są moje i co z nimi robić. Dopóki nie powiesz, nie biorę żadnego maila.`,
+      placeholder: 'np. Faktury od Hetzner, oznaczaj jako przeczytane',
+      status: 'Czeka, aż powiesz, do czego jest',
+      taken: (effect: string) =>
+        `Jasne, te maile są od teraz moje. Co z nimi robię: ${effect}. Napisz do mnie, żeby to zmienić.`,
+      waiting: 'Czekam na ciebie:',
+    },
     instructionPlaceholder:
       'np. Oznaczaj faktury od Hetzner jako przeczytane albo archiwizuj powiadomienia z LinkedIn',
     mute: 'Wycisz',
@@ -989,7 +999,6 @@ export const pl: Messages = {
         many: (count) => `Zapisałem ${count} obietnic.`,
         other: (count) => `Zapisałem ${count} obietnicy.`,
       }),
-    presets: 'Szablony',
     react: 'Zareaguj',
     reaction: 'Reakcja',
     reply: 'Odpowiedz',
@@ -1819,6 +1828,9 @@ export const pl: Messages = {
   today: {
     working: 'W toku…',
     botSuggestion: {
+      board:
+        'Pilnuje obietnic i ostatnich terminów z twojej poczty i przypomina, gdy któryś mija',
+      create: 'Utwórz tego bota',
       done: {
         archive: 'Nowy bot od teraz archiwizuje pocztę od tego nadawcy.',
         mark_read:

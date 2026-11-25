@@ -913,6 +913,16 @@ export const tr: Messages = {
       on: 'Açıkken sormadan iş görür; yaptığı her şey sohbetinde görünür.',
     },
     instruction: 'Hangi e-postalar ve onlarla ne yapacağı',
+    purpose: {
+      ask: 'Bana ne için olduğumu söyle',
+      intro: (name: string) =>
+        `Merhaba, ben ${name}. Bana ne için olduğumu söyle: hangi e-postalar benim ve onlarla ne yapayım. Söyleyene kadar hiçbir e-posta almıyorum.`,
+      placeholder: 'örn. Hetzner faturaları, okundu say',
+      status: 'Ne için olduğunu duymayı bekliyor',
+      taken: (effect: string) =>
+        `Anladım, bu e-postalar artık benim. Onlarla ne yapıyorum: ${effect}. Değiştirmek için bana yaz.`,
+      waiting: 'Seni bekliyorum:',
+    },
     instructionPlaceholder:
       'örn. Hetzner faturalarını okundu say veya LinkedIn bildirimlerini arşivle',
     mute: 'Sessize al',
@@ -931,7 +941,6 @@ export const tr: Messages = {
       plural('tr', n, {
         other: (count) => `${count} sözü not ettim.`,
       }),
-    presets: 'Şablonlar',
     react: 'Tepki ver',
     reaction: 'Tepki',
     reply: 'Yanıtla',
@@ -1753,6 +1762,9 @@ export const tr: Messages = {
   today: {
     working: 'Yapılıyor…',
     botSuggestion: {
+      board:
+        'E-postandaki sözleri ve son günleri tutar, vadesi geldiğinde sana hatırlatır',
+      create: 'Bu botu oluştur',
       done: {
         archive:
           'Bundan sonra yeni bir bot bu göndericinin postalarını arşivleyecek.',
