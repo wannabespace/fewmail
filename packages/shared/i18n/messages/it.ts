@@ -244,6 +244,7 @@ export const it: Messages = {
             'Le newsletter del giorno diventano un unico riassunto per tema, con ogni frase collegata all’email da cui viene.',
           title: 'Le newsletter in un riassunto',
         },
+
         bots: {
           description:
             'Descrivi in una frase cosa deve succedere a certa posta e diventa un bot con la sua chat. Agiscono da soli solo i bot che lasci agire tu.',
@@ -1246,6 +1247,59 @@ export const it: Messages = {
     skipped: (n: number) => `Saltate: ${n}`,
     stale: (n: number) => `Più vecchie di una settimana: ${n}`,
     skip: 'Salta',
+  },
+  decide: {
+    changed: (items: string) =>
+      `${items} è cambiato mentre rispondevi: guardalo di nuovo.`,
+    did: {
+      always_archive: 'da ora un bot archivia le sue email',
+      always_mark_read: 'da ora un bot segna come lette le sue email',
+      approve: 'fatto',
+      cancel: 'fermato, ti aspetta di nuovo',
+      keep: 'resta come sempre',
+      rewrite: 'risposta riscritta',
+      shorter: 'risposta accorciata',
+      skip: 'saltato',
+      unsubscribe: 'disiscritto',
+    },
+    done: (items: string) => `Fatto: ${items}.`,
+    draft: 'La mia risposta:',
+    failed: (items: string) =>
+      `Non ci sono riuscito per ${items}: aspetta ancora.`,
+    heard: (text: string) => `Ho sentito: «${text}».`,
+    hint: 'Rispondi a parole, per esempio «1 invia, 2 salta».',
+    limit: (count: number, date: string) =>
+      `Nel piano gratuito capisco ${count} risposte a parole al mese, e sono finite fino al ${date}. Con un abbonamento rispondi quanto vuoi, anche a voce.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `Nuovo da ${name}: ${plural('it', count, { one: (n) => `${n} email`, other: (n) => `${n} email` })} in due settimane, ${opened} aperte. Disiscriversi, archiviare sempre o lasciare come sempre?`,
+    oneByOne: (items: string) =>
+      `Invio una email per ogni approvazione. Quale prima: ${items}?`,
+    sending: (to: string) => `Invio a ${to}`,
+    sendingIn: (to: string, seconds: number) =>
+      `Invio a ${to} tra ${seconds} s. Scrivi «annulla» per fermarlo.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: ${plural('it', count, { one: (n) => `${n} email`, other: (n) => `${n} email` })} questo mese e nessuna aveva bisogno di te. Creo un bot che le archivia da solo?`
+        : `${name}: ${plural('it', count, { one: (n) => `${n} email`, other: (n) => `${n} email` })} questo mese e nessuna aveva bisogno di te. Creo un bot che le segna come lette da solo?`,
+    tidy: (n: number) =>
+      plural('it', n, {
+        one: (n) =>
+          `Riordino ${n} email tranquilla come propongo (archivio o letta)?`,
+        other: (n) =>
+          `Riordino ${n} email tranquille come propongo (archivio o lette)?`,
+      }),
+    unclear: (items: string) =>
+      `Non ho capito quale intendi: ${items}. Scrivi il suo numero.`,
+    waiting: (n: number) =>
+      plural('it', n, {
+        one: (n) => `${n} cosa ti aspetta:`,
+        other: (n) => `${n} cose ti aspettano:`,
+      }),
+    whenDone: (said: string) => `Scrivi «${said}» quando l’hai fatto.`,
   },
   bots: {
     profile: 'Cosa faccio',

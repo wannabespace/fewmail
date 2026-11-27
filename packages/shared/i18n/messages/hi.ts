@@ -628,6 +628,53 @@ export const hi: Messages = {
     followUp: 'फ़ॉलो-अप करें',
     noReply: 'अभी तक जवाब नहीं',
   },
+  decide: {
+    changed: (items: string) =>
+      `तुम्हारे जवाब देते समय ${items} बदल गया: इसे फिर से देखो।`,
+    did: {
+      always_archive: 'अब से एक बॉट इनके ईमेल आर्काइव करेगा',
+      always_mark_read: 'अब से एक बॉट इनके ईमेल पढ़े हुए करेगा',
+      approve: 'हो गया',
+      cancel: 'रोक दिया, यह फिर तुम्हारा इंतज़ार कर रहा है',
+      keep: 'पहले जैसा रखा',
+      rewrite: 'जवाब दोबारा लिखा',
+      shorter: 'जवाब छोटा किया',
+      skip: 'छोड़ दिया',
+      unsubscribe: 'सदस्यता छोड़ दी',
+    },
+    done: (items: string) => `हो गया: ${items}।`,
+    draft: 'मेरा जवाब:',
+    failed: (items: string) =>
+      `${items} के लिए नहीं हो पाया: यह अभी भी इंतज़ार में है।`,
+    heard: (text: string) => `सुना: “${text}”।`,
+    hint: 'शब्दों में जवाब दो, जैसे “1 भेजो, 2 छोड़ो”।',
+    limit: (count: number, date: string) =>
+      `मुफ़्त प्लान में मैं महीने में शब्दों वाले ${count} जवाब समझता हूँ, और ${date} तक वे खत्म हो गए। सदस्यता के साथ जितना चाहो जवाब दो, आवाज़ से भी।`,
+    newSender: (name: string, count: number, opened: number) =>
+      `${name} से नया: दो हफ़्तों में ${plural('hi', count, { other: (n) => `${n} ईमेल` })}, ${opened} खोले गए। सदस्यता छोड़ें, हमेशा आर्काइव करें या पहले जैसा रखें?`,
+    oneByOne: (items: string) =>
+      `मैं हर अनुमति पर एक ही ईमेल भेजता हूँ। पहले कौन सा: ${items}?`,
+    sending: (to: string) => `${to} को भेजा जा रहा है`,
+    sendingIn: (to: string, seconds: number) =>
+      `${seconds} सेकंड में ${to} को भेज रहा हूँ। रोकने के लिए “रद्द करो” लिखो।`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: इस महीने ${plural('hi', count, { other: (n) => `${n} ईमेल` })}, और किसी को तुम्हारी ज़रूरत नहीं थी। एक बॉट बनाऊँ जो इन्हें खुद आर्काइव करे?`
+        : `${name}: इस महीने ${plural('hi', count, { other: (n) => `${n} ईमेल` })}, और किसी को तुम्हारी ज़रूरत नहीं थी। एक बॉट बनाऊँ जो इन्हें खुद पढ़े हुए करे?`,
+    tidy: (n: number) =>
+      plural('hi', n, {
+        other: (n) => `${n} शांत ईमेल मेरे सुझाव के अनुसार समेट दूँ (आर्काइव या पढ़ा हुआ)?`,
+      }),
+    unclear: (items: string) =>
+      `समझ नहीं आया कि कौन सा: ${items}। उसका नंबर लिखो।`,
+    waiting: (n: number) =>
+      plural('hi', n, { other: (n) => `${n} काम तुम्हारा इंतज़ार कर रहे हैं:` }),
+    whenDone: (said: string) => `कर लेने पर “${said}” लिखो।`,
+  },
   bots: {
     profile: 'मैं क्या करता हूँ',
     closeProfile: 'बंद करें',

@@ -794,6 +794,58 @@ export const en = {
       `New payment details from ${domain}. Confirm by phone before paying.`,
     title: 'Check before you act',
   },
+  decide: {
+    changed: (items: string) =>
+      `${items} changed while you answered: look at it again.`,
+    did: {
+      always_archive: 'a bot archives their mail from now on',
+      always_mark_read: 'a bot marks their mail read from now on',
+      approve: 'done',
+      cancel: 'stopped, it waits for you again',
+      keep: 'kept as usual',
+      rewrite: 'rewrote the reply',
+      shorter: 'made the reply shorter',
+      skip: 'skipped',
+      unsubscribe: 'unsubscribed',
+    },
+    done: (items: string) => `Done: ${items}.`,
+    draft: 'My reply:',
+    failed: (items: string) =>
+      `I could not do it for ${items}: it still waits.`,
+    heard: (text: string) => `Heard: “${text}”.`,
+    hint: 'Answer in words, for example “1 send, 2 skip”.',
+    limit: (count: number, date: string) =>
+      `On the free plan I understand ${count} answers in words a month, and they are used up until ${date}. With a subscription you answer as much as you like, by voice too.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `New from ${name}: ${count} emails in two weeks, opened ${opened}. Unsubscribe, always archive or keep as usual?`,
+    oneByOne: (items: string) =>
+      `I send one email per approval. Which one first: ${items}?`,
+    sending: (to: string) => `Sending to ${to}`,
+    sendingIn: (to: string, seconds: number) =>
+      `Sending to ${to} in ${seconds} s. Write “cancel” to stop it.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name} sent ${count} emails this month and none needed you. Make a bot that archives them on its own?`
+        : `${name} sent ${count} emails this month and none needed you. Make a bot that marks them read on its own?`,
+    tidy: (n: number) =>
+      plural('en', n, {
+        one: () => 'Tidy one quiet email as I suggest (archive or mark read)?',
+        other: (count) =>
+          `Tidy ${count} quiet emails as I suggest (archive or mark read)?`,
+      }),
+    unclear: (items: string) =>
+      `I did not get which one you mean: ${items}. Write its number.`,
+    waiting: (n: number) =>
+      plural('en', n, {
+        one: () => 'One thing waits for you:',
+        other: (count) => `${count} things wait for you:`,
+      }),
+    whenDone: (said: string) => `Write “${said}” once you have.`,
+  },
   bots: {
     profile: 'What I do',
     closeProfile: 'Close',

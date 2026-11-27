@@ -623,6 +623,53 @@ export const ja: Messages = {
     followUp: 'フォローアップ',
     noReply: 'まだ返信なし',
   },
+  decide: {
+    changed: (items: string) =>
+      `返信のあいだに${items}が変わりました。もう一度見てください。`,
+    did: {
+      always_archive: 'これからはボットがアーカイブします',
+      always_mark_read: 'これからはボットが既読にします',
+      approve: '完了',
+      cancel: '止めました。また待っています',
+      keep: 'いつも通りにしました',
+      rewrite: '返信を書き直しました',
+      shorter: '返信を短くしました',
+      skip: 'スキップしました',
+      unsubscribe: '配信停止しました',
+    },
+    done: (items: string) => `完了: ${items}。`,
+    draft: '返信案:',
+    failed: (items: string) => `${items}はできませんでした。まだ待っています。`,
+    heard: (text: string) => `聞き取り:「${text}」。`,
+    hint: '言葉で答えてください。例:「1 送って、2 スキップ」。',
+    limit: (count: number, date: string) =>
+      `無料プランでは言葉での返答を月${count}回まで理解します。${date}まで使い切りました。サブスクリプションなら音声でも好きなだけ答えられます。`,
+    newSender: (name: string, count: number, opened: number) =>
+      `${name}から新着: 2週間で${plural('ja', count, { other: (n) => `${n}通` })}、開封${opened}通。配信停止、常にアーカイブ、いつも通りのどれにしますか?`,
+    oneByOne: (items: string) =>
+      `承認1回につき1通ずつ送ります。どれから: ${items}?`,
+    sending: (to: string) => `${to}に送信中`,
+    sendingIn: (to: string, seconds: number) =>
+      `${seconds}秒後に${to}へ送信します。止めるには「キャンセル」と書いてください。`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: 今月${plural('ja', count, { other: (n) => `${n}通` })}、どれもあなたを必要としませんでした。自動でアーカイブするボットを作りますか?`
+        : `${name}: 今月${plural('ja', count, { other: (n) => `${n}通` })}、どれもあなたを必要としませんでした。自動で既読にするボットを作りますか?`,
+    tidy: (n: number) =>
+      plural('ja', n, {
+        other: (n) =>
+          `静かなメール${n}通を提案どおりに片付けますか(アーカイブまたは既読)?`,
+      }),
+    unclear: (items: string) =>
+      `どれのことか分かりませんでした: ${items}。番号を書いてください。`,
+    waiting: (n: number) =>
+      plural('ja', n, { other: (n) => `${n}件があなたを待っています:` }),
+    whenDone: (said: string) => `済んだら「${said}」と書いてください。`,
+  },
   bots: {
     profile: '担当していること',
     closeProfile: '閉じる',

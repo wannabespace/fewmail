@@ -799,6 +799,58 @@ export const nl: Messages = {
       `Nieuwe betaalgegevens van ${domain}. Bevestig telefonisch voordat je betaalt.`,
     title: 'Controleer voordat je iets doet',
   },
+  decide: {
+    changed: (items: string) =>
+      `${items} is veranderd terwijl je antwoordde: kijk er nog eens naar.`,
+    did: {
+      always_archive: 'vanaf nu archiveert een bot hun mail',
+      always_mark_read: 'vanaf nu markeert een bot hun mail als gelezen',
+      approve: 'gedaan',
+      cancel: 'gestopt, het wacht weer op je',
+      keep: 'blijft zoals altijd',
+      rewrite: 'antwoord herschreven',
+      shorter: 'antwoord ingekort',
+      skip: 'overgeslagen',
+      unsubscribe: 'afgemeld',
+    },
+    done: (items: string) => `Klaar: ${items}.`,
+    draft: 'Mijn antwoord:',
+    failed: (items: string) => `Het lukte niet voor ${items}: het wacht nog.`,
+    heard: (text: string) => `Gehoord: ‘${text}’.`,
+    hint: 'Antwoord in woorden, bijvoorbeeld ‘1 versturen, 2 overslaan’.',
+    limit: (count: number, date: string) =>
+      `Op het gratis abonnement begrijp ik ${count} antwoorden in woorden per maand, en die zijn op tot ${date}. Met een abonnement antwoord je zoveel je wilt, ook met je stem.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `Nieuw van ${name}: ${plural('nl', count, { one: (n) => `${n} mail`, other: (n) => `${n} mails` })} in twee weken, ${opened} geopend. Afmelden, altijd archiveren of houden zoals altijd?`,
+    oneByOne: (items: string) =>
+      `Ik verstuur één mail per goedkeuring. Welke eerst: ${items}?`,
+    sending: (to: string) => `Versturen naar ${to}`,
+    sendingIn: (to: string, seconds: number) =>
+      `Versturen naar ${to} over ${seconds} s. Schrijf ‘annuleer’ om het te stoppen.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: ${plural('nl', count, { one: (n) => `${n} mail`, other: (n) => `${n} mails` })} deze maand en geen ervan had je nodig. Een bot maken die ze zelf archiveert?`
+        : `${name}: ${plural('nl', count, { one: (n) => `${n} mail`, other: (n) => `${n} mails` })} deze maand en geen ervan had je nodig. Een bot maken die ze zelf als gelezen markeert?`,
+    tidy: (n: number) =>
+      plural('nl', n, {
+        one: (n) =>
+          `${n} rustige mail opruimen zoals ik voorstel (archiveren of gelezen)?`,
+        other: (n) =>
+          `${n} rustige mails opruimen zoals ik voorstel (archiveren of gelezen)?`,
+      }),
+    unclear: (items: string) =>
+      `Ik begreep niet welke je bedoelt: ${items}. Schrijf het nummer.`,
+    waiting: (n: number) =>
+      plural('nl', n, {
+        one: (n) => `${n} ding wacht op je:`,
+        other: (n) => `${n} dingen wachten op je:`,
+      }),
+    whenDone: (said: string) => `Schrijf ‘${said}’ als je het gedaan hebt.`,
+  },
   bots: {
     profile: 'Wat ik doe',
     closeProfile: 'Sluiten',

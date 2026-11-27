@@ -788,6 +788,53 @@ export const tr: Messages = {
       `${domain} adresinden yeni ödeme bilgileri. Ödemeden önce telefonla teyit et.`,
     title: 'Harekete geçmeden önce kontrol et',
   },
+  decide: {
+    changed: (items: string) =>
+      `${items} sen yanıtlarken değişti: bir daha bak.`,
+    did: {
+      always_archive: 'artık bir bot e-postalarını arşivliyor',
+      always_mark_read: 'artık bir bot e-postalarını okundu yapıyor',
+      approve: 'tamam',
+      cancel: 'durdurdum, yine seni bekliyor',
+      keep: 'her zamanki gibi kaldı',
+      rewrite: 'yanıtı yeniden yazdım',
+      shorter: 'yanıtı kısalttım',
+      skip: 'atlandı',
+      unsubscribe: 'abonelikten çıkıldı',
+    },
+    done: (items: string) => `Tamam: ${items}.`,
+    draft: 'Yanıtım:',
+    failed: (items: string) => `${items} için yapamadım: hâlâ bekliyor.`,
+    heard: (text: string) => `Duydum: “${text}”.`,
+    hint: 'Kelimelerle yanıtla, örneğin “1 gönder, 2 atla”.',
+    limit: (count: number, date: string) =>
+      `Ücretsiz planda ayda ${count} kelimeli yanıtı anlıyorum ve ${date} tarihine kadar bitti. Abonelikle istediğin kadar, sesle de yanıtlarsın.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `${name} adresinden yeni: iki haftada ${plural('tr', count, { other: (n) => `${n} e-posta` })}, ${opened} açıldı. Abonelikten çık, hep arşivle ya da her zamanki gibi bırak?`,
+    oneByOne: (items: string) =>
+      `Her onayda bir e-posta gönderiyorum. Önce hangisi: ${items}?`,
+    sending: (to: string) => `${to} adresine gönderiliyor`,
+    sendingIn: (to: string, seconds: number) =>
+      `${seconds} sn sonra ${to} adresine gönderiliyor. Durdurmak için “iptal” yaz.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: bu ay ${plural('tr', count, { other: (n) => `${n} e-posta` })}, hiçbiri sana gerekmedi. Bunları kendisi arşivleyen bir bot yapayım mı?`
+        : `${name}: bu ay ${plural('tr', count, { other: (n) => `${n} e-posta` })}, hiçbiri sana gerekmedi. Bunları kendisi okundu yapan bir bot yapayım mı?`,
+    tidy: (n: number) =>
+      plural('tr', n, {
+        other: (n) =>
+          `${n} sessiz e-postayı önerdiğim gibi toplayayım mı (arşiv ya da okundu)?`,
+      }),
+    unclear: (items: string) =>
+      `Hangisini kastettiğini anlamadım: ${items}. Numarasını yaz.`,
+    waiting: (n: number) =>
+      plural('tr', n, { other: (n) => `Seni bekleyen ${n} iş var:` }),
+    whenDone: (said: string) => `Yapınca “${said}” yaz.`,
+  },
   bots: {
     profile: 'Ne yapıyorum',
     closeProfile: 'Kapat',

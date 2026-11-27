@@ -241,6 +241,7 @@ export const de: Messages = {
             'Die Newsletter des Tages werden zu einer Zusammenfassung nach Thema, jeder Satz verlinkt mit der Mail, aus der er stammt.',
           title: 'Newsletter in einer Zusammenfassung',
         },
+
         bots: {
           description:
             'Beschreib in einem Satz, was mit bestimmten Mails passieren soll, und daraus wird ein Bot mit eigenem Chat. Nur Bots, denen du es erlaubst, handeln von selbst.',
@@ -1239,6 +1240,59 @@ export const de: Messages = {
     skipped: (n: number) => `Übersprungen: ${n}`,
     stale: (n: number) => `Älter als eine Woche: ${n}`,
     skip: 'Überspringen',
+  },
+  decide: {
+    changed: (items: string) =>
+      `${items} hat sich geändert, während du geantwortet hast: sieh es dir noch einmal an.`,
+    did: {
+      always_archive: 'ab jetzt archiviert ein Bot ihre Mails',
+      always_mark_read: 'ab jetzt markiert ein Bot ihre Mails als gelesen',
+      approve: 'erledigt',
+      cancel: 'gestoppt, es wartet wieder auf dich',
+      keep: 'bleibt wie bisher',
+      rewrite: 'Antwort neu geschrieben',
+      shorter: 'Antwort gekürzt',
+      skip: 'übersprungen',
+      unsubscribe: 'abgemeldet',
+    },
+    done: (items: string) => `Erledigt: ${items}.`,
+    draft: 'Meine Antwort:',
+    failed: (items: string) =>
+      `Bei ${items} hat es nicht geklappt: es wartet noch.`,
+    heard: (text: string) => `Gehört: „${text}“.`,
+    hint: 'Antworte in Worten, zum Beispiel „1 senden, 2 überspringen“.',
+    limit: (count: number, date: string) =>
+      `Im kostenlosen Plan verstehe ich ${count} Antworten in Worten im Monat, und bis ${date} sind sie aufgebraucht. Mit einem Abo antwortest du so viel du willst, auch per Sprache.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `Neu von ${name}: ${plural('de', count, { one: (n) => `${n} Mail`, other: (n) => `${n} Mails` })} in zwei Wochen, ${opened} geöffnet. Abmelden, immer archivieren oder wie bisher behalten?`,
+    oneByOne: (items: string) =>
+      `Ich sende eine Mail pro Freigabe. Welche zuerst: ${items}?`,
+    sending: (to: string) => `Wird an ${to} gesendet`,
+    sendingIn: (to: string, seconds: number) =>
+      `Wird in ${seconds} s an ${to} gesendet. Schreib „abbrechen“, um es zu stoppen.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: ${plural('de', count, { one: (n) => `${n} Mail`, other: (n) => `${n} Mails` })} diesen Monat, und keine brauchte dich. Einen Bot machen, der sie selbst archiviert?`
+        : `${name}: ${plural('de', count, { one: (n) => `${n} Mail`, other: (n) => `${n} Mails` })} diesen Monat, und keine brauchte dich. Einen Bot machen, der sie selbst als gelesen markiert?`,
+    tidy: (n: number) =>
+      plural('de', n, {
+        one: (n) =>
+          `${n} leise Mail aufräumen, wie ich vorschlage (archivieren oder als gelesen markieren)?`,
+        other: (n) =>
+          `${n} leise Mails aufräumen, wie ich vorschlage (archivieren oder als gelesen markieren)?`,
+      }),
+    unclear: (items: string) =>
+      `Ich habe nicht verstanden, welche du meinst: ${items}. Schreib ihre Nummer.`,
+    waiting: (n: number) =>
+      plural('de', n, {
+        one: (n) => `${n} Sache wartet auf dich:`,
+        other: (n) => `${n} Sachen warten auf dich:`,
+      }),
+    whenDone: (said: string) => `Schreib „${said}“, sobald du es getan hast.`,
   },
   bots: {
     profile: 'Was ich tue',

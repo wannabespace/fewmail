@@ -796,6 +796,53 @@ export const id: Messages = {
       `Detail pembayaran baru dari ${domain}. Konfirmasi lewat telepon sebelum membayar.`,
     title: 'Cek dulu sebelum bertindak',
   },
+  decide: {
+    changed: (items: string) =>
+      `${items} berubah saat kamu menjawab: lihat lagi.`,
+    did: {
+      always_archive: 'mulai sekarang bot mengarsipkan emailnya',
+      always_mark_read: 'mulai sekarang bot menandai emailnya sudah dibaca',
+      approve: 'selesai',
+      cancel: 'dihentikan, menunggumu lagi',
+      keep: 'tetap seperti biasa',
+      rewrite: 'balasan ditulis ulang',
+      shorter: 'balasan dipersingkat',
+      skip: 'dilewati',
+      unsubscribe: 'berhenti berlangganan',
+    },
+    done: (items: string) => `Selesai: ${items}.`,
+    draft: 'Balasanku:',
+    failed: (items: string) => `Aku gagal untuk ${items}: masih menunggu.`,
+    heard: (text: string) => `Kudengar: “${text}”.`,
+    hint: 'Jawab dengan kata-kata, misalnya “1 kirim, 2 lewati”.',
+    limit: (count: number, date: string) =>
+      `Di paket gratis aku memahami ${count} jawaban dengan kata-kata per bulan, dan sudah habis sampai ${date}. Dengan langganan kamu bisa menjawab sebanyak apa pun, juga dengan suara.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `Baru dari ${name}: ${plural('id', count, { other: (n) => `${n} email` })} dalam dua minggu, ${opened} dibuka. Berhenti berlangganan, selalu arsipkan, atau biarkan seperti biasa?`,
+    oneByOne: (items: string) =>
+      `Aku mengirim satu email per persetujuan. Yang mana dulu: ${items}?`,
+    sending: (to: string) => `Mengirim ke ${to}`,
+    sendingIn: (to: string, seconds: number) =>
+      `Mengirim ke ${to} dalam ${seconds} dtk. Tulis “batal” untuk menghentikannya.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: ${plural('id', count, { other: (n) => `${n} email` })} bulan ini dan tak satu pun butuh kamu. Buat bot yang mengarsipkannya sendiri?`
+        : `${name}: ${plural('id', count, { other: (n) => `${n} email` })} bulan ini dan tak satu pun butuh kamu. Buat bot yang menandainya sudah dibaca sendiri?`,
+    tidy: (n: number) =>
+      plural('id', n, {
+        other: (n) =>
+          `Rapikan ${n} email tenang seperti saranku (arsip atau tandai dibaca)?`,
+      }),
+    unclear: (items: string) =>
+      `Aku tidak paham yang mana: ${items}. Tulis nomornya.`,
+    waiting: (n: number) =>
+      plural('id', n, { other: (n) => `${n} hal menunggumu:` }),
+    whenDone: (said: string) => `Tulis “${said}” setelah kamu melakukannya.`,
+  },
   bots: {
     profile: 'Yang kulakukan',
     closeProfile: 'Tutup',

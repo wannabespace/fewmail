@@ -223,7 +223,7 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
 export const PLAN_ALLOWANCE_USD = {
   lite: 2.5,
   max: 20.4,
-  pro: 5.69,
+  pro: 5.68,
   trial: 2.5,
 } satisfies Record<Exclude<Plan, 'free'>, number>
 
@@ -389,15 +389,20 @@ export const botOfCard = (card: {
   analysis: { botId: string | null } | null
 }) => card.action.botId ?? card.analysis?.botId ?? 'fewmail'
 
-/** `message` / `answer`: the chat; `nudge`: what the bot said it would come back with (`remind_later`); `no_plan` / `spent`: why it could not answer; `digest`: the bot's report of the day. */
+/** `message` / `answer`: the chat; `decided`: what the user's words settled, computed (`services/decide.ts`); `nudge`: what the bot said it would come back with (`remind_later`); `no_plan` / `spent` / `limit`: why it could not answer (`limit`: Free's answers in words are used up); `digest`: the bot's report of the day. */
 export const BOT_POST_KINDS = [
   'message',
   'answer',
+  'decided',
   'nudge',
   'no_plan',
   'spent',
+  'limit',
   'digest',
 ] as const
+
+/** Free's answers in words a month (`services/decide.ts`): each costs a Jev decision, about $0.0002, and nothing else on Free could settle a card. */
+export const FREE_DECISIONS = 30
 export type BotPostKind = (typeof BOT_POST_KINDS)[number]
 
 /** What Fewmail's digest counted when it was written: the headline and its sentence, kept as they were that morning. */

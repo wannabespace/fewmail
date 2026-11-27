@@ -611,6 +611,50 @@ export const zh: Messages = {
     followUp: '跟进',
     noReply: '尚未回复',
   },
+  decide: {
+    changed: (items: string) => `你回复时${items}有变化：请再看一遍。`,
+    did: {
+      always_archive: '以后由机器人归档他们的邮件',
+      always_mark_read: '以后由机器人把他们的邮件标为已读',
+      approve: '已完成',
+      cancel: '已停止，它又在等你',
+      keep: '保持原样',
+      rewrite: '已重写回复',
+      shorter: '已缩短回复',
+      skip: '已跳过',
+      unsubscribe: '已退订',
+    },
+    done: (items: string) => `完成：${items}。`,
+    draft: '我的回复：',
+    failed: (items: string) => `${items}没能完成：它仍在等待。`,
+    heard: (text: string) => `听到：“${text}”。`,
+    hint: '用文字回答，例如“1 发送，2 跳过”。',
+    limit: (count: number, date: string) =>
+      `免费版每月我能理解 ${count} 条文字回答，到 ${date} 前已用完。订阅后可以随意回答，也能用语音。`,
+    newSender: (name: string, count: number, opened: number) =>
+      `来自 ${name} 的新发件人：两周 ${plural('zh', count, { other: (n) => `${n} 封邮件` })}，打开了 ${opened} 封。退订、总是归档，还是照常保留？`,
+    oneByOne: (items: string) =>
+      `每次批准我只发一封邮件。先发哪一封：${items}？`,
+    sending: (to: string) => `正在发送给 ${to}`,
+    sendingIn: (to: string, seconds: number) =>
+      `${seconds} 秒后发送给 ${to}。写“取消”可停止。`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}：本月 ${plural('zh', count, { other: (n) => `${n} 封邮件` })}，没有一封需要你。要建一个自动归档它们的机器人吗？`
+        : `${name}：本月 ${plural('zh', count, { other: (n) => `${n} 封邮件` })}，没有一封需要你。要建一个自动标为已读的机器人吗？`,
+    tidy: (n: number) =>
+      plural('zh', n, {
+        other: (n) => `按我的建议整理 ${n} 封安静的邮件（归档或标为已读）？`,
+      }),
+    unclear: (items: string) => `没明白你指哪一项：${items}。请写它的编号。`,
+    waiting: (n: number) =>
+      plural('zh', n, { other: (n) => `有 ${n} 件事在等你：` }),
+    whenDone: (said: string) => `做完后写“${said}”。`,
+  },
   bots: {
     profile: '我在做什么',
     closeProfile: '关闭',

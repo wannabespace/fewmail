@@ -810,6 +810,59 @@ export const pt: Messages = {
       `Novos dados de pagamento de ${domain}. Confirme por telefone antes de pagar.`,
     title: 'Verifique antes de agir',
   },
+  decide: {
+    changed: (items: string) =>
+      `${items} mudou enquanto respondias: vê de novo.`,
+    did: {
+      always_archive: 'de agora em diante um bot arquiva os e-mails deles',
+      always_mark_read:
+        'de agora em diante um bot marca os e-mails deles como lidos',
+      approve: 'feito',
+      cancel: 'parado, espera por ti de novo',
+      keep: 'fica como sempre',
+      rewrite: 'resposta reescrita',
+      shorter: 'resposta mais curta',
+      skip: 'ignorado',
+      unsubscribe: 'subscrição cancelada',
+    },
+    done: (items: string) => `Feito: ${items}.`,
+    draft: 'A minha resposta:',
+    failed: (items: string) => `Não consegui com ${items}: ainda espera.`,
+    heard: (text: string) => `Ouvi: “${text}”.`,
+    hint: 'Responde por palavras, por exemplo “1 envia, 2 ignora”.',
+    limit: (count: number, date: string) =>
+      `No plano gratuito entendo ${count} respostas por palavras por mês, e acabaram até ${date}. Com uma subscrição respondes quanto quiseres, também por voz.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `Novo de ${name}: ${plural('pt', count, { one: (n) => `${n} e-mail`, other: (n) => `${n} e-mails` })} em duas semanas, ${opened} abertos. Cancelar a subscrição, arquivar sempre ou manter como sempre?`,
+    oneByOne: (items: string) =>
+      `Envio um e-mail por aprovação. Qual primeiro: ${items}?`,
+    sending: (to: string) => `A enviar para ${to}`,
+    sendingIn: (to: string, seconds: number) =>
+      `Envio para ${to} daqui a ${seconds} s. Escreve “cancela” para parar.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: ${plural('pt', count, { one: (n) => `${n} e-mail`, other: (n) => `${n} e-mails` })} este mês e nenhum precisou de ti. Crio um bot que os arquiva sozinho?`
+        : `${name}: ${plural('pt', count, { one: (n) => `${n} e-mail`, other: (n) => `${n} e-mails` })} este mês e nenhum precisou de ti. Crio um bot que os marca como lidos sozinho?`,
+    tidy: (n: number) =>
+      plural('pt', n, {
+        one: (n) =>
+          `Arrumar ${n} e-mail calmo como proponho (arquivar ou marcar como lido)?`,
+        other: (n) =>
+          `Arrumar ${n} e-mails calmos como proponho (arquivar ou marcar como lidos)?`,
+      }),
+    unclear: (items: string) =>
+      `Não percebi qual queres dizer: ${items}. Escreve o número.`,
+    waiting: (n: number) =>
+      plural('pt', n, {
+        one: (n) => `${n} coisa espera por ti:`,
+        other: (n) => `${n} coisas esperam por ti:`,
+      }),
+    whenDone: (said: string) => `Escreve “${said}” quando o tiveres feito.`,
+  },
   bots: {
     profile: 'O que eu faço',
     closeProfile: 'Fechar',

@@ -623,6 +623,54 @@ export const ko: Messages = {
     followUp: '후속 연락',
     noReply: '아직 답장 없음',
   },
+  decide: {
+    changed: (items: string) =>
+      `답하는 동안 ${items}이(가) 바뀌었어요. 다시 확인해 주세요.`,
+    did: {
+      always_archive: '이제 봇이 이 메일을 보관해요',
+      always_mark_read: '이제 봇이 이 메일을 읽음으로 표시해요',
+      approve: '완료',
+      cancel: '멈췄어요, 다시 기다리고 있어요',
+      keep: '평소대로 두었어요',
+      rewrite: '답장을 다시 썼어요',
+      shorter: '답장을 줄였어요',
+      skip: '건너뛰었어요',
+      unsubscribe: '구독 취소했어요',
+    },
+    done: (items: string) => `완료: ${items}.`,
+    draft: '내 답장:',
+    failed: (items: string) =>
+      `${items}은(는) 하지 못했어요. 아직 기다리고 있어요.`,
+    heard: (text: string) => `들은 말: “${text}”.`,
+    hint: '말로 답해 주세요. 예: “1 보내, 2 건너뛰어”.',
+    limit: (count: number, date: string) =>
+      `무료 플랜에서는 말로 된 답을 한 달에 ${count}번 이해해요. ${date}까지 다 썼어요. 구독하면 음성으로도 원하는 만큼 답할 수 있어요.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `${name}에서 새로 옴: 2주 동안 ${plural('ko', count, { other: (n) => `${n}통` })}, ${opened}통 열람. 구독 취소, 항상 보관, 평소대로 중 무엇으로 할까요?`,
+    oneByOne: (items: string) =>
+      `승인 한 번에 한 통씩 보내요. 무엇부터: ${items}?`,
+    sending: (to: string) => `${to}에게 보내는 중`,
+    sendingIn: (to: string, seconds: number) =>
+      `${seconds}초 후 ${to}에게 보내요. 멈추려면 “취소”라고 쓰세요.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: 이번 달 ${plural('ko', count, { other: (n) => `${n}통` })}, 모두 당신이 필요 없었어요. 알아서 보관하는 봇을 만들까요?`
+        : `${name}: 이번 달 ${plural('ko', count, { other: (n) => `${n}통` })}, 모두 당신이 필요 없었어요. 알아서 읽음 표시하는 봇을 만들까요?`,
+    tidy: (n: number) =>
+      plural('ko', n, {
+        other: (n) =>
+          `조용한 메일 ${n}통을 제안대로 정리할까요(보관 또는 읽음)?`,
+      }),
+    unclear: (items: string) =>
+      `어느 것인지 모르겠어요: ${items}. 번호를 써 주세요.`,
+    waiting: (n: number) =>
+      plural('ko', n, { other: (n) => `${n}건이 기다리고 있어요:` }),
+    whenDone: (said: string) => `하고 나면 “${said}”라고 써 주세요.`,
+  },
   bots: {
     profile: '하는 일',
     closeProfile: '닫기',

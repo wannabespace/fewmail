@@ -820,6 +820,64 @@ export const pl: Messages = {
       `Nowe dane do płatności od ${domain}. Potwierdź telefonicznie przed zapłatą.`,
     title: 'Sprawdź, zanim zareagujesz',
   },
+  decide: {
+    changed: (items: string) =>
+      `${items}: zmieniło się, gdy odpowiadałeś. Spójrz jeszcze raz.`,
+    did: {
+      always_archive: 'od teraz bot archiwizuje ich maile',
+      always_mark_read: 'od teraz bot oznacza ich maile jako przeczytane',
+      approve: 'zrobione',
+      cancel: 'zatrzymane, znów czeka na ciebie',
+      keep: 'zostawione jak jest',
+      rewrite: 'odpowiedź napisana od nowa',
+      shorter: 'odpowiedź skrócona',
+      skip: 'pominięte',
+      unsubscribe: 'wypisano',
+    },
+    done: (items: string) => `Gotowe: ${items}.`,
+    draft: 'Moja odpowiedź:',
+    failed: (items: string) => `Nie udało się dla ${items}: wciąż czeka.`,
+    heard: (text: string) => `Usłyszałem: „${text}”.`,
+    hint: 'Odpowiadaj słowami, na przykład „1 wyślij, 2 pomiń”.',
+    limit: (count: number, date: string) =>
+      `W darmowym planie rozumiem ${count} odpowiedzi słowami miesięcznie i do ${date} się skończyły. Z subskrypcją odpowiadasz, ile chcesz, także głosem.`,
+    newSender: (name: string, count: number, opened: number) =>
+      `Nowe od ${name}: ${plural('pl', count, { one: (n) => `${n} mail`, few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} w dwa tygodnie, otwarte ${opened}. Wypisać się, zawsze archiwizować czy zostawić jak jest?`,
+    oneByOne: (items: string) =>
+      `Wysyłam jeden mail na jedną zgodę. Który najpierw: ${items}?`,
+    sending: (to: string) => `Wysyłam do ${to}`,
+    sendingIn: (to: string, seconds: number) =>
+      `Wysyłam do ${to} za ${seconds} s. Napisz „anuluj”, żeby zatrzymać.`,
+    suggestion: (
+      name: string,
+      count: number,
+      effect: 'archive' | 'mark_read'
+    ) =>
+      effect === 'archive'
+        ? `${name}: ${plural('pl', count, { one: (n) => `${n} mail`, few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} w tym miesiącu i żaden cię nie potrzebował. Zrobić bota, który sam je archiwizuje?`
+        : `${name}: ${plural('pl', count, { one: (n) => `${n} mail`, few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} w tym miesiącu i żaden cię nie potrzebował. Zrobić bota, który sam oznacza je jako przeczytane?`,
+    tidy: (n: number) =>
+      plural('pl', n, {
+        one: (n) =>
+          `Uporządkować ${n} cichy mail, jak proponuję (archiwum lub przeczytane)?`,
+        few: (n) =>
+          `Uporządkować ${n} ciche maile, jak proponuję (archiwum lub przeczytane)?`,
+        many: (n) =>
+          `Uporządkować ${n} cichych maili, jak proponuję (archiwum lub przeczytane)?`,
+        other: (n) =>
+          `Uporządkować ${n} cichego maila, jak proponuję (archiwum lub przeczytane)?`,
+      }),
+    unclear: (items: string) =>
+      `Nie zrozumiałem, o którą sprawę chodzi: ${items}. Napisz jej numer.`,
+    waiting: (n: number) =>
+      plural('pl', n, {
+        one: (n) => `Czeka na ciebie ${n} sprawa:`,
+        few: (n) => `Czekają na ciebie ${n} sprawy:`,
+        many: (n) => `Czeka na ciebie ${n} spraw:`,
+        other: (n) => `Czeka na ciebie ${n} sprawy:`,
+      }),
+    whenDone: (said: string) => `Napisz „${said}”, gdy to zrobisz.`,
+  },
   bots: {
     profile: 'Co robię',
     closeProfile: 'Zamknij',

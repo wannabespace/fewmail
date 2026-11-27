@@ -10,6 +10,7 @@ import {
   BOT_HISTORY,
   BOT_MESSAGE_CHARS,
   BOT_REPLY_QUOTE_CHARS,
+  FREE_DECISIONS,
   PAID_PLANS,
   PLAN_ALLOWANCE_USD,
   PRICE_USD,
@@ -65,6 +66,7 @@ import {
   NEEDS_REPLY,
 } from '../services/classify'
 import { CHECKED_PER_EMAIL, EVIDENCE_CHARS } from '../services/commitments'
+import { DECISION_PROMPT_CHARS } from '../services/decide'
 import {
   READING_SHOWN,
   BODY_CHARS as READING_BODY_CHARS,
@@ -204,6 +206,8 @@ export interface Use {
   sent: number
   spokenChars: number
   spokenReplies: number
+  /** Answers in words to what a bot asked, each read by Jev (`services/decide.ts`). */
+  decisions: number
   toolResultTokens: number
   voiceChars: number
   voiceSeconds: number
@@ -236,6 +240,7 @@ export const TYPICAL: Use = {
   sent: 150,
   spokenChars: 600,
   spokenReplies: 20,
+  decisions: 60,
   toolResultTokens: 1500,
   voiceChars: 700,
   voiceSeconds: 20,
@@ -271,6 +276,7 @@ export const HEAVY: Use = {
   sent: 600,
   spokenChars: SPEECH_CHARS,
   spokenReplies: 300,
+  decisions: 300,
   toolResultTokens: 3000,
   voiceChars: 1000,
   voiceSeconds: 120,
@@ -479,10 +485,17 @@ export const firstWeekCost = (use: Use, agent: boolean) =>
   FIRST_WEEK_LIMIT * inboundJevCost(use) +
   (agent ? FIRST_ISSUE_DAYS * issueCost(use) + introCost() : 0)
 
-/** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, the user's style and autocomplete. */
+/** The reader on one answer in words: its questions and the message, no tools, no history, no mail. */
+export const decisionCost = () =>
+  llm(JEV_MODEL_ID, instructionTokens(DECISION_PROMPT_CHARS), 0)
+
+/** What no plan limit counts: Jev on all mail and on the user's answers in words (Free's up to `FREE_DECISIONS`) for everyone, and for the agent the digest, promises, notes, the user's style and autocomplete. */
 export const backgroundCost = (use: Use, agent: boolean) => {
   const mailJev =
-    use.inbound * inboundJevCost(use) + use.sent * sentJevCost(use)
+    use.inbound * inboundJevCost(use) +
+    use.sent * sentJevCost(use) +
+    (agent ? use.decisions : Math.min(use.decisions, FREE_DECISIONS)) *
+      decisionCost()
   if (!agent) {
     return { jev: mailJev, total: mailJev }
   }
@@ -661,7 +674,8 @@ const printUnits = (lines: string[], name: string, use: Use) => {
     `${name}`,
     `  incoming email, Jev (every plan): ${usd(inboundJevCost(use))}`,
     `  counted email: ${usd(email.total)} (text ${usd(email.text)}, attachments ${usd(email.ocr)}, draft ${usd(email.draft)}, link ${usd(email.link)})`,
-    `  counted message: ${usd(messageCost(use))} (chat ${usd(chatCost(use))}, Ask ${usd(askCost())}, suggestions ${usd(suggestCost())})`
+    `  counted message: ${usd(messageCost(use))} (chat ${usd(chatCost(use))}, Ask ${usd(askCost())}, suggestions ${usd(suggestCost())})`,
+    `  answer in words, Jev (every plan, not counted): ${usd(decisionCost())}, ${use.decisions} a month ${usd(use.decisions * decisionCost())}; Free reads ${FREE_DECISIONS} a month at most`
   )
   for (const [what, cost] of Object.entries(backgroundCost(use, true))) {
     lines.push(`  a month of ${what}: ${usd(cost)}`)
