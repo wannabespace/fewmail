@@ -847,6 +847,13 @@ export const en = {
     whenDone: (said: string) => `Write “${said}” once you have.`,
   },
   bots: {
+    voiceMessage: 'Voice message',
+    record: 'Record a voice message',
+    stopRecording: 'Send the voice message',
+    cancelRecording: 'Discard the voice message',
+    micDenied:
+      'Fewmail cannot use the microphone. Allow it in your browser’s site settings.',
+    hearFailed: 'I could not make that out. Try again or type it.',
     profile: 'What I do',
     closeProfile: 'Close',
     since: (date: string) => `Working since ${date}`,

@@ -672,6 +672,13 @@ export const ko: Messages = {
     whenDone: (said: string) => `하고 나면 “${said}”라고 써 주세요.`,
   },
   bots: {
+    voiceMessage: '음성 메시지',
+    record: '음성 메시지 녹음',
+    stopRecording: '음성 메시지 보내기',
+    cancelRecording: '음성 메시지 버리기',
+    micDenied:
+      'Fewmail이 마이크를 사용할 수 없어요. 브라우저의 사이트 설정에서 허용해 주세요.',
+    hearFailed: '알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
     profile: '하는 일',
     closeProfile: '닫기',
     since: (date: string) => `${date}부터 일하는 중`,

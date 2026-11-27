@@ -844,6 +844,13 @@ export const id: Messages = {
     whenDone: (said: string) => `Tulis “${said}” setelah kamu melakukannya.`,
   },
   bots: {
+    voiceMessage: 'Pesan suara',
+    record: 'Rekam pesan suara',
+    stopRecording: 'Kirim pesan suara',
+    cancelRecording: 'Buang pesan suara',
+    micDenied:
+      'Fewmail tidak bisa memakai mikrofon. Izinkan di pengaturan situs browsermu.',
+    hearFailed: 'Aku tidak menangkapnya. Coba lagi atau ketik.',
     profile: 'Yang kulakukan',
     closeProfile: 'Tutup',
     since: (date: string) => `Bekerja sejak ${date}`,

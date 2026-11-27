@@ -91,6 +91,7 @@ export type BotEntry =
       threadId: string | null
       tools: string[]
       type: 'post'
+      voice: boolean
     }
 
 /** What a reply quotes: whose words and what they said. */
@@ -291,6 +292,7 @@ const postEntries = async (userId: string, posts: Post[]) => {
             threadId: post.threadId,
             tools: post.tools,
             type: 'post',
+            voice: post.voice,
           }
     )
   )
@@ -653,7 +655,7 @@ export const addBotPost = async (
     Partial<
       Pick<
         typeof botPosts.$inferInsert,
-        'actionIds' | 'replyTo' | 'text' | 'tools'
+        'actionIds' | 'replyTo' | 'text' | 'tools' | 'voice'
       >
     >
 ) => {

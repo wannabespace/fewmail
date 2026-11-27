@@ -1293,6 +1293,13 @@ export const uk: Messages = {
     whenDone: (said: string) => `Напиши «${said}», коли зробиш.`,
   },
   bots: {
+    voiceMessage: 'Голосове повідомлення',
+    record: 'Записати голосове',
+    stopRecording: 'Надіслати голосове',
+    cancelRecording: 'Скасувати голосове',
+    micDenied:
+      'Fewmail не має доступу до мікрофона. Дозволь його в налаштуваннях сайту в браузері.',
+    hearFailed: 'Не вдалося розібрати. Спробуй ще раз або напиши.',
     profile: 'Що я роблю',
     closeProfile: 'Закрити',
     since: (date: string) => `Працює з ${date}`,

@@ -1,30 +1,32 @@
 import { BOT_MESSAGE_CHARS } from '@fewmail/shared/agent'
-import { Button } from '@fewmail/ui/components/button'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupTextarea,
 } from '@fewmail/ui/components/input-group'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import {
   ArrowUp02Icon,
   Cancel01Icon,
+  Mic01Icon,
   ReplyIcon,
+  StopIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { skipToken, useQuery } from '@tanstack/react-query'
 import { useLocation } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { useSubscription } from 'seitu/react'
+import { toast } from 'sonner'
 
 import { ReplyQuote, replyStore } from '~/components/bot-chat'
 import type { Ask } from '~/components/bot-chat'
 import type { HomeBot } from '~/components/bot-list'
+import { upgradeStore } from '~/components/upgrade-dialog'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
-import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 
 declare module '@tanstack/react-router' {
@@ -33,15 +35,82 @@ declare module '@tanstack/react-router' {
   }
 }
 
-/** What the user may send the open bot in a tap, written by the agent for its chat as it stands; none without the agent or past the allowance, none while it answers. */
-const useSuggestions = (bot: string, isSending: boolean) => {
+/** Two minutes of voice: the API refuses more (VOICE_BYTES). */
+const VOICE_MS = 120_000
+
+type Recording = {
+  recorder: MediaRecorder
+  stream: MediaStream
+  isDiscarded: boolean
+}
+
+/** The mic: a voice message is heard by the API and sent as its words, marked as voice so the answer is spoken back. Free opens the upgrade instead. */
+const useVoice = (onHeard: (text: string) => void) => {
+  const t = useT()
   const hasAgent = useHasAgent()
-  const { data } = useQuery(
-    orpc.bots.suggestions.queryOptions({
-      input: hasAgent && !isSending ? { bot } : skipToken,
-    })
-  )
-  return data ?? []
+  const [state, setState] = useState<'idle' | 'recording' | 'hearing'>('idle')
+  const recording = useRef<Recording | null>(null)
+  const hearAudio = async (audio: Blob) => {
+    setState('hearing')
+    const form = new FormData()
+    form.append('audio', audio, 'voice.webm')
+    const response = await fetch(`${import.meta.env.API_URL}/voice/hear`, {
+      body: form,
+      credentials: 'include',
+      method: 'POST',
+    }).catch(() => null)
+    setState('idle')
+    if (response?.status === 429) {
+      upgradeStore.set('chat')
+      return
+    }
+    const heard = response?.ok
+      ? ((await response.json()) as { text: string }).text.trim()
+      : ''
+    if (!heard) {
+      toast.error(t.bots.hearFailed)
+      return
+    }
+    onHeard(heard)
+  }
+  const start = async () => {
+    if (!hasAgent) {
+      upgradeStore.set('chat')
+      return
+    }
+    const stream = await navigator.mediaDevices
+      ?.getUserMedia({ audio: true })
+      .catch(() => null)
+    if (!stream) {
+      toast.error(t.bots.micDenied)
+      return
+    }
+    const recorder = new MediaRecorder(stream)
+    const chunks: Blob[] = []
+    const current: Recording = { isDiscarded: false, recorder, stream }
+    recorder.ondataavailable = (event) => chunks.push(event.data)
+    recorder.onstop = () => {
+      stream.getTracks().forEach((track) => track.stop())
+      recording.current = null
+      if (current.isDiscarded) {
+        setState('idle')
+        return
+      }
+      void hearAudio(new Blob(chunks, { type: recorder.mimeType }))
+    }
+    recording.current = current
+    recorder.start()
+    setState('recording')
+    setTimeout(() => recording.current === current && recorder.stop(), VOICE_MS)
+  }
+  const stop = (isDiscarded: boolean) => {
+    if (recording.current) {
+      recording.current.isDiscarded = isDiscarded
+      recording.current.recorder.stop()
+    }
+  }
+  useEffect(() => () => stop(true), [])
+  return { cancel: () => stop(true), send: () => stop(false), start, state }
 }
 
 /** Where the user writes to the open bot: ⏎ sends, ⇧⏎ breaks the line, `/` comes here and esc drops the reply, then leaves. A bot opened with a click (`writeToBot`) comes here at once, never one stepped to with `[ ]`, whose next key would be typed. */
@@ -61,7 +130,11 @@ export const BotComposer = ({
   const [text, setText] = useState('')
   const reply = useSubscription(replyStore)
   const replyTo = reply?.bot === bot.bot ? reply.quote : undefined
-  const suggestions = useSuggestions(bot.bot, isSending)
+  const voice = useVoice((heard) => {
+    posthog.capture('bot_voice_sent', { system: bot.bot === 'fewmail' })
+    onSend({ replyTo, text: heard, voice: true })
+    replyStore.set(null)
+  })
   useHotkey('/', () => ref.current?.focus(), { enabled: isActive })
   const isMobile = useIsMobile()
   const clickedAt = useLocation({
@@ -94,28 +167,6 @@ export const BotComposer = ({
         send()
       }}
     >
-      {!text && !replyTo && !isSending && suggestions.length > 0 && (
-        <div
-          className="scroll-fade-x -m-1 flex scrollbar-none gap-1.5 overflow-x-auto overscroll-x-contain p-1"
-          data-mask
-        >
-          {suggestions.map((suggestion) => (
-            <Button
-              key={suggestion}
-              size="sm"
-              variant="secondary"
-              onClick={() => {
-                posthog.capture('bot_suggestion_asked', {
-                  system: bot.bot === 'fewmail',
-                })
-                onSend({ text: suggestion })
-              }}
-            >
-              {suggestion}
-            </Button>
-          ))}
-        </div>
-      )}
       <InputGroup variant="composer">
         {replyTo && (
           <InputGroupAddon align="block-start">
@@ -158,6 +209,37 @@ export const BotComposer = ({
           }}
         />
         <InputGroupAddon align="inline-end">
+          {voice.state === 'recording' && (
+            <InputGroupButton
+              size="icon-sm"
+              aria-label={t.bots.cancelRecording}
+              onClick={voice.cancel}
+            >
+              <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+            </InputGroupButton>
+          )}
+          {!text.trim() && (
+            <InputGroupButton
+              size="icon-sm"
+              variant={voice.state === 'recording' ? 'destructive' : 'ghost'}
+              aria-label={
+                voice.state === 'recording'
+                  ? t.bots.stopRecording
+                  : t.bots.record
+              }
+              disabled={isSending || voice.state === 'hearing'}
+              onClick={voice.state === 'recording' ? voice.send : voice.start}
+            >
+              {voice.state === 'hearing' ? (
+                <Spinner />
+              ) : (
+                <HugeiconsIcon
+                  icon={voice.state === 'recording' ? StopIcon : Mic01Icon}
+                  strokeWidth={2}
+                />
+              )}
+            </InputGroupButton>
+          )}
           <InputGroupButton
             type="submit"
             size="icon-sm"

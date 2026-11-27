@@ -879,6 +879,13 @@ export const pl: Messages = {
     whenDone: (said: string) => `Napisz „${said}”, gdy to zrobisz.`,
   },
   bots: {
+    voiceMessage: 'Wiadomość głosowa',
+    record: 'Nagraj wiadomość głosową',
+    stopRecording: 'Wyślij wiadomość głosową',
+    cancelRecording: 'Odrzuć wiadomość głosową',
+    micDenied:
+      'Fewmail nie ma dostępu do mikrofonu. Zezwól na niego w ustawieniach strony w przeglądarce.',
+    hearFailed: 'Nie udało się zrozumieć. Spróbuj ponownie albo napisz.',
     profile: 'Co robię',
     closeProfile: 'Zamknij',
     since: (date: string) => `Działa od ${date}`,

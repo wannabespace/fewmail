@@ -656,6 +656,12 @@ export const zh: Messages = {
     whenDone: (said: string) => `做完后写“${said}”。`,
   },
   bots: {
+    voiceMessage: '语音消息',
+    record: '录一条语音消息',
+    stopRecording: '发送语音消息',
+    cancelRecording: '丢弃语音消息',
+    micDenied: 'Fewmail 无法使用麦克风。请在浏览器的网站设置中允许。',
+    hearFailed: '没听清。请再试一次或直接输入。',
     profile: '我在做什么',
     closeProfile: '关闭',
     since: (date: string) => `自 ${date} 起工作`,

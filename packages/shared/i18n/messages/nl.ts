@@ -852,6 +852,13 @@ export const nl: Messages = {
     whenDone: (said: string) => `Schrijf ‘${said}’ als je het gedaan hebt.`,
   },
   bots: {
+    voiceMessage: 'Spraakbericht',
+    record: 'Spraakbericht opnemen',
+    stopRecording: 'Spraakbericht versturen',
+    cancelRecording: 'Spraakbericht weggooien',
+    micDenied:
+      'Fewmail kan de microfoon niet gebruiken. Sta hem toe in de site-instellingen van je browser.',
+    hearFailed: 'Dat verstond ik niet. Probeer het opnieuw of typ het.',
     profile: 'Wat ik doe',
     closeProfile: 'Sluiten',
     since: (date: string) => `Actief sinds ${date}`,

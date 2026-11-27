@@ -676,6 +676,13 @@ export const hi: Messages = {
     whenDone: (said: string) => `कर लेने पर “${said}” लिखो।`,
   },
   bots: {
+    voiceMessage: 'वॉइस मैसेज',
+    record: 'वॉइस मैसेज रिकॉर्ड करो',
+    stopRecording: 'वॉइस मैसेज भेजो',
+    cancelRecording: 'वॉइस मैसेज हटाओ',
+    micDenied:
+      'Fewmail माइक्रोफ़ोन इस्तेमाल नहीं कर पा रहा। ब्राउज़र की साइट सेटिंग में इसकी अनुमति दो।',
+    hearFailed: 'समझ नहीं आया। फिर से कोशिश करो या लिख दो।',
     profile: 'मैं क्या करता हूँ',
     closeProfile: 'बंद करें',
     since: (date: string) => `${date} से काम कर रहा है`,

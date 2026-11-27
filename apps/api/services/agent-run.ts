@@ -473,7 +473,7 @@ const quoteFor = (quote: { from: 'bot' | 'user'; text: string }) =>
 /** Keeps the user's message; what the bot reads is its chat so far, then the message with what it replies to. */
 const keepMessage = async (
   userId: string,
-  message: { bot: string; replyTo?: string; text: string }
+  message: { bot: string; replyTo?: string; text: string; voice?: boolean }
 ) => {
   const [history, quotes] = await Promise.all([
     botHistory(userId, message.bot),
@@ -531,6 +531,7 @@ export const askBot = async function* askBot(
     bot,
     replyTo,
     text,
+    voice,
   })
   // Before any agent turn: an answer to what the bot asked is settled by the reader, never by the agent.
   const decided = await decide(userId, {

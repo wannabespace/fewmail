@@ -98,7 +98,7 @@ export const whatsappLinks = d.snakeCase.table('whatsapp_links', {
     .references(() => users.id, { onDelete: 'cascade' }),
 })
 
-/** Shared by the API and the worker: a bot message → the action it shows, a chat → the draft it is editing or its last question and answer, and WhatsApp inbound ids already handled (no action). Keys carry chat ids and phones, hence searchable. */
+/** Shared by the API and the worker: a bot message → the action or the list it shows, a chat → the draft it is editing or its last question and answer, and WhatsApp inbound ids already handled (no action). Keys carry chat ids and phones, hence searchable. */
 export const botMessages = d.snakeCase.table(
   'bot_messages',
   {
@@ -106,6 +106,8 @@ export const botMessages = d.snakeCase.table(
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     exchange: encryptedJson<{ answer: string; question: string }>(),
     key: searchableText().primaryKey(),
+    /** A list the bot sent: the keys of its items in order (`services/decide.ts`), so a reply to it binds what it showed. */
+    shown: d.text().array(),
   },
   (table) => [d.index('bot_messages_created_at_idx').on(table.createdAt)]
 )

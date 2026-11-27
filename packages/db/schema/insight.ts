@@ -209,6 +209,8 @@ export const botPosts = d.snakeCase.table(
     /** The agent's tools an answer used, in the order it called them: the chat shows them as its steps. */
     tools: d.text().array().default([]).notNull(),
     userId: userId(),
+    /** A `message` the user spoke (its text is the transcript, the audio is never kept): its answer is read aloud too. */
+    voice: d.boolean().default(false).notNull(),
   },
   (table) => [
     d.index('bot_posts_user_bot_idx').on(table.userId, table.bot, table.dueAt),

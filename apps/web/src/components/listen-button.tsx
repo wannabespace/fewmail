@@ -82,6 +82,12 @@ const play = (path: string, onError: () => void) => {
   void audio.play().catch(end)
 }
 
+/** Plays a spoken path at once, as the button would: a bot's answer to a voice message reads itself out. */
+export const speakAloud = (path: string) => {
+  stop()
+  play(path, stop)
+}
+
 /**
  * Spoken by the API on demand, which takes a few seconds; the audio element carries the session cookie (same site). Every
  * button on the same path shows one playback, which pauses and resumes where it stopped. `text` is what the API speaks,

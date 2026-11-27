@@ -836,6 +836,13 @@ export const tr: Messages = {
     whenDone: (said: string) => `Yapınca “${said}” yaz.`,
   },
   bots: {
+    voiceMessage: 'Sesli mesaj',
+    record: 'Sesli mesaj kaydet',
+    stopRecording: 'Sesli mesajı gönder',
+    cancelRecording: 'Sesli mesajı sil',
+    micDenied:
+      'Fewmail mikrofonu kullanamıyor. Tarayıcının site ayarlarından izin ver.',
+    hearFailed: 'Anlayamadım. Tekrar dene ya da yaz.',
     profile: 'Ne yapıyorum',
     closeProfile: 'Kapat',
     since: (date: string) => `${date} tarihinden beri çalışıyor`,

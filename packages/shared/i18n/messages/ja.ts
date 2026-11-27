@@ -671,6 +671,13 @@ export const ja: Messages = {
     whenDone: (said: string) => `済んだら「${said}」と書いてください。`,
   },
   bots: {
+    voiceMessage: '音声メッセージ',
+    record: '音声メッセージを録音',
+    stopRecording: '音声メッセージを送信',
+    cancelRecording: '音声メッセージを破棄',
+    micDenied:
+      'Fewmailはマイクを使えません。ブラウザのサイト設定で許可してください。',
+    hearFailed: '聞き取れませんでした。もう一度話すか、入力してください。',
     profile: '担当していること',
     closeProfile: '閉じる',
     since: (date: string) => `${date}から稼働中`,

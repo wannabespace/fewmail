@@ -1,5 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { BOT_REACTIONS, cardPayload } from '@fewmail/shared/agent'
+import { cardPayload } from '@fewmail/shared/agent'
 import type { BotReaction, DigestCounts } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
@@ -14,7 +14,6 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@fewmail/ui/components/context-menu'
 import {
@@ -30,11 +29,6 @@ import {
   MessageScrollerItem,
   useMessageScroller,
 } from '@fewmail/ui/components/message-scroller'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
 import {
@@ -44,16 +38,15 @@ import {
   TraceLine,
   TraceTitle,
 } from '@fewmail/ui/components/trace'
-import { cn } from '@fewmail/ui/lib/utils'
 import {
   Cancel01Icon,
   Clock01Icon,
   Copy01Icon,
   DashboardSquare01Icon,
   Mail01Icon,
+  Mic01Icon,
   NextIcon,
   ReplyIcon,
-  SmilePlusIcon,
   Tick02Icon,
   Wrench01Icon,
   ZapIcon,
@@ -61,7 +54,6 @@ import {
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
-import type { InfiniteData } from '@tanstack/react-query'
 import { isSameDay, isToday } from 'date-fns'
 import {
   createContext,
@@ -80,16 +72,12 @@ import { cardsLine, digestHeadline, isBoardBot } from '~/components/bot-list'
 import type { HomeBot } from '~/components/bot-list'
 import { ConsentDetails } from '~/components/consent-details'
 import { expandRow } from '~/components/expand-row'
-import {
-  cardHeadlineOf,
-  foldedVerb,
-  useCardActions,
-  whoOf,
-} from '~/components/queue-card'
+import { ListenButton, speakAloud } from '~/components/listen-button'
+import { cardHeadlineOf, whoOf } from '~/components/queue-card'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { botChats, useWaitingIds } from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
-import { useMe } from '~/lib/me'
+import { useHasAgent, useMe } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { queryClient, showUntilSettled } from '~/lib/query-client'
@@ -286,80 +274,35 @@ const BotMessage = ({
   /** None while it is being written. */
   at?: Date
   children: ReactNode
-  /** What it said in words: it can be reacted on, replied to and copied. */
+  /** What it said in words: it can be replied to and copied. */
   post?: Post
 }) => (
   <Message from="assistant" id={post && anchorOf(post.id)}>
     <MessageMenu
-      post={post}
       quote={post && { from: 'bot', id: post.id, text: post.text ?? '' }}
     >
-      <ReactedPost value={post}>{children}</ReactedPost>
+      {children}
       <TimeOf at={at} />
     </MessageMenu>
   </Message>
 )
 
-const ReactedPost = createContext<Post | undefined>(undefined)
+/** The bot's words in their bubble. */
+const PostBubble = ({ children }: { children: ReactNode }) => (
+  <MessageBubble>{children}</MessageBubble>
+)
 
-/** The bot's words in their bubble, the user's reaction over its edge when they are a post. */
-const PostBubble = ({ children }: { children: ReactNode }) => {
-  const post = use(ReactedPost)
-  return (
-    <MessageBubble>
-      {children}
-      {post && <ReactionPicker post={post} />}
-    </MessageBubble>
-  )
-}
-
-const setReaction = (id: string, reaction: BotReaction | null) =>
-  queryClient.setQueriesData<InfiniteData<ChatPage>>(
-    { queryKey: orpc.bots.chat.key() },
-    (data) =>
-      data && {
-        ...data,
-        pages: data.pages.map((page) => ({
-          ...page,
-          entries: page.entries.map((entry) =>
-            entry.type === 'post' && entry.id === id
-              ? { ...entry, reaction }
-              : entry
-          ),
-        })),
-      }
-  )
-
-/** The picked one again takes it back. */
-const useReact = () => {
-  const react = useMutation(
-    orpc.bots.react.mutationOptions({
-      onMutate: ({ id, reaction }) => setReaction(id, reaction),
-      onSettled: refreshBots,
-    })
-  )
-  return (post: Post, reaction: BotReaction) =>
-    react.mutate({
-      id: post.id,
-      reaction: reaction === post.reaction ? null : reaction,
-    })
-}
-
-/** A right click or a long press on a message, as a messenger has it: the reactions on the bot's words, then Reply and Copy. */
+/** A right click or a long press on a message, as a messenger has it: Reply and Copy. */
 const MessageMenu = ({
   children,
-  post,
   quote,
 }: {
   children: ReactNode
-  /** The bot's, so the user can react on it. */
-  post?: Post
   /** Its words: none on a report of cards, or on one still on its way. */
   quote?: Quote
 }) => {
   const t = useT()
   const bot = use(ChatBot)
-  const react = useReact()
   if (!quote?.text || !bot) {
     return <MessageContent>{children}</MessageContent>
   }
@@ -369,29 +312,6 @@ const MessageMenu = ({
         {children}
       </ContextMenuTrigger>
       <ContextMenuContent>
-        {post && (
-          <>
-            <div className="flex">
-              {BOT_REACTIONS.map((reaction) => (
-                <ContextMenuItem
-                  key={reaction}
-                  aria-checked={reaction === post.reaction}
-                  onClick={() => react(post, reaction)}
-                >
-                  <span
-                    className={cn(
-                      '-mx-1 rounded-md px-1 text-base',
-                      reaction === post.reaction && 'bg-secondary'
-                    )}
-                  >
-                    {reaction}
-                  </span>
-                </ContextMenuItem>
-              ))}
-            </div>
-            <ContextMenuSeparator />
-          </>
-        )}
         <ContextMenuItem
           onClick={() => replyStore.set({ bot: bot.bot, quote })}
         >
@@ -410,59 +330,6 @@ const MessageMenu = ({
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
-  )
-}
-
-/** The user's reaction on the bot's words: the chip, or a smile on hover while there is none. */
-const ReactionPicker = ({ post }: { post: Post }) => {
-  const t = useT()
-  const [isOpen, setIsOpen] = useState(false)
-  const react = useReact()
-  return (
-    <MessageReactions
-      className={cn(
-        !post.reaction &&
-          'opacity-0 transition-opacity group-hover/message:opacity-100 has-focus-visible:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100'
-      )}
-    >
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger
-          render={
-            <Button
-              size="icon-xs"
-              variant="ghost"
-              aria-label={
-                post.reaction
-                  ? `${t.bots.reaction}: ${post.reaction}`
-                  : t.bots.react
-              }
-            />
-          }
-        >
-          {post.reaction ?? (
-            <HugeiconsIcon icon={SmilePlusIcon} strokeWidth={2} />
-          )}
-        </PopoverTrigger>
-        <PopoverContent side="top" padding="none" className="w-auto">
-          <div className="flex gap-0.5 p-1">
-            {BOT_REACTIONS.map((reaction) => (
-              <Button
-                key={reaction}
-                size="icon-sm"
-                variant={reaction === post.reaction ? 'secondary' : 'ghost'}
-                aria-pressed={reaction === post.reaction}
-                onClick={() => {
-                  setIsOpen(false)
-                  react(post, reaction)
-                }}
-              >
-                {reaction}
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
-    </MessageReactions>
   )
 }
 
@@ -517,50 +384,34 @@ export const CardsTrace = ({ cards }: { cards: Card[] }) => {
 }
 
 /**
- * What the bot offers and waits a yes for, as a tool block: one with an email opens it in the sidebar, where its
- * proposal waits; a consent shows every input it would run with, and its yes.
+ * What the bot asks about, said and never pressed: one with an email names it as a link that opens it beside the chat;
+ * a consent shows every input it would run with. The user answers in words.
  */
 const ProposalTool = ({ card }: { card: Card }) => {
-  const t = useT()
-  const { approve, skip } = useCardActions()
   const { context, input, tool } = cardPayload(card.action)
   const who = whoOf(card)
+  const title = (
+    <span data-mask>
+      {who ? `${who.fromName ?? who.fromEmail}: ` : ''}
+      {cardHeadlineOf(card)}
+    </span>
+  )
   return (
     <Tool defaultOpen={!!tool}>
       <ToolHeader
         icon={card.message ? Mail01Icon : ZapIcon}
         isOpenable={!!tool}
         title={
-          <span data-mask>
-            {who ? `${who.fromName ?? who.fromEmail}: ` : ''}
-            {cardHeadlineOf(card)}
-          </span>
-        }
-        action={
           card.message ? (
-            <Button
-              size="sm"
-              variant="secondary"
+            <button
+              type="button"
+              className="focus-visible:focus-ring cursor-pointer rounded-md text-left underline-offset-2 outline-none hover:underline"
               onClick={() => openCard(card)}
             >
-              {foldedVerb(t, card.action)}
-            </Button>
+              {title}
+            </button>
           ) : (
-            <>
-              <Button
-                size="sm"
-                variant="ghost-muted"
-                onClick={() => skip.mutate([card.action.id])}
-              >
-                {t.queue.skip}
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => approve.mutate({ id: card.action.id })}
-              >
-                {foldedVerb(t, card.action)}
-              </Button>
-            </>
+            title
           )
         }
       />
@@ -666,6 +517,7 @@ const UserMessage = ({
   reaction,
   replyTo,
   text,
+  voice,
   ...props
 }: {
   at?: Date
@@ -675,6 +527,8 @@ const UserMessage = ({
   reaction?: BotReaction | null
   replyTo?: Quote | null
   text: string
+  /** Spoken: its text is what the bot heard. */
+  voice?: boolean
 }) => {
   const t = useT()
   const bot = use(ChatBot)
@@ -682,6 +536,16 @@ const UserMessage = ({
     <Message from="user" id={id && anchorOf(id)}>
       <MessageMenu quote={id ? { from: 'user', id, text } : undefined}>
         {replyTo && <ReplyQuote botName={bot?.name ?? ''} quote={replyTo} />}
+        {voice && (
+          <span className="text-muted-foreground flex items-center gap-1 text-xs">
+            <HugeiconsIcon
+              icon={Mic01Icon}
+              strokeWidth={2}
+              className="size-3.5"
+            />
+            {t.bots.voiceMessage}
+          </span>
+        )}
         <span data-mask>{text}</span>
         <TimeOf at={props.at} />
         {reaction && (
@@ -740,16 +604,30 @@ const DigestView = ({
   )
 }
 
-const PostView = ({ entry }: { entry: Post }) => {
+/** An answer to a voice message is spoken too, on a plan with the agent: it plays once it comes, and again from here. */
+const SpokenAnswer = ({ entry }: { entry: Post }) => {
+  const hasAgent = useHasAgent()
+  return (
+    hasAgent &&
+    entry.text && (
+      <MessageActions>
+        <ListenButton path={voicePathOf(entry.id)} text={entry.text} />
+      </MessageActions>
+    )
+  )
+}
+
+const PostView = ({ entry, isSpoken }: { entry: Post; isSpoken: boolean }) => {
   const t = useT()
   const locale = useLocale()
   const { usage } = useMe()
-  if (entry.kind === 'answer') {
+  if (entry.kind === 'answer' || entry.kind === 'decided') {
     return (
       <>
         <BotSteps isRunning={false} tools={entry.tools} />
         <AnswerText text={entry.text ?? ''} />
         <CardsOf cards={entry.cards} />
+        {isSpoken && <SpokenAnswer entry={entry} />}
       </>
     )
   }
@@ -765,10 +643,14 @@ const PostView = ({ entry }: { entry: Post }) => {
       </PostBubble>
     )
   }
-  if (entry.kind === 'no_plan') {
+  if (entry.kind === 'no_plan' || entry.kind === 'limit') {
     return (
       <>
-        <Speech>{t.bots.noPlan}</Speech>
+        {entry.kind === 'limit' ? (
+          <AnswerText text={entry.text ?? ''} />
+        ) : (
+          <Speech>{t.bots.noPlan}</Speech>
+        )}
         <MessageActions>
           <Button size="sm" onClick={() => upgradeStore.set('chat')}>
             {t.bots.subscribe}
@@ -780,7 +662,14 @@ const PostView = ({ entry }: { entry: Post }) => {
   return <Speech>{t.bots.spent(formatResetDay(locale, usage.resetsAt))}</Speech>
 }
 
-const EntryView = ({ entry }: { entry: Entry }) => {
+const EntryView = ({
+  entry,
+  isSpoken = false,
+}: {
+  entry: Entry
+  /** It answers a voice message. */
+  isSpoken?: boolean
+}) => {
   const t = useT()
   const waiting = useWaitingIds()
   if (entry.type === 'post' && entry.kind === 'message') {
@@ -791,6 +680,7 @@ const EntryView = ({ entry }: { entry: Entry }) => {
         reaction={entry.reaction}
         replyTo={entry.replyTo}
         text={entry.text ?? ''}
+        voice={entry.voice}
       />
     )
   }
@@ -812,7 +702,7 @@ const EntryView = ({ entry }: { entry: Entry }) => {
           <PromisesTrace promises={entry.promises} />
         </>
       )}
-      {entry.type === 'post' && <PostView entry={entry} />}
+      {entry.type === 'post' && <PostView entry={entry} isSpoken={isSpoken} />}
     </BotMessage>
   )
 }
@@ -859,6 +749,7 @@ interface Asking {
   replyTo?: Quote
   text: string
   tools: string[]
+  voice?: boolean
 }
 
 /**
@@ -1055,13 +946,24 @@ export const BotTimeline = ({
       isLoaded: !!data,
     }
   )
+  // An answer right after a voice message is spoken too.
+  const spoken = new Set(
+    entries.flatMap((entry, index) => {
+      const before = entries[index - 1]
+      return before?.type === 'post' &&
+        before.kind === 'message' &&
+        before.voice
+        ? [entry.id]
+        : []
+    })
+  )
   const view = (entry: Entry) =>
     entry.id === opensAt ? (
       <MessageScrollerItem ref={unreadRef} messageId={entry.id}>
-        <EntryView entry={entry} />
+        <EntryView entry={entry} isSpoken={spoken.has(entry.id)} />
       </MessageScrollerItem>
     ) : (
-      <EntryView entry={entry} />
+      <EntryView entry={entry} isSpoken={spoken.has(entry.id)} />
     )
 
   return (
@@ -1099,7 +1001,7 @@ export const BotTimeline = ({
           <DayOf entries={entries} entry={entry} />
           {isSent(entry) ? (
             <MessageScrollerItem scrollAnchor>
-              <EntryView entry={entry} />
+              <EntryView entry={entry} isSpoken={spoken.has(entry.id)} />
             </MessageScrollerItem>
           ) : (
             view(entry)
@@ -1113,6 +1015,7 @@ export const BotTimeline = ({
               reaction={asking.reaction}
               replyTo={asking.replyTo}
               text={asking.text}
+              voice={asking.voice}
             />
           </MessageScrollerItem>
           {(!asking.reaction || !!asking.answer || asking.tools.length > 0) && (
@@ -1139,6 +1042,9 @@ const stepInto = (current: Asking, step: BotStep): Asking => {
   if (step.type === 'reaction') {
     return { ...current, reaction: step.reaction }
   }
+  if (step.type === 'decided') {
+    return { ...current, answer: `${current.answer}${step.decided}\n\n` }
+  }
   return step.type === 'text'
     ? { ...current, answer: current.answer + step.text }
     : { ...current, tools: [...current.tools, step.tool] }
@@ -1147,36 +1053,64 @@ const stepInto = (current: Asking, step: BotStep): Asking => {
 export interface Ask {
   bot: string
   replyTo?: Quote
+  /** The list of what waits the user answered, as they saw it. */
+  seen?: { at: Date; keys: string[] }
   text: string
+  /** Spoken: `text` is what the bot heard. */
+  voice?: boolean
 }
 
 const streamAnswer = async (
-  { bot, replyTo, text }: Ask,
+  { bot, replyTo, seen, text, voice }: Ask,
   onStep: (step: BotStep) => void
 ) => {
   for await (const step of await client.bots.ask({
     bot,
     replyTo: replyTo?.id,
+    seen,
     text,
+    voice,
   })) {
     onStep(step)
+  }
+}
+
+export const voicePathOf = (id: string) => `/voice/post/${id}`
+
+/** A voice message is answered aloud too: its answer, once kept, plays on a plan with the agent. */
+const speakAnswer = async (bot: string, since: Date) => {
+  const { entries } = await client.bots.chat({ bot })
+  const answer = entries.findLast(
+    (entry) =>
+      entry.type === 'post' &&
+      (entry.kind === 'answer' || entry.kind === 'decided') &&
+      entry.at.getTime() > since.getTime() - CLOCK_SKEW_MS
+  )
+  if (answer) {
+    speakAloud(voicePathOf(answer.id))
   }
 }
 
 /** Sends a message to a bot and streams the agent's steps and answer in; the chat refetches once both are kept. */
 export const useAskBot = () => {
   const [asking, setAsking] = useState<Asking | null>(null)
+  const hasAgent = useHasAgent()
+  const sentAt = useRef(new Date())
   const ask = useMutation({
-    meta: { event: 'bot_asked' },
     mutationFn: (message: Ask) => {
+      posthog.capture('bot_asked', { voice: !!message.voice })
+      sentAt.current = new Date()
       setAsking({ ...message, answer: '', at: new Date(), tools: [] })
       return streamAnswer(message, (step) =>
         setAsking((current) => current && stepInto(current, step))
       )
     },
-    onSettled: async () => {
+    onSettled: async (_, __, message) => {
       await refreshBots()
       setAsking(null)
+      if (message.voice && hasAgent) {
+        await speakAnswer(message.bot, sentAt.current)
+      }
     },
   })
   return { ask, asking }
