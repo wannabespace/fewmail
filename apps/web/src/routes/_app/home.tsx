@@ -42,8 +42,6 @@ import {
 } from '~/components/home-digest'
 import { KeyHints } from '~/components/key-hints'
 import { ChatScroller } from '~/components/pane-rows'
-import { closeSender, useIsSenderShown } from '~/components/sender-card'
-import { SenderSidebar } from '~/components/sender-stack'
 import { ReaderSidebar } from '~/components/thread-link'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import {
@@ -264,16 +262,12 @@ const useOpenBot = (bots: HomeBot[]) => {
   return { bot, open, step }
 }
 
-/** Home's keys work while nothing lies beside it: an email or a sender's emails take them. */
-const useIsHomeFocused = () => {
-  const isThreadOpen = useIsThreadExpanded()
-  const isSenderOpen = useIsSenderShown()
-  return !isThreadOpen && !isSenderOpen
-}
+/** Home's keys work while nothing lies beside it: an open email takes them. */
+const useIsHomeFocused = () => !useIsThreadExpanded()
 
 /**
  * The open bot's profile in the reader's sidebar, kept open from bot to bot: `P` opens and closes it, esc closes it. It
- * takes the sidebar from an open email or sender, and gives it back to the next one opened.
+ * takes the sidebar from an open email, and gives it back to the next one opened.
  */
 const useProfile = (bot: string, isFocused: boolean) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -284,7 +278,6 @@ const useProfile = (bot: string, isFocused: boolean) => {
   const handleToggle = () => {
     if (!isOpen) {
       collapseExpanded()
-      closeSender()
       posthog.capture('bot_profile_opened', { system: bot === 'fewmail' })
     }
     setIsOpen(!isOpen)
@@ -339,7 +332,6 @@ const HomePage = () => {
           />
         )}
       </main>
-      <SenderSidebar />
       <KeyHints
         hints={homeHints(t, bot && isBoardBot(bot) ? boardHints : null)}
       />
