@@ -12,7 +12,6 @@ import {
   PAID_PLANS,
   BOT_EFFECTS,
   BOT_PRESETS,
-  BOT_REACTIONS,
   SIMPLE_MATCH_FIELDS,
   WRAPPED_PERIODS,
 } from '@fewmail/shared/agent'
@@ -26,7 +25,7 @@ import { GMAIL_SCOPE, hasSignInScope } from '../lib/auth'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
 import { logErrorAs } from '../lib/log'
-import { answerReaction, askBot, suggestQuestions } from '../services/agent-run'
+import { askBot } from '../services/agent-run'
 import { approveCard, approveCards } from '../services/approve'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
@@ -39,7 +38,6 @@ import {
   listBotFolders,
   markBotRead,
   moveBotToFolder,
-  reactToPost,
   renameBotFolder,
   setBotMuted,
   setBotPinned,
@@ -69,6 +67,7 @@ import {
   undoClearOut,
 } from '../services/cleanup'
 import { listCommitments, setCommitmentStatus } from '../services/commitments'
+import { waitingOf } from '../services/decide'
 import {
   confirmSignIn,
   takeSignIn,
@@ -574,11 +573,6 @@ export const router = {
     read: authed
       .input(botRef)
       .handler(({ context, input }) => markBotRead(context.user.id, input.bot)),
-    suggestions: agent
-      .input(botRef)
-      .handler(({ context, input }) =>
-        suggestQuestions(context.user.id, input.bot)
-      ),
     mute: authed
       .input(botRef.and({ muted: 'boolean' }))
       .handler(({ context, input }) =>
@@ -609,33 +603,24 @@ export const router = {
     moveToFolder: authed
       .input(botRef.and({ folder: 'string.uuid | null' }))
       .handler(({ context, input }) => moveBotToFolder(context.user.id, input)),
-    react: authed
-      .input(id.and({ reaction: type.enumerated(...BOT_REACTIONS).or('null') }))
-      .handler(async ({ context, input }) => {
-        const post = await reactToPost(context.user.id, {
-          id: input.id,
-          reaction: input.reaction,
-        })
-        // Not awaited: the agent's turn takes seconds and the reaction must land at once; its answer reaches the chat live.
-        void answerReaction(context.user.id, {
-          ...post,
-          reaction: input.reaction,
-        }).catch(logErrorAs('reaction answer'))
-      }),
+    waiting: authed
+      .input(botRef)
+      .handler(({ context, input }) => waitingOf(context.user.id, input.bot)),
     ask: authed
       .input(
         botRef.and({
           'replyTo?': 'string.uuid',
+          'seen?': { at: 'Date', keys: 'string[] <= 20' },
           text: `0 < string <= ${BOT_MESSAGE_CHARS}`,
+          'voice?': 'boolean',
         })
       )
       .handler(async function* ask({ context, input }) {
-        yield* askBot(
-          context.user.id,
-          input.bot,
-          input.text.trim(),
-          input.replyTo
-        )
+        yield* askBot(context.user.id, input.bot, input.text.trim(), {
+          replyTo: input.replyTo,
+          seen: input.seen,
+          voice: input.voice,
+        })
       }),
     update: authed
       .input(id.and(botInput.partial()).and({ 'pausedUntil?': 'Date | null' }))

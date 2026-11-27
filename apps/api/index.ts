@@ -24,11 +24,12 @@ import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
 import { readAttachment } from './services/attachments'
 import { handleStripeWebhook } from './services/billing'
+import { spokenPost } from './services/bot-chat'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
 import { NotFoundError } from './services/mail-errors'
 import { finishAddingMailbox } from './services/mailboxes'
-import { speakFor, spokenReading } from './services/messenger'
+import { hear, speakFor, spokenReading } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { syncMailbox } from './services/sync'
 import { readSharedWrapped } from './services/wrapped'
@@ -133,6 +134,37 @@ const spokenResponse = async (userId: string, text: () => Promise<string>) => {
   return new Response(null, { status: 500 })
 }
 
+/** A voice message from the web, two minutes at most: transcribed and never kept. */
+const VOICE_BYTES = 4_000_000
+
+/** The web's voice message: the agent's, so a paid plan or the trial; its words come back and go through `bots.ask`. */
+const heardResponse = async (headers: Headers, form: FormData) => {
+  const session = await auth.api.getSession({ headers })
+  const audio = form.get('audio')
+  if (
+    !session ||
+    headers.get('sec-fetch-site') === 'cross-site' ||
+    !hasAgent(await getPlanInfo(session.user.id))
+  ) {
+    return new Response(null, { status: 404 })
+  }
+  if (!(audio instanceof File) || audio.size > VOICE_BYTES) {
+    return new Response(null, { status: 400 })
+  }
+  const heard = await Result.tryPromise(() =>
+    hear(session.user.id, () => audio.arrayBuffer(), audio.name || 'voice.webm')
+  )
+  if (heard.isOk()) {
+    return Response.json({ text: heard.value })
+  }
+  const { cause } = heard.error
+  if (cause instanceof LimitReachedError) {
+    return Response.json({ resetsAt: cause.resetsAt }, { status: 429 })
+  }
+  logError('voice hear', cause)
+  return new Response(null, { status: 500 })
+}
+
 // Short enough that photos granted by a new sign-in replace the initials within a day.
 const AVATAR_CACHE_SECONDS = 86_400
 
@@ -233,6 +265,17 @@ const app = new Hono()
       void syncMailbox({ id: mailboxId }).catch(logErrorAs('first sync'))
     }
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
+  })
+  .post('/voice/hear', async (c) =>
+    heardResponse(c.req.raw.headers, await c.req.formData())
+  )
+  .get('/voice/post/:id', async (c) => {
+    const userId = await voiceUser(c.req.raw.headers)
+    if (!userId) {
+      return c.notFound()
+    }
+    const id = c.req.param('id')
+    return spokenResponse(userId, () => spokenPost(userId, id))
   })
   .get('/voice/reading', async (c) => {
     const userId = await voiceUser(c.req.raw.headers)

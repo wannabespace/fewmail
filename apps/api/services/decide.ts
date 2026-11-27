@@ -287,6 +287,34 @@ export const openItems = async (userId: string, bot: string, t: Messages) => {
   ]
 }
 
+/** The example under a list shows in a chat until the user has answered in words this many times there. */
+const HINTED_ANSWERS = 3
+
+/** What a bot's chat waits on, as the bot says it now: the list a reply binds to, read from the same items. */
+export const waitingOf = async (userId: string, bot: string) => {
+  const settings = await getSettings(userId)
+  const t = dictionaries[settings?.language ?? 'en']
+  const [items, [answered]] = await Promise.all([
+    openItems(userId, bot, t),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(botPosts)
+      .where(
+        and(
+          eq(botPosts.userId, userId),
+          eq(botPosts.bot, bot),
+          eq(botPosts.kind, 'decided')
+        )
+      ),
+  ])
+  const listed = items.filter(({ listed }) => listed)
+  return {
+    at: new Date(),
+    items: listed.map(({ key, text, threadId }) => ({ key, text, threadId })),
+    text: waitingText(t, items, (answered?.count ?? 0) < HINTED_ANSWERS),
+  }
+}
+
 /** The bot's message about what waits, numbered when there is more than one; computed, so it costs nothing. */
 export const waitingText = (t: Messages, items: OpenItem[], hint: boolean) => {
   const listed = items.filter(({ listed }) => listed)

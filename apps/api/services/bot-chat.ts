@@ -694,25 +694,25 @@ export const reactToPost = async (
   return reacted
 }
 
-/** Whether a post is the chat's newest: a reaction answers only what was said last, never an old question. */
-export const isLastPost = async (userId: string, bot: string, id: string) => {
-  const [last] = await db
-    .select({ id: botPosts.id })
+/** What a reply reads back: the chat's last messages, answers and nudges, oldest first, within `BOT_HISTORY`. */
+/** A bot's words read aloud on the web, its answer to a voice message: the user's own posts only. */
+export const spokenPost = async (userId: string, id: string) => {
+  const [post] = await db
+    .select({ text: botPosts.text })
     .from(botPosts)
     .where(
       and(
+        eq(botPosts.id, id),
         eq(botPosts.userId, userId),
-        eq(botPosts.bot, bot),
-        inArray(botPosts.kind, ['message', 'answer', 'nudge']),
-        lte(botPosts.dueAt, new Date())
+        inArray(botPosts.kind, ['answer', 'decided'])
       )
     )
-    .orderBy(desc(botPosts.dueAt))
-    .limit(1)
-  return last?.id === id
+  if (!post?.text) {
+    throw new NotFoundError('Message not found')
+  }
+  return post.text
 }
 
-/** What a reply reads back: the chat's last messages, answers and nudges, oldest first, within `BOT_HISTORY`. */
 export const botHistory = async (userId: string, bot: string) => {
   const rows = await db
     .select({ kind: botPosts.kind, text: botPosts.text })
@@ -721,7 +721,7 @@ export const botHistory = async (userId: string, bot: string) => {
       and(
         eq(botPosts.userId, userId),
         eq(botPosts.bot, bot),
-        inArray(botPosts.kind, ['message', 'answer', 'nudge']),
+        inArray(botPosts.kind, ['message', 'answer', 'decided', 'nudge']),
         lte(botPosts.dueAt, new Date())
       )
     )

@@ -9,14 +9,7 @@ import {
 import type { BotReaction, ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
-import {
-  generateText,
-  hasToolCall,
-  Output,
-  stepCountIs,
-  streamText,
-  tool,
-} from 'ai'
+import { generateText, hasToolCall, stepCountIs, streamText, tool } from 'ai'
 import { addDays, subDays } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
@@ -29,7 +22,6 @@ import {
   addBotPost,
   botChat,
   botHistory,
-  isLastPost,
   quotesOf,
   reactToPost,
 } from './bot-chat'
@@ -37,6 +29,7 @@ import type { BotEntry } from './bot-chat'
 import { listBots } from './bots'
 import { listEvents } from './calendar'
 import { ConsentChangedError } from './consent-error'
+import { decide } from './decide'
 import { NotFoundError } from './mail-errors'
 import type { Transaction } from './patterns'
 import { getPlanInfo, hasAgent, hasBudget, requireBudget } from './plan'
@@ -48,6 +41,7 @@ type Bot = typeof bots.$inferSelect
 
 /** What an answer streams: the agent calling a tool (`AGENT_TOOLS`), or a piece of its text. */
 export type BotStep =
+  | { decided: string; type: 'decided' }
   | { reaction: BotReaction; type: 'reaction' }
   | { text: string; type: 'text' }
   | { tool: string; type: 'tool' }
@@ -91,7 +85,7 @@ export const agentInstructions = (settings: AgentSettings) =>
     'Be brief: a few sentences or a short list.',
     'End every answer with one concrete offer that makes their mail take less of them, fitting what you just saw: a bot for mail like this, a reminder, a follow-up, unsubscribing, a cleanup. Never repeat an offer they declined. Stop offering once the user asks you to, in this chat or in what they told you to know.',
     'Format with this Markdown only: **bold**, _italic_, "- " lists, and "> " before every line of a draft or a quote you show. No headings, tables, code or [label](url) links: write a link as its bare address.',
-    'To send a reply: draft_reply, then approve_action with that action id. Sending, archiving, snoozing, unsubscribing, bots and calendar changes never happen on your word: the tool puts a card with your answer and the user decides there. Call the tool instead of asking in text, and say it waits for their yes.',
+    'To send a reply: draft_reply, then approve_action with that action id. Sending, archiving, snoozing, unsubscribing, bots and calendar changes never happen on your word: the tool keeps the request waiting in this chat and the user approves it in their own words. Call the tool instead of asking in text. Then do not ask a question back: say in one short sentence what you understood and will do ("Understood: I archive 3 emails from LinkedIn and unsubscribe."), and that a short ok in any words or by voice carries it out.',
   ]
     .filter(Boolean)
     .join('\n')
@@ -392,12 +386,28 @@ const instructionsFor = (
 export const REPORT_LINES = 6
 export const REPORT_LINE_CHARS = 160
 
+/** One entry of the chat as the lines an answer reads back: its mail, promises and words. */
+const reportLines = (entry: BotEntry) => {
+  if (entry.type === 'cards' || entry.type === 'digest') {
+    return entry.cards.map(
+      ({ message }) =>
+        `Mail from ${message?.fromName ?? message?.fromEmail}: ${message?.subject ?? ''}`
+    )
+  }
+  if (entry.type === 'promises') {
+    return entry.promises.map(({ kind, promise }) => `${kind}: ${promise}`)
+  }
+  return entry.text
+    ? [`${entry.kind === 'message' ? 'User' : 'Bot'}: ${entry.text}`]
+    : []
+}
+
 /** What a bot reported in its chat (cards, digests, promises), as the lines its next answer reads: its own words come with the history. */
 const reportsOf = async (userId: string, bot: string) => {
   const { entries } = await botChat(userId, bot)
   return entries
     .filter(({ type }) => type !== 'post')
-    .flatMap(suggestLines)
+    .flatMap(reportLines)
     .slice(-REPORT_LINES)
     .map((line) => line.slice(0, REPORT_LINE_CHARS))
 }
@@ -496,7 +506,17 @@ export const askBot = async function* askBot(
   userId: string,
   bot: string,
   text: string,
-  replyTo?: string
+  {
+    replyTo,
+    seen,
+    voice = false,
+  }: {
+    replyTo?: string
+    /** The list the user answered, as they saw it: its keys in order and when. */
+    seen?: { at: Date; keys: string[] }
+    /** Spoken and transcribed: what the bot settles starts with what it heard. */
+    voice?: boolean
+  } = {}
 ) {
   const [settings, plan, own] = await Promise.all([
     getSettings(userId),
@@ -512,6 +532,26 @@ export const askBot = async function* askBot(
     replyTo,
     text,
   })
+  // Before any agent turn: an answer to what the bot asked is settled by the reader, never by the agent.
+  const decided = await decide(userId, {
+    bot,
+    channel: 'web',
+    seenAt: seen?.at,
+    shown: seen?.keys,
+    text,
+    voice,
+  })
+  if (decided) {
+    await addBotPost(userId, {
+      bot,
+      kind: decided.outcome === 'limit' ? 'limit' : 'decided',
+      text: decided.text,
+    })
+    yield { decided: decided.text, type: 'decided' } satisfies BotStep
+    if (!decided.rest) {
+      return
+    }
+  }
   if (!hasAgent(plan) || !(await hasBudget(userId))) {
     await addBotPost(userId, {
       bot,
@@ -527,7 +567,16 @@ export const askBot = async function* askBot(
       botScope(bot, ownBot),
       await reportsOf(userId, bot)
     ),
-    messages: chat,
+    messages: decided
+      ? chat.map((message, index) =>
+          index === chat.length - 1
+            ? {
+                ...message,
+                content: `${message.content}\n\n(You already settled part of this message and told the user: "${decided.text}". Answer only the rest.)`,
+              }
+            : message
+        )
+      : chat,
     model: models.writer,
     providerOptions: CACHE_PREFIX,
     stopWhen: [stepCountIs(MAX_STEPS), hasToolCall('react')],
@@ -573,170 +622,6 @@ export const askBot = async function* askBot(
     bot,
     kind: 'answer',
     text: answer.replaceAll(THREAD_LINK, '$<label>'),
-    tools: used,
-  })
-}
-
-export const SUGGESTIONS = 3
-export const SUGGEST_LINES = 15
-export const SUGGEST_LINE_CHARS = 300
-const SUGGESTION_CHARS = 60
-const SUGGESTED_KEPT = 10_000
-export const SUGGEST_INSTRUCTIONS = [
-  `Suggest up to ${SUGGESTIONS} things the user could send this bot next with one tap: short questions or requests, at most 6 words each, in the user's own voice, addressing the bot informally where the language distinguishes.`,
-  'Ground them in the chat below (its mail, its promises, what was just said) and in what the bot can do: answer about the mail, change itself, act on its mail. Never repeat what the user just asked; on an empty chat, suggest what this bot is best at.',
-  NO_EM_DASH,
-].join('\n')
-
-/** The chat as the suggestions read it: its mail, promises and words, newest last. */
-const suggestLines = (entry: BotEntry) => {
-  if (entry.type === 'cards' || entry.type === 'digest') {
-    return entry.cards.map(
-      ({ message }) =>
-        `Mail from ${message?.fromName ?? message?.fromEmail}: ${message?.subject ?? ''}`
-    )
-  }
-  if (entry.type === 'promises') {
-    return entry.promises.map(({ kind, promise }) => `${kind}: ${promise}`)
-  }
-  return entry.text
-    ? [
-        `${entry.kind === 'message' ? 'User' : 'Bot'}: ${entry.text.slice(0, SUGGEST_LINE_CHARS)}`,
-      ]
-    : []
-}
-
-const suggested = new Map<string, { key: string; questions: string[] }>()
-
-/**
- * What the user may send the open bot in a tap, written for its chat as it stands and charged like any call. Kept
- * until the bot or the user's language changes or someone says something there, so mail arriving costs nothing
- * and opening a chat again neither. Nothing past the allowance.
- */
-export const suggestQuestions = async (userId: string, bot: string) => {
-  const [settings, own, { entries }] = await Promise.all([
-    getSettings(userId),
-    bot === 'fewmail' ? undefined : listBots(userId),
-    botChat(userId, bot),
-  ])
-  const scope = botScope(
-    bot,
-    own?.find(({ id }) => id === bot)
-  )
-  const language = settings?.language ?? 'en'
-  const said = entries.findLast(
-    ({ type }) => type === 'post' || type === 'digest'
-  )
-  const key = [language, scope, said?.id, said?.at.getTime()].join('|')
-  const chat = `${userId}:${bot}`
-  const kept = suggested.get(chat)
-  if (kept?.key === key) {
-    return kept.questions
-  }
-  if (!(await hasBudget(userId))) {
-    return []
-  }
-  const { output } = await generateText({
-    instructions: [
-      scope,
-      SUGGEST_INSTRUCTIONS,
-      `Write in ${englishName(language)}.`,
-    ].join('\n\n'),
-    model: models.fast,
-    output: Output.object({
-      schema: z.object({ questions: z.array(z.string()) }),
-    }),
-    prompt:
-      entries.flatMap(suggestLines).slice(-SUGGEST_LINES).join('\n') ||
-      'The chat is empty.',
-    telemetry: trackUsage(userId, 'suggest'),
-  })
-  const questions = output.questions
-    .map((question) => question.trim())
-    .filter((question) => question && question.length <= SUGGESTION_CHARS)
-    .slice(0, SUGGESTIONS)
-  suggested.delete(chat)
-  suggested.set(chat, { key, questions })
-  const oldest = suggested.keys().next().value
-  if (suggested.size > SUGGESTED_KEPT && oldest) {
-    suggested.delete(oldest)
-  }
-  return questions
-}
-
-/** What the user's reaction on the bot's last words tells it: 👍 is their yes, 👀 that they will look themselves. */
-const REACTION_MEANS: Record<BotReaction, string> = {
-  '❤️': 'thanks',
-  '👀': 'that they will look at it themselves: change nothing, and only for something they must not miss (a payment, an answer someone waits for) call remind_later for a fitting moment',
-  '👍': 'yes to what it offered or asked: do it now, as if they had written yes',
-  '😂': 'that it is funny',
-  '🔥': 'that it is great news',
-  '🙏': 'thanks',
-}
-
-const NOTHING_TO_DO = 'NOTHING'
-
-/** The user's reaction on the bot's last message, read as their answer: acted on in one quiet turn, said in the chat only when the bot did something. */
-export const answerReaction = async (
-  userId: string,
-  post: {
-    bot: string
-    id: string
-    kind: string
-    reaction: BotReaction | null
-  }
-) => {
-  if (
-    !post.reaction ||
-    post.kind === 'message' ||
-    !(await isLastPost(userId, post.bot, post.id))
-  ) {
-    return
-  }
-  const [settings, plan, own, history, reports] = await Promise.all([
-    getSettings(userId),
-    getPlanInfo(userId),
-    post.bot === 'fewmail' ? undefined : listBots(userId),
-    botHistory(userId, post.bot),
-    reportsOf(userId, post.bot),
-  ])
-  const ownBot = own?.find(({ id }) => id === post.bot)
-  if ((own && !ownBot) || !hasAgent(plan) || !(await hasBudget(userId))) {
-    return
-  }
-  const t = dictionaries[settings?.language ?? 'en']
-  const asked: string[] = []
-  const result = await generateText({
-    instructions: instructionsFor(
-      settings,
-      botScope(post.bot, ownBot),
-      reports
-    ),
-    messages: [
-      ...history,
-      {
-        content: `The user put ${post.reaction} on your last message, which means ${REACTION_MEANS[post.reaction]}. A change to their mail still goes through its tool, which waits for their yes on Home. When you do something, say what in one short line; when there is nothing to do, write only ${NOTHING_TO_DO}.`,
-        role: 'user' as const,
-      },
-    ],
-    model: models.writer,
-    providerOptions: CACHE_PREFIX,
-    stopWhen: stepCountIs(MAX_STEPS),
-    telemetry: trackUsage(userId, 'chat'),
-    tools: toolsFor(userId, t.agent.fromAgent, asked, post.bot),
-  })
-  const used = result.steps.flatMap(({ toolCalls }) =>
-    toolCalls.map(({ toolName }) => toolName)
-  )
-  const text = result.text.trim() === NOTHING_TO_DO ? '' : result.text.trim()
-  if (!text && used.length === 0) {
-    return
-  }
-  await addBotPost(userId, {
-    actionIds: asked,
-    bot: post.bot,
-    kind: 'answer',
-    text: text.replaceAll(THREAD_LINK, '$<label>'),
     tools: used,
   })
 }

@@ -39,10 +39,6 @@ import {
   REPORT_LINE_CHARS,
   REPORT_LINES,
   MAX_STEPS,
-  SUGGEST_INSTRUCTIONS,
-  SUGGEST_LINE_CHARS,
-  SUGGEST_LINES,
-  SUGGESTIONS,
 } from '../services/agent-run'
 import { agentTools } from '../services/agent-tools'
 import { BODY_LIMIT as ASK_BODY_LIMIT, SOURCE_LIMIT } from '../services/ask'
@@ -175,7 +171,6 @@ const VOICE_OUTPUT_TOKENS = 250
 /** Subject and summary of one email from a person in Fewmail's first words. */
 const INTRO_CHARS_EACH = 450
 const INTRO_OUTPUT_TOKENS = 200
-const SUGGESTION_OUTPUT_TOKENS_EACH = 20
 const COMPLETION_PREFIX_CHARS = 1000
 const DAYS = 30
 
@@ -434,23 +429,15 @@ const askCost = () =>
     ASK_ANSWER_OUTPUT_TOKENS
   )
 
-/** What the user may send next, written again once the bot has answered: the chat's last lines at their cap. */
-const suggestCost = () =>
-  llm(
-    FAST_MODEL_ID,
-    instructionTokens(SUGGEST_INSTRUCTIONS.length) +
-      STRUCTURED_OUTPUT_TOKENS +
-      mailTokens(SUGGEST_LINES * SUGGEST_LINE_CHARS),
-    SUGGESTIONS * SUGGESTION_OUTPUT_TOKENS_EACH
-  )
+/** A voice message on the web, Telegram or WhatsApp: heard, then answered in the agent's voice too. */
+const spokenAnswerCost = (use: Use) =>
+  use.voiceSeconds * priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second') +
+  Math.min(use.spokenChars, SPEECH_CHARS) *
+    priceOf(SPEECH_MODEL, 'input_cost_per_character')
 
-/** One message counted against the plan, the dearer of a chat turn and Ask, spoken to it or typed, and the suggestions after it. */
+/** One message counted against the plan, the dearer of a chat turn and Ask, typed or spoken to it. */
 export const messageCost = (use: Use) =>
-  Math.max(chatCost(use), askCost()) +
-  suggestCost() +
-  use.voiceShare *
-    use.voiceSeconds *
-    priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second')
+  Math.max(chatCost(use), askCost()) + use.voiceShare * spokenAnswerCost(use)
 
 /** One day's Reading issue with the agent: each newsletter's own summary, then the issue's. */
 const issueCost = (use: Use) =>
@@ -674,7 +661,7 @@ const printUnits = (lines: string[], name: string, use: Use) => {
     `${name}`,
     `  incoming email, Jev (every plan): ${usd(inboundJevCost(use))}`,
     `  counted email: ${usd(email.total)} (text ${usd(email.text)}, attachments ${usd(email.ocr)}, draft ${usd(email.draft)}, link ${usd(email.link)})`,
-    `  counted message: ${usd(messageCost(use))} (chat ${usd(chatCost(use))}, Ask ${usd(askCost())}, suggestions ${usd(suggestCost())})`,
+    `  counted message: ${usd(messageCost(use))} (chat ${usd(chatCost(use))}, Ask ${usd(askCost())}, a spoken one heard and answered aloud ${usd(spokenAnswerCost(use))})`,
     `  answer in words, Jev (every plan, not counted): ${usd(decisionCost())}, ${use.decisions} a month ${usd(use.decisions * decisionCost())}; Free reads ${FREE_DECISIONS} a month at most`
   )
   for (const [what, cost] of Object.entries(backgroundCost(use, true))) {
