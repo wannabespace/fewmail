@@ -589,23 +589,11 @@ export const zh: Messages = {
   },
   queue: {
     addToCalendar: '加入日历',
-    writeReminder: '写一封提醒',
-    approve: '批准',
-    delete: '删除',
     pick: '选择',
     picked: (n: number) => `已选 ${n} 项`,
     unpick: '取消选择',
     askedByYou: '你要求的',
-    draftedInVoice: '已用你的语气起草',
-    openEmail: '打开邮件',
-    send: '发送',
-    rewrite: '重写',
     shorterInstruction: '写短一点。',
-    new: '新',
-    skipStale: '全部跳过',
-    skipped: (n: number) => `已跳过 ${n} 项`,
-    stale: (n: number) => `超过一周：${n} 项`,
-    skip: '跳过',
   },
   reminders: {
     followUp: '跟进',
@@ -1018,7 +1006,7 @@ export const zh: Messages = {
         },
         {
           answer:
-            '它会替你起草回复，但绝不会自己发送。每份草稿都在负责它的机器人的聊天里等你批准，相似的可以一起批准。',
+            '它替你写好回复，但从不自己发送。每份草稿都在它的机器人聊天里等你用文字或语音说“好”，每次发送都需要单独的一句“好”。',
           question: '它能自动回复邮件吗？',
         },
         {
@@ -1071,7 +1059,7 @@ export const zh: Messages = {
       noFreePlan: '无免费方案',
       ours: {
         ask: 'Pro 方案',
-        home: '实时更新，可批量批准，免费',
+        home: '实时，用文字回答，免费',
         drafts: '用你的语气，经你批准才发送，Pro 方案',
         followUps: '对等待回复的邮件自动提醒',
         handOver: '助手一直处理到达成目标，Pro 方案',
@@ -1269,7 +1257,7 @@ export const zh: Messages = {
           problem: '成千上万封没人会读的邮件。',
         },
         {
-          fix: '回复提前起草好，用你的语气，说对方的语言。相似的回复可以用 ⇧⏎ 一起批准，每一封仍由你过目。',
+          fix: '回复提前写好，用你的语气和对方的语言。你用文字或语音说一声，它才一封封发出。',
           problem: '半夜还在回邮件。',
         },
         {
@@ -1337,7 +1325,6 @@ export const zh: Messages = {
         lead: '它归档无用邮件，替你退订从不打开的邮件，把骗局挡在门外。它做的每件事都写明原因，方便你核对。',
         title: 'Fewmail 读完每一封。',
       },
-      remind: '11月19日提醒我',
       remindPlan: '加入你的账单，并在 11月19日提醒你。',
       start: '用 Google 免费开始',
       title: '邮件不该是你的工作。',
@@ -1348,7 +1335,6 @@ export const zh: Messages = {
         slots.count,
         ' 封未读',
       ]) as Rich<'count'>,
-      willDo: 'Fewmail 将会',
     },
     nav: {
       assistant: 'AI 邮件助手',
@@ -1373,16 +1359,17 @@ export const zh: Messages = {
       },
       emphasis: '每类邮件',
       fewmail: {
-        approve: '批准',
+        yes: '好，建吧',
         ask: '来自 Hetzner 的发票标为已读',
         botName: 'Hetzner 发票',
         digest: (total: number, people: number) =>
           `过去一天收到 ${total} 封邮件。大多是订阅邮件和通知，来自真人的只有 ${people} 封。`,
-        proposal: '机器人在这里。批准后，它会从新邮件开始工作。',
+        proposal:
+          '机器人建好了：把 Hetzner 的账单标为已读，并且先问你。说“好”，它就从新邮件开始。',
       },
       label: '机器人',
       later: '四件值得知道的事，不需要你决定。',
-      lead: '每个机器人在邮件到达时读它负责的那类邮件，并在聊天里告诉你它做了什么、什么在等你。逐个点开看看，或按 [ 和 ]。',
+      lead: '每个机器人在邮件到达时阅读自己那类邮件，并在聊天里告诉你它做了什么、什么在等你。你用文字或语音回答。点击切换，或按 [ 和 ]。',
       points: [
         {
           description:
@@ -1396,12 +1383,13 @@ export const zh: Messages = {
         },
         {
           description:
-            '告诉 Fewmail Bot“来自 Hetzner 的发票标为已读”，再批准它创建的机器人就行。暂停、修改或删除也一样。',
+            '对 Fewmail Bot 说“Hetzner 的账单：标为已读”，再对它建好的机器人说“好”。暂停、修改或删除也一样。',
           title: '一句话就能创建一个。',
         },
       ],
       quick:
         'Growthly 的 Mira 发的是陌生开发信：素不相识的人来推销，你也从没给对方写过信。',
+      reply: '1 发送，2 提醒我，3 跳过',
       settled: {
         remind: '已设提醒',
         send: '回复已发送',

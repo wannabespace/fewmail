@@ -271,7 +271,7 @@ export const de: Messages = {
         },
         {
           answer:
-            'Es entwirft Antworten für dich, sendet aber nie eine von selbst. Jeder Entwurf wartet im Chat seines Bots auf deine Freigabe, und ähnliche lassen sich gemeinsam freigeben.',
+            'Er schreibt sie für dich, verschickt aber nie eine von selbst. Jeder Entwurf wartet im Chat seines Bots, bis du Ja sagst, in Worten oder per Sprache, und jede Mail braucht ihr eigenes Ja.',
           question: 'Kann es Mails automatisch beantworten?',
         },
         {
@@ -325,7 +325,7 @@ export const de: Messages = {
       noFreePlan: 'Kein kostenloser Tarif',
       ours: {
         ask: 'Mit Pro',
-        home: 'Live, mit Sammelfreigabe, kostenlos',
+        home: 'Live, in Worten beantwortet, kostenlos',
         drafts: 'In deinem Ton, gesendet erst nach deiner Freigabe, mit Pro',
         followUps: 'Automatisch, bei Mails, die eine Antwort erwarten',
         handOver: 'Der Agent bringt ihn ans Ziel, mit Pro',
@@ -526,7 +526,7 @@ export const de: Messages = {
           problem: 'Tausende Mails, die nie jemand lesen wird.',
         },
         {
-          fix: 'Antworten sind schon vorab entworfen, in deinem Ton und in ihrer Sprache. Ähnliche gibst du mit ⇧⏎ zusammen frei, und jede kannst du vorher prüfen.',
+          fix: 'Antworten sind vorab geschrieben, in deinem Ton und in der Sprache des Absenders. Jede geht raus, wenn du es sagst, in Worten oder per Sprache.',
           problem: 'Mails beantworten um Mitternacht.',
         },
         {
@@ -596,7 +596,6 @@ export const de: Messages = {
         lead: 'Es archiviert das Rauschen, meldet dich von dem ab, was du nie öffnest, und hält Betrug an der Tür auf. Alles, was es tut, wird mit Grund notiert, damit du es prüfen kannst.',
         title: 'Fewmail liest jede einzelne.',
       },
-      remind: 'Am 19. Nov. erinnern',
       remindPlan: 'Legt sie zu deinen Rechnungen und erinnert dich am 19. Nov.',
       start: 'Kostenlos mit Google starten',
       title: 'E-Mail ist nicht dein Job.',
@@ -606,7 +605,6 @@ export const de: Messages = {
         slots.count,
         ' ungelesen in deinem Posteingang',
       ]) as Rich<'count'>,
-      willDo: 'Was Fewmail tut',
     },
     nav: {
       assistant: 'KI-E-Mail-Assistent',
@@ -634,7 +632,7 @@ export const de: Messages = {
       },
       emphasis: 'für jede Art von Mail.',
       fewmail: {
-        approve: 'Freigeben',
+        yes: 'Ja, erstellen',
         ask: 'Rechnungen von Hetzner: als gelesen markieren',
         botName: 'Hetzner-Rechnungen',
         digest: (total: number, people: number) =>
@@ -643,11 +641,11 @@ export const de: Messages = {
             other: (n) => `${n} Mails`,
           })} in den letzten 24 Stunden. Meist Newsletter und Benachrichtigungen, nur ${people} von Menschen.`,
         proposal:
-          'Hier ist der Bot. Gib ihn frei, und er fängt mit neuen Mails an.',
+          'Hier ist der Bot: Er markiert Rechnungen von Hetzner als gelesen und fragt vorher. Sag Ja und er startet mit neuer Mail.',
       },
       label: 'Bots',
       later: 'Vier, die du kennen solltest, nichts zu entscheiden.',
-      lead: 'Jeder Bot liest seine Art von Mail, sobald sie ankommt, und sagt dir in seinem Chat, was er getan hat und was auf dich wartet. Klick dich durch oder drück [ und ].',
+      lead: 'Jeder Bot liest seine Art von Mail, sobald sie ankommt, und schreibt in seinem Chat, was er getan hat und was auf dich wartet. Du antwortest in Worten oder per Sprache. Klick dich durch oder drück [ und ].',
       points: [
         {
           description:
@@ -661,12 +659,13 @@ export const de: Messages = {
         },
         {
           description:
-            'Schreib Fewmail Bot „Rechnungen von Hetzner: als gelesen markieren“ und gib den Bot frei, den er erstellt. Pausieren, ändern oder löschen geht genauso.',
+            'Sag Fewmail Bot „Rechnungen von Hetzner: als gelesen markieren“ und sag Ja zu dem Bot, den er erstellt. Pausieren, ändern oder löschen geht genauso.',
           title: 'Ein Bot in einem Satz.',
         },
       ],
       quick:
         'Mira von Growthly ist Kaltakquise: eine Fremde, die dir etwas verkaufen will, und du hast ihr nie geschrieben.',
+      reply: '1 senden, 2 erinnere mich, 3 überspringen',
       settled: {
         remind: 'Erinnerung gesetzt',
         send: 'Antwort gesendet',
@@ -1223,23 +1222,11 @@ export const de: Messages = {
   },
   queue: {
     addToCalendar: 'In den Kalender',
-    writeReminder: 'Erinnerung schreiben',
-    approve: 'Genehmigen',
-    delete: 'Löschen',
     pick: 'Auswählen',
     picked: (n: number) => `${n} ausgewählt`,
     unpick: 'Abwählen',
     askedByYou: 'Von dir angefragt',
-    draftedInVoice: 'In deinem Ton entworfen',
-    openEmail: 'E-Mail öffnen',
-    send: 'Senden',
-    rewrite: 'Umschreiben',
     shorterInstruction: 'Mach es kürzer.',
-    new: 'Neu',
-    skipStale: 'Alle überspringen',
-    skipped: (n: number) => `Übersprungen: ${n}`,
-    stale: (n: number) => `Älter als eine Woche: ${n}`,
-    skip: 'Überspringen',
   },
   decide: {
     changed: (items: string) =>

@@ -760,23 +760,11 @@ export const nl: Messages = {
   },
   queue: {
     addToCalendar: 'Aan agenda toevoegen',
-    writeReminder: 'Herinnering schrijven',
-    approve: 'Goedkeuren',
-    delete: 'Verwijderen',
     pick: 'Kiezen',
     picked: (n: number) => `${n} gekozen`,
     unpick: 'Niet kiezen',
     askedByYou: 'Op jouw verzoek',
-    draftedInVoice: 'Opgesteld in jouw stijl',
-    openEmail: 'E-mail openen',
-    send: 'Versturen',
-    rewrite: 'Herschrijven',
     shorterInstruction: 'Maak het korter.',
-    new: 'Nieuw',
-    skipStale: 'Alle overslaan',
-    skipped: (n: number) => `Overgeslagen: ${n}`,
-    stale: (n: number) => `Ouder dan een week: ${n}`,
-    skip: 'Overslaan',
   },
   reminders: {
     followUp: 'Opvolgen',
@@ -1275,7 +1263,7 @@ export const nl: Messages = {
         },
         {
           answer:
-            'Het schrijft concepten voor je, maar verstuurt er nooit zelf een. Elk concept wacht in de chat van zijn bot op je goedkeuring, en vergelijkbare kun je in één keer goedkeuren.',
+            'Hij schrijft ze voor je, maar verstuurt er nooit zelf een. Elk concept wacht in de chat van zijn bot tot je ja zegt, in woorden of met je stem, en elke verzending heeft een eigen ja nodig.',
           question: 'Kan het automatisch e-mails beantwoorden?',
         },
         {
@@ -1328,7 +1316,7 @@ export const nl: Messages = {
       noFreePlan: 'Geen gratis abonnement',
       ours: {
         ask: 'In Pro',
-        home: 'Live, in één keer goed te keuren, gratis',
+        home: 'Live, beantwoord in woorden, gratis',
         drafts: 'In jouw stijl, pas verstuurd als jij akkoord geeft, in Pro',
         followUps: 'Automatisch, bij mail die een antwoord verwacht',
         handOver: 'De agent werkt het af tot het doel, in Pro',
@@ -1528,7 +1516,7 @@ export const nl: Messages = {
           problem: 'Duizenden e-mails die niemand ooit gaat lezen.',
         },
         {
-          fix: 'Antwoorden staan al klaar, in jouw stijl en in hun taal. Vergelijkbare keur je samen goed met ⇧⏎, en je kunt ze nog steeds allemaal nakijken.',
+          fix: 'Antwoorden zijn vooraf geschreven, in jouw stem en in hun taal. Elk gaat de deur uit als jij het zegt, in woorden of met je stem.',
           problem: 'Om middernacht nog e-mail beantwoorden.',
         },
         {
@@ -1598,7 +1586,6 @@ export const nl: Messages = {
         lead: 'Het archiveert de ruis, meldt je af voor wat je nooit opent en houdt oplichters buiten de deur. Alles wat het doet, wordt met de reden opgeschreven, zodat je het kunt nakijken.',
         title: 'Fewmail leest elke e-mail.',
       },
-      remind: 'Herinner me op 19 nov.',
       remindPlan: 'Zet hem bij je rekeningen en herinnert je op 19 nov.',
       start: 'Gratis starten met Google',
       title: 'E-mail is niet jouw werk.',
@@ -1608,7 +1595,6 @@ export const nl: Messages = {
         slots.count,
         ' ongelezen in je inbox',
       ]) as Rich<'count'>,
-      willDo: 'Wat Fewmail doet',
     },
     nav: {
       assistant: 'AI-e-mailassistent',
@@ -1636,7 +1622,7 @@ export const nl: Messages = {
       },
       emphasis: 'voor elk soort mail.',
       fewmail: {
-        approve: 'Goedkeuren',
+        yes: 'Ja, maak hem',
         ask: 'Facturen van Hetzner: markeer ze als gelezen',
         botName: 'Hetzner-facturen',
         digest: (total: number, people: number) =>
@@ -1645,11 +1631,11 @@ export const nl: Messages = {
             other: (n) => `${n} e-mails`,
           })} in de afgelopen 24 uur. Vooral nieuwsbrieven en meldingen, en maar ${people} van mensen.`,
         proposal:
-          'Hier is de bot. Keur hem goed en hij begint met nieuwe mail.',
+          'Hier is de bot: hij markeert facturen van Hetzner als gelezen en vraagt eerst. Zeg ja en hij begint met nieuwe mail.',
       },
       label: 'Bots',
       later: 'Vier om te weten, niets om te beslissen.',
-      lead: 'Elke bot leest zijn eigen soort mail zodra die binnenkomt en vertelt je in zijn chat wat hij deed en wat op je wacht. Klik ze door, of druk op [ en ].',
+      lead: 'Elke bot leest zijn soort mail zodra die binnenkomt en vertelt in zijn chat wat hij deed en wat op je wacht. Je antwoordt in woorden of met je stem. Klik ze door of druk op [ en ].',
       points: [
         {
           description:
@@ -1663,12 +1649,13 @@ export const nl: Messages = {
         },
         {
           description:
-            'Zeg tegen Fewmail Bot “facturen van Hetzner: markeer ze als gelezen” en keur de bot goed die hij maakt. Pauzeren, aanpassen of verwijderen gaat op dezelfde manier.',
+            'Zeg tegen Fewmail Bot „facturen van Hetzner: markeer ze als gelezen” en zeg ja tegen de bot die hij maakt. Pauzeren, wijzigen of verwijderen gaat net zo.',
           title: 'Maak er een in één zin.',
         },
       ],
       quick:
         'Mira van Growthly is koude acquisitie: een onbekende die iets wil verkopen, en jij hebt haar nooit gemaild.',
+      reply: '1 verstuur, 2 herinner me, 3 sla over',
       settled: {
         remind: 'herinnering ingesteld',
         send: 'antwoord verstuurd',

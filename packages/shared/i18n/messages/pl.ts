@@ -781,23 +781,11 @@ export const pl: Messages = {
   },
   queue: {
     addToCalendar: 'Dodaj do kalendarza',
-    writeReminder: 'Napisz przypomnienie',
-    approve: 'Zatwierdź',
-    delete: 'Usuń',
     pick: 'Wybierz',
     picked: (n: number) => `Wybrane: ${n}`,
     unpick: 'Odznacz',
     askedByYou: 'Na twoją prośbę',
-    draftedInVoice: 'Napisane twoim głosem',
-    openEmail: 'Otwórz e-mail',
-    send: 'Wyślij',
-    rewrite: 'Przepisz',
     shorterInstruction: 'Skróć to.',
-    new: 'Nowe',
-    skipStale: 'Pomiń je',
-    skipped: (n: number) => `Pominięte: ${n}`,
-    stale: (n: number) => `Starsze niż tydzień: ${n}`,
-    skip: 'Pomiń',
   },
   reminders: {
     followUp: 'Przypomnij się',
@@ -1321,7 +1309,7 @@ export const pl: Messages = {
         },
         {
           answer:
-            'Pisze dla ciebie szkice, ale nigdy nie wysyła ich sam. Każdy szkic czeka na twoją zgodę w czacie swojego bota, a podobne możesz zatwierdzić razem.',
+            'Pisze je za ciebie, ale nigdy nie wysyła sam. Każdy szkic czeka w czacie swojego bota, aż powiesz „tak”, słowem albo głosem, a każda wysyłka potrzebuje osobnego „tak”.',
           question: 'Czy może odpowiadać na maile automatycznie?',
         },
         {
@@ -1374,7 +1362,7 @@ export const pl: Messages = {
       noFreePlan: 'Brak darmowego planu',
       ours: {
         ask: 'W Pro',
-        home: 'Na żywo, zatwierdzanie hurtem, za darmo',
+        home: 'Na żywo, odpowiadasz słowami, za darmo',
         drafts: 'Twoim głosem, wysyłane dopiero po twojej zgodzie, w Pro',
         followUps: 'Automatyczne, przy mailach czekających na odpowiedź',
         handOver: 'Agent doprowadza go do celu, w Pro',
@@ -1574,7 +1562,7 @@ export const pl: Messages = {
           problem: 'Tysiące maili, których nikt nigdy nie przeczyta.',
         },
         {
-          fix: 'Odpowiedzi są gotowe z wyprzedzeniem, twoim głosem i w ich języku. Podobne zatwierdzasz razem przez ⇧⏎, a każdą wciąż możesz sprawdzić.',
+          fix: 'Odpowiedzi są napisane z wyprzedzeniem, twoim głosem i w języku rozmówcy. Każda wychodzi, gdy powiesz, słowem albo głosem.',
           problem: 'Odpisywanie na maile o północy.',
         },
         {
@@ -1645,7 +1633,6 @@ export const pl: Messages = {
         lead: 'Archiwizuje szum, wypisuje cię z tego, czego nigdy nie otwierasz, i zatrzymuje oszustów za drzwiami. Każdy jego krok jest zapisany z powodem, więc możesz go sprawdzić.',
         title: 'Fewmail czyta każdy mail.',
       },
-      remind: 'Przypomnij 19 listopada',
       remindPlan: 'Doda ją do rachunków i przypomni ci 19 listopada.',
       start: 'Zacznij za darmo z Google',
       title: 'Poczta to nie twoja praca.',
@@ -1655,7 +1642,6 @@ export const pl: Messages = {
         'Nieprzeczytane w skrzynce: ',
         slots.count,
       ]) as Rich<'count'>,
-      willDo: 'Fewmail zrobi',
     },
     nav: {
       assistant: 'Asystent poczty AI',
@@ -1683,7 +1669,7 @@ export const pl: Messages = {
       },
       emphasis: 'dla każdego rodzaju poczty.',
       fewmail: {
-        approve: 'Zatwierdź',
+        yes: 'Tak, utwórz',
         ask: 'Faktury od Hetznera: oznaczaj jako przeczytane',
         botName: 'Faktury Hetzner',
         digest: (total: number, people: number) =>
@@ -1693,11 +1679,12 @@ export const pl: Messages = {
             many: (n) => `${n} maili`,
             other: (n) => `${n} maila`,
           })} z ostatniej doby. Głównie newslettery i powiadomienia, a od ludzi tylko ${people}.`,
-        proposal: 'Oto bot. Zatwierdź go, a zacznie od nowej poczty.',
+        proposal:
+          'Oto bot: oznacza faktury od Hetzner jako przeczytane i najpierw pyta. Powiedz „tak”, a zacznie od nowej poczty.',
       },
       label: 'Boty',
       later: 'Cztery warte uwagi, nic do decyzji.',
-      lead: 'Każdy bot czyta swój rodzaj poczty, gdy tylko przychodzi, i w swoim czacie mówi, co zrobił i co czeka na ciebie. Przeklikaj je albo naciskaj [ i ].',
+      lead: 'Każdy bot czyta swój rodzaj poczty, gdy przychodzi, i pisze w swoim czacie, co zrobił i co czeka na ciebie. Odpowiadasz słowami albo głosem. Przełączaj je kliknięciem albo klawiszami [ i ].',
       points: [
         {
           description:
@@ -1711,12 +1698,13 @@ export const pl: Messages = {
         },
         {
           description:
-            'Napisz do Fewmail Bot „faktury od Hetznera: oznaczaj jako przeczytane” i zatwierdź bota, którego zrobi. Tak samo wstrzymasz, zmienisz albo usuniesz każdego z nich.',
+            'Napisz do Fewmail Bot „faktury od Hetzner: oznaczaj jako przeczytane” i powiedz „tak” botowi, którego utworzy. Tak samo go wstrzymasz, zmienisz albo usuniesz.',
           title: 'Zrób bota jednym zdaniem.',
         },
       ],
       quick:
         'Mira z Growthly to zimna oferta: obca osoba coś sprzedaje, a ty nigdy do niej nie pisałeś.',
+      reply: '1 wyślij, 2 przypomnij, 3 pomiń',
       settled: {
         remind: 'przypomnienie ustawione',
         send: 'odpowiedź wysłana',

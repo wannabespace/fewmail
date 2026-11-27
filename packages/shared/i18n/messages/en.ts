@@ -755,22 +755,10 @@ export const en = {
   },
   queue: {
     addToCalendar: 'Add to calendar',
-    writeReminder: 'Write a reminder',
     askedByYou: 'Asked by you',
-    approve: 'Approve',
-    delete: 'Delete',
-    draftedInVoice: 'Drafted in your voice',
-    openEmail: 'Open email',
     pick: 'Pick',
     picked: (n: number) => `${n} picked`,
-    send: 'Send',
-    rewrite: 'Rewrite',
     shorterInstruction: 'Make it shorter.',
-    new: 'New',
-    skipStale: 'Skip them',
-    skipped: (n: number) => `Skipped: ${n}`,
-    stale: (n: number) => `Older than a week: ${n}`,
-    skip: 'Skip',
     unpick: 'Unpick',
   },
   reminders: {
@@ -1267,7 +1255,7 @@ export const en = {
         },
         {
           answer:
-            'It drafts them for you, but never sends one on its own. Each draft waits in its bot’s chat for your approval, and similar ones can be approved together.',
+            'It drafts them for you, but never sends one on its own. Each draft waits in its bot’s chat until you say yes, in a word or by voice, and every send needs its own yes.',
           question: 'Can it answer emails automatically?',
         },
         {
@@ -1320,7 +1308,7 @@ export const en = {
       noFreePlan: 'No free plan',
       ours: {
         ask: 'On Pro',
-        home: 'Live, approved in batches, free',
+        home: 'Live, answered in words, free',
         drafts: 'In your voice, sent only when you approve, on Pro',
         followUps: 'Automatic, on mail that expects a reply',
         handOver: 'The agent works it to its goal, on Pro',
@@ -1520,7 +1508,7 @@ export const en = {
           problem: 'Thousands of emails nobody will ever read.',
         },
         {
-          fix: 'Replies are drafted ahead of time, in your voice and in their language. Similar ones are approved together with ⇧⏎, each still yours to check.',
+          fix: 'Replies are drafted ahead of time, in your voice and in their language. Each one goes out when you say so, in a word or by voice.',
           problem: 'Answering email at midnight.',
         },
         {
@@ -1589,7 +1577,6 @@ export const en = {
         lead: 'It archives the noise, unsubscribes you from what you never open and stops the scam at the door. Each thing it does is written down with the reason, so you can check it.',
         title: 'Fewmail reads every one.',
       },
-      remind: 'Remind me Nov 19',
       remindPlan: 'Adds it to your bills and reminds you on Nov 19.',
       start: 'Start free with Google',
       title: 'Email is not your job.',
@@ -1599,7 +1586,6 @@ export const en = {
         slots.count,
         ' unread in your inbox',
       ]) as Rich<'count'>,
-      willDo: 'Fewmail will',
     },
     nav: {
       assistant: 'AI email assistant',
@@ -1624,16 +1610,17 @@ export const en = {
       },
       emphasis: 'each kind of mail.',
       fewmail: {
-        approve: 'Approve',
+        yes: 'Yes, make it',
         ask: 'Invoices from Hetzner: mark them read',
         botName: 'Hetzner invoices',
         digest: (total: number, people: number) =>
           `${total} emails in the last day. Mostly newsletters and notifications, and just ${people} from people.`,
-        proposal: 'Here is the bot. Approve it and it starts with new mail.',
+        proposal:
+          'Here is the bot: it marks invoices from Hetzner read and asks first. Say yes and it starts with new mail.',
       },
       label: 'Bots',
       later: 'Four worth knowing, nothing to decide.',
-      lead: 'Each bot reads its own kind of mail as it arrives and tells you in its chat what it did and what waits for you. Click through them, or press [ and ].',
+      lead: 'Each bot reads its own kind of mail as it arrives and tells you in its chat what it did and what waits for you. You answer in words or by voice. Click through them, or press [ and ].',
       points: [
         {
           description:
@@ -1647,12 +1634,13 @@ export const en = {
         },
         {
           description:
-            'Tell Fewmail Bot “invoices from Hetzner: mark them read” and approve the bot it makes. Pause, change or delete one the same way.',
+            'Tell Fewmail Bot “invoices from Hetzner: mark them read” and say yes to the bot it makes. Pause, change or delete one the same way.',
           title: 'Make one in a sentence.',
         },
       ],
       quick:
         'Mira at Growthly is cold outreach: a stranger pitching, and you never wrote to them.',
+      reply: '1 send, 2 remind me, 3 skip',
       settled: {
         remind: 'reminder set',
         send: 'reply sent',

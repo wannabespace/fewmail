@@ -275,7 +275,7 @@ export const fr: Messages = {
         },
         {
           answer:
-            'Il rédige les réponses pour vous, mais n’en envoie jamais aucune de lui-même. Chaque brouillon attend votre approbation dans le chat de son bot, et les brouillons similaires peuvent être approuvés ensemble.',
+            'Il les rédige pour toi, mais n’en envoie jamais une seul. Chaque brouillon attend dans le chat de son bot jusqu’à ce que tu dises oui, en mots ou à la voix, et chaque envoi demande son propre oui.',
           question: 'Peut-il répondre aux e-mails automatiquement ?',
         },
         {
@@ -329,7 +329,7 @@ export const fr: Messages = {
       noFreePlan: 'Pas de formule gratuite',
       ours: {
         ask: 'Avec Pro',
-        home: 'En direct, approbation groupée, gratuit',
+        home: 'En direct, tu réponds en mots, gratuit',
         drafts: 'À votre façon, envoyées seulement avec votre accord, avec Pro',
         followUps: 'Automatiques, sur les e-mails qui attendent une réponse',
         handOver: 'L’agent la mène à son but, avec Pro',
@@ -530,7 +530,7 @@ export const fr: Messages = {
           problem: 'Des milliers d’e-mails que personne ne lira jamais.',
         },
         {
-          fix: 'Les réponses sont rédigées à l’avance, à votre façon et dans leur langue. Les réponses semblables s’approuvent ensemble avec ⇧⏎, et chacune reste à vous de vérifier.',
+          fix: 'Les réponses sont rédigées à l’avance, avec ta voix et dans leur langue. Chacune part quand tu le dis, en mots ou à la voix.',
           problem: 'Répondre à ses e-mails à minuit.',
         },
         {
@@ -604,7 +604,6 @@ export const fr: Messages = {
         lead: 'Il archive le bruit, vous désabonne de ce que vous n’ouvrez jamais et arrête l’arnaque à la porte. Chaque action est notée avec sa raison, pour que vous puissiez vérifier.',
         title: 'Fewmail les lit tous.',
       },
-      remind: 'Me le rappeler le 19 nov.',
       remindPlan:
         'Ajouter la facture à vos paiements et vous la rappeler le 19 nov.',
       start: 'Commencer gratuitement avec Google',
@@ -615,7 +614,6 @@ export const fr: Messages = {
         slots.count,
         ' non lus dans votre boîte',
       ]) as Rich<'count'>,
-      willDo: 'Fewmail va',
     },
     nav: {
       assistant: 'Assistant e-mail IA',
@@ -640,7 +638,7 @@ export const fr: Messages = {
       },
       emphasis: 'chaque type d’e-mail.',
       fewmail: {
-        approve: 'Approuver',
+        yes: 'Oui, crée-le',
         ask: 'Factures de Hetzner : marquez-les comme lues',
         botName: 'Factures Hetzner',
         digest: (total: number, people: number) =>
@@ -656,11 +654,11 @@ export const fr: Messages = {
             }
           )}.`,
         proposal:
-          'Voici le bot. Approuvez-le et il commencera avec les nouveaux e-mails.',
+          'Voici le bot : il marque comme lues les factures de Hetzner et demande d’abord. Dis oui et il commence avec le nouveau courrier.',
       },
       label: 'Bots',
       later: 'Quatre choses bonnes à savoir, rien à décider.',
-      lead: 'Chaque bot lit son propre type d’e-mails dès leur arrivée et vous dit dans son chat ce qu’il a fait et ce qui vous attend. Passez de l’un à l’autre, ou appuyez sur [ et ].',
+      lead: 'Chaque bot lit son type de courrier dès qu’il arrive et te dit dans son chat ce qu’il a fait et ce qui t’attend. Tu réponds en mots ou à la voix. Parcours-les d’un clic ou avec [ et ].',
       points: [
         {
           description:
@@ -674,12 +672,13 @@ export const fr: Messages = {
         },
         {
           description:
-            'Dites à Fewmail Bot « factures de Hetzner : marquez-les comme lues » et approuvez le bot qu’il crée. Mettez un bot en pause, modifiez-le ou supprimez-le de la même façon.',
+            'Dis à Fewmail Bot « factures de Hetzner : marque-les comme lues » et dis oui au bot qu’il crée. Mets-en un en pause, modifie-le ou supprime-le de la même façon.',
           title: 'Créez-en un en une phrase.',
         },
       ],
       quick:
         'Mira, de Growthly, fait de la prospection à froid : une inconnue qui vous démarche, et vous ne lui avez jamais écrit.',
+      reply: '1 envoie, 2 rappelle-moi, 3 passe',
       settled: {
         remind: 'rappel programmé',
         send: 'réponse envoyée',
@@ -1236,23 +1235,11 @@ export const fr: Messages = {
   },
   queue: {
     addToCalendar: 'Ajouter à l’agenda',
-    writeReminder: 'Écrire une relance',
-    approve: 'Approuver',
-    delete: 'Supprimer',
     pick: 'Choisir',
     picked: (n: number) => `${n} choisis`,
     unpick: 'Retirer',
     askedByYou: 'Demandé par vous',
-    draftedInVoice: 'Rédigé avec votre style',
-    openEmail: 'Ouvrir l’e-mail',
-    send: 'Envoyer',
-    rewrite: 'Réécrire',
     shorterInstruction: 'Fais plus court.',
-    new: 'Nouveau',
-    skipStale: 'Les passer',
-    skipped: (n: number) => `Passées : ${n}`,
-    stale: (n: number) => `Plus d’une semaine : ${n}`,
-    skip: 'Passer',
   },
   decide: {
     changed: (items: string) =>

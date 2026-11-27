@@ -273,7 +273,7 @@ export const es: Messages = {
         },
         {
           answer:
-            'Te redacta las respuestas, pero nunca envía ninguna por su cuenta. Cada borrador espera tu aprobación en el chat de su bot, y los parecidos se pueden aprobar juntos.',
+            'Las escribe por ti, pero nunca envía una por su cuenta. Cada borrador espera en el chat de su bot hasta que dices que sí, con palabras o por voz, y cada envío necesita su propio sí.',
           question: '¿Puede responder correos automáticamente?',
         },
         {
@@ -326,7 +326,7 @@ export const es: Messages = {
       noFreePlan: 'Sin plan gratuito',
       ours: {
         ask: 'Con Pro',
-        home: 'En vivo, con aprobación en lote, gratis',
+        home: 'En vivo, respondes con palabras, gratis',
         drafts: 'Con tu voz, enviadas solo cuando las apruebas, con Pro',
         followUps: 'Automáticos, en correos que esperan respuesta',
         handOver: 'El agente lo lleva hasta su objetivo, con Pro',
@@ -527,7 +527,7 @@ export const es: Messages = {
           problem: 'Miles de correos que nadie va a leer nunca.',
         },
         {
-          fix: 'Las respuestas se redactan por adelantado, con tu voz y en su idioma. Las parecidas se aprueban juntas con ⇧⏎, y cada una sigue siendo tuya para revisarla.',
+          fix: 'Las respuestas se escriben con antelación, con tu voz y en su idioma. Cada una sale cuando lo dices, con palabras o por voz.',
           problem: 'Contestar correos a medianoche.',
         },
         {
@@ -600,7 +600,6 @@ export const es: Messages = {
         lead: 'Archiva el ruido, te da de baja de lo que nunca abres y deja la estafa en la puerta. Cada cosa que hace queda anotada con su motivo, para que puedas revisarla.',
         title: 'Fewmail los lee todos.',
       },
-      remind: 'Recuérdamelo el 19 de nov.',
       remindPlan: 'La añade a tus facturas y te lo recuerda el 19 de nov.',
       start: 'Empieza gratis con Google',
       title: 'El correo no es tu trabajo.',
@@ -610,7 +609,6 @@ export const es: Messages = {
         slots.count,
         ' sin leer en tu bandeja',
       ]) as Rich<'count'>,
-      willDo: 'Lo que hará Fewmail',
     },
     nav: {
       assistant: 'Asistente de correo con IA',
@@ -638,7 +636,7 @@ export const es: Messages = {
       },
       emphasis: 'cada tipo de correo.',
       fewmail: {
-        approve: 'Aprobar',
+        yes: 'Sí, créalo',
         ask: 'Facturas de Hetzner: márcalas como leídas',
         botName: 'Facturas de Hetzner',
         digest: (total: number, people: number) =>
@@ -653,11 +651,12 @@ export const es: Messages = {
               other: (n) => `solo ${n} de personas`,
             }
           )}.`,
-        proposal: 'Aquí está el bot. Apruébalo y empezará con el correo nuevo.',
+        proposal:
+          'Aquí está el bot: marca como leídas las facturas de Hetzner y pregunta antes. Di que sí y empieza con el correo nuevo.',
       },
       label: 'Bots',
       later: 'Cuatro cosas que conviene saber, nada que decidir.',
-      lead: 'Cada bot lee su propio tipo de correo en cuanto llega y te cuenta en su chat lo que hizo y lo que te espera. Pasa de uno a otro, o pulsa [ y ].',
+      lead: 'Cada bot lee su tipo de correo en cuanto llega y te cuenta en su chat qué hizo y qué te espera. Respondes con palabras o por voz. Recórrelos con un clic o con [ y ].',
       points: [
         {
           description:
@@ -671,12 +670,13 @@ export const es: Messages = {
         },
         {
           description:
-            'Dile a Fewmail Bot «facturas de Hetzner: márcalas como leídas» y aprueba el bot que crea. Pausa, cambia o borra uno de la misma manera.',
+            'Dile a Fewmail Bot «facturas de Hetzner: márcalas como leídas» y di que sí al bot que crea. Pausa, cambia o elimina uno de la misma forma.',
           title: 'Crea uno con una frase.',
         },
       ],
       quick:
         'Mira, de Growthly, es prospección en frío: una desconocida que te vende algo, y tú nunca le escribiste.',
+      reply: '1 envía, 2 recuérdamelo, 3 sáltalo',
       settled: {
         remind: 'recordatorio creado',
         send: 'respuesta enviada',
@@ -1235,23 +1235,11 @@ export const es: Messages = {
   },
   queue: {
     addToCalendar: 'Añadir al calendario',
-    writeReminder: 'Escribir un recordatorio',
-    approve: 'Aprobar',
-    delete: 'Eliminar',
     pick: 'Seleccionar',
     picked: (n: number) => `${n} seleccionados`,
     unpick: 'Quitar',
     askedByYou: 'Lo pediste tú',
-    draftedInVoice: 'Redactado con tu voz',
-    openEmail: 'Abrir el correo',
-    send: 'Enviar',
-    rewrite: 'Reescribir',
     shorterInstruction: 'Hazlo más corto.',
-    new: 'Nuevo',
-    skipStale: 'Omitirlas',
-    skipped: (n: number) => `Omitidas: ${n}`,
-    stale: (n: number) => `De hace más de una semana: ${n}`,
-    skip: 'Omitir',
   },
   decide: {
     changed: (items: string) =>

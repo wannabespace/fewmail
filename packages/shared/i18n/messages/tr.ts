@@ -749,23 +749,11 @@ export const tr: Messages = {
   },
   queue: {
     addToCalendar: 'Takvime ekle',
-    writeReminder: 'Hatırlatma yaz',
-    approve: 'Onayla',
-    delete: 'Sil',
     pick: 'Seç',
     picked: (n: number) => `${n} seçili`,
     unpick: 'Seçimi kaldır',
     askedByYou: 'Senin isteğinle',
-    draftedInVoice: 'Senin üslubunla yazıldı',
-    openEmail: 'E-postayı aç',
-    send: 'Gönder',
-    rewrite: 'Yeniden yaz',
     shorterInstruction: 'Daha kısa yap.',
-    new: 'Yeni',
-    skipStale: 'Hepsini atla',
-    skipped: (n: number) => `Atlandı: ${n}`,
-    stale: (n: number) => `Bir haftadan eski: ${n}`,
-    skip: 'Atla',
   },
   reminders: {
     followUp: 'Takip et',
@@ -1249,7 +1237,7 @@ export const tr: Messages = {
         },
         {
           answer:
-            'Yanıt taslaklarını senin için yazar ama asla kendi başına göndermez. Her taslak onayın için botunun sohbetinde bekler, benzer olanları birlikte onaylayabilirsin.',
+            'Yanıtları senin için yazar ama hiçbirini kendi başına göndermez. Her taslak, sen sözle ya da sesle evet diyene kadar botunun sohbetinde bekler ve her gönderim kendi evetini ister.',
           question: 'E-postaları otomatik olarak yanıtlayabilir mi?',
         },
         {
@@ -1303,7 +1291,7 @@ export const tr: Messages = {
       noFreePlan: 'Ücretsiz plan yok',
       ours: {
         ask: 'Pro’da',
-        home: 'Canlı güncellenir, toplu onay, ücretsiz',
+        home: 'Canlı, sözle yanıtlanır, ücretsiz',
         drafts: 'Senin üslubunla, yalnızca sen onaylayınca gönderilir, Pro’da',
         followUps: 'Yanıt bekleyen postalarda otomatik',
         handOver: 'Ajan hedefe ulaşana dek yürütür, Pro’da',
@@ -1504,7 +1492,7 @@ export const tr: Messages = {
           problem: 'Kimsenin asla okumayacağı binlerce e-posta.',
         },
         {
-          fix: 'Yanıtlar önceden, senin üslubunla ve onların dilinde hazırlanır. Benzer olanları ⇧⏎ ile birlikte onaylarsın, yine de her birine göz atmak sana kalır.',
+          fix: 'Yanıtlar önceden, senin üslubunla ve karşı tarafın dilinde yazılır. Her biri sen söylediğinde gider, sözle ya da sesle.',
           problem: 'Gece yarısı e-posta yanıtlamak.',
         },
         {
@@ -1574,7 +1562,6 @@ export const tr: Messages = {
         lead: 'Gürültüyü arşivler, hiç açmadığın bültenlerden aboneliğini iptal eder ve dolandırıcılığı kapıda durdurur. Yaptığı her şey nedeniyle birlikte yazılır, böylece kontrol edebilirsin.',
         title: 'Fewmail her birini okur.',
       },
-      remind: '19 Kasım’da hatırlat',
       remindPlan: 'Faturalarına ekler ve 19 Kasım’da sana hatırlatır.',
       start: 'Google ile ücretsiz başla',
       title: 'E-posta senin işin değil.',
@@ -1585,7 +1572,6 @@ export const tr: Messages = {
         slots.count,
         ' okunmamış',
       ]) as Rich<'count'>,
-      willDo: 'Fewmail ne yapacak',
     },
     nav: {
       assistant: 'Yapay zekâ e-posta asistanı',
@@ -1613,16 +1599,17 @@ export const tr: Messages = {
       },
       emphasis: 'Her tür posta için',
       fewmail: {
-        approve: 'Onayla',
+        yes: 'Evet, oluştur',
         ask: 'Hetzner faturaları: okundu olarak işaretle',
         botName: 'Hetzner faturaları',
         digest: (total: number, people: number) =>
           `Son bir günde ${total} e-posta. Çoğu bülten ve bildirim, insanlardan yalnızca ${people} tane.`,
-        proposal: 'İşte bot. Onayla, yeni postalarla işe başlasın.',
+        proposal:
+          'İşte bot: Hetzner faturalarını okundu olarak işaretler ve önce sorar. Evet de, yeni postayla başlasın.',
       },
       label: 'Botlar',
       later: 'Bilmeye değer dört şey, karar verilecek bir şey yok.',
-      lead: 'Her bot kendi türündeki postayı geldiği anda okur ve sohbetinde ne yaptığını, neyin seni beklediğini anlatır. Aralarında gezin ya da [ ve ] tuşlarına bas.',
+      lead: 'Her bot kendi türündeki postayı geldiği anda okur ve sohbetinde ne yaptığını ve seni neyin beklediğini söyler. Sözle ya da sesle yanıtlarsın. Tıklayarak ya da [ ve ] ile aralarında gez.',
       points: [
         {
           description:
@@ -1636,12 +1623,13 @@ export const tr: Messages = {
         },
         {
           description:
-            'Fewmail Bot’a “Hetzner faturaları: okundu olarak işaretle” de ve yaptığı botu onayla. Bir botu duraklatmak, değiştirmek ya da silmek de aynı şekilde olur.',
+            'Fewmail Bot’a “Hetzner faturaları: okundu olarak işaretle” de ve oluşturduğu bota evet de. Duraklatmak, değiştirmek ya da silmek de aynı şekilde.',
           title: 'Tek cümleyle bot yap.',
         },
       ],
       quick:
         'Growthly’den Mira soğuk satış e-postası: bir şey satmaya çalışan bir yabancı ve sen ona hiç yazmadın.',
+      reply: '1 gönder, 2 hatırlat, 3 atla',
       settled: {
         remind: 'hatırlatma kuruldu',
         send: 'yanıt gönderildi',

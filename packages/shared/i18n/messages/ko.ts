@@ -601,23 +601,11 @@ export const ko: Messages = {
   },
   queue: {
     addToCalendar: '캘린더에 추가',
-    writeReminder: '리마인더 쓰기',
-    approve: '승인',
-    delete: '삭제',
     pick: '선택',
     picked: (n: number) => `${n}개 선택됨`,
     unpick: '선택 해제',
     askedByYou: '요청하신 답장',
-    draftedInVoice: '내 말투로 작성한 초안',
-    openEmail: '메일 열기',
-    send: '보내기',
-    rewrite: '다시 쓰기',
     shorterInstruction: '더 짧게 써 줘.',
-    new: '새 항목',
-    skipStale: '모두 건너뛰기',
-    skipped: (n: number) => `${n}개 건너뜀`,
-    stale: (n: number) => `일주일 넘음: ${n}개`,
-    skip: '건너뛰기',
   },
   reminders: {
     followUp: '후속 연락',
@@ -1048,7 +1036,7 @@ export const ko: Messages = {
         },
         {
           answer:
-            '답장 초안은 대신 써 주지만, 혼자 보내는 일은 절대 없어요. 초안은 하나하나 담당 봇의 채팅에서 내 승인을 기다리고, 비슷한 초안은 한 번에 승인할 수 있어요.',
+            '답장은 대신 써 주지만 스스로 보내지는 않아요. 초안은 당신이 말이나 음성으로 “응”이라고 할 때까지 봇의 채팅에서 기다리고, 보낼 때마다 따로 “응”이 필요해요.',
           question: '메일에 자동으로 답장할 수 있나요?',
         },
         {
@@ -1101,7 +1089,7 @@ export const ko: Messages = {
       noFreePlan: '무료 요금제 없음',
       ours: {
         ask: 'Pro에서',
-        home: '실시간, 한 번에 승인, 무료',
+        home: '실시간, 말로 답하기, 무료',
         drafts: '내 말투로, 승인할 때만 전송, Pro에서',
         followUps: '답장을 기다리는 메일에 자동으로',
         handOver: '에이전트가 목표까지 처리, Pro에서',
@@ -1299,7 +1287,7 @@ export const ko: Messages = {
           problem: '아무도 읽지 않을 수천 통의 메일.',
         },
         {
-          fix: '답장은 내 말투와 상대의 언어로 미리 써 둬요. 비슷한 답장은 ⇧⏎로 한꺼번에 승인하고, 하나하나 확인할 수도 있어요.',
+          fix: '답장은 미리, 당신의 말투와 상대의 언어로 쓰여요. 말이나 음성으로 당신이 말할 때 하나씩 나가요.',
           problem: '한밤중에 메일 답장하기.',
         },
         {
@@ -1368,7 +1356,6 @@ export const ko: Messages = {
         lead: '쓸모없는 메일은 보관하고, 열지 않는 뉴스레터는 구독을 취소하고, 사기는 문 앞에서 막아요. 한 일마다 이유를 적어 두니 언제든 확인할 수 있어요.',
         title: 'Fewmail이 하나도 빠짐없이 읽어요.',
       },
-      remind: '11월 19일에 알림',
       remindPlan: '청구서 목록에 추가하고 11월 19일에 알려 줘요.',
       start: 'Google로 무료로 시작하기',
       title: '메일은 당신의 일이 아니에요.',
@@ -1379,7 +1366,6 @@ export const ko: Messages = {
         slots.count,
         '개',
       ]) as Rich<'count'>,
-      willDo: 'Fewmail이 할 일',
     },
     nav: {
       assistant: 'AI 이메일 비서',
@@ -1404,16 +1390,17 @@ export const ko: Messages = {
       },
       emphasis: '메일 종류마다',
       fewmail: {
-        approve: '승인',
+        yes: '응, 만들어 줘',
         ask: 'Hetzner 청구서는 읽음 처리해 줘',
         botName: 'Hetzner 청구서',
         digest: (total: number, people: number) =>
           `지난 하루 동안 메일 ${total}통. 대부분 뉴스레터와 알림이고, 사람이 보낸 건 ${people}통뿐이에요.`,
-        proposal: '봇을 만들었어요. 승인하면 새 메일부터 일을 시작해요.',
+        proposal:
+          '봇을 만들었어요: Hetzner 청구서를 읽음으로 표시하고 먼저 물어봐요. “응”이라고 하면 새 메일부터 시작해요.',
       },
       label: '봇',
       later: '알아 두면 좋은 것 네 가지, 결정할 건 없어요.',
-      lead: '봇마다 맡은 종류의 메일을 도착하는 대로 읽고, 무엇을 했는지와 무엇이 나를 기다리는지 채팅으로 알려 줘요. 하나씩 눌러 보거나 [ 와 ] 를 눌러 보세요.',
+      lead: '각 봇은 도착하는 자기 종류의 메일을 읽고, 무엇을 했고 무엇이 당신을 기다리는지 채팅에서 알려 줘요. 당신은 말이나 음성으로 답해요. 클릭하거나 [ 와 ] 를 눌러 둘러보세요.',
       points: [
         {
           description:
@@ -1427,12 +1414,13 @@ export const ko: Messages = {
         },
         {
           description:
-            'Fewmail Bot에게 “Hetzner 청구서는 읽음 처리해 줘”라고 말하고, 만들어 준 봇을 승인하세요. 일시 중지, 수정, 삭제도 같은 방법으로 해요.',
+            'Fewmail Bot에게 “Hetzner 청구서: 읽음으로 표시해 줘”라고 말하고, 만든 봇에 “응”이라고 하세요. 일시 정지, 변경, 삭제도 같은 방법으로.',
           title: '한 문장으로 하나 만들어요.',
         },
       ],
       quick:
         'Growthly의 Mira는 콜드 메일이에요. 모르는 사람의 영업이고, 내가 먼저 연락한 적은 없어요.',
+      reply: '1 보내 줘, 2 알려 줘, 3 건너뛰어',
       settled: {
         remind: '알림 설정됨',
         send: '답장 보냄',

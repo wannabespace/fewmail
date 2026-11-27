@@ -757,23 +757,11 @@ export const id: Messages = {
   },
   queue: {
     addToCalendar: 'Tambah ke kalender',
-    writeReminder: 'Tulis pengingat',
-    approve: 'Setujui',
-    delete: 'Hapus',
     pick: 'Pilih',
     picked: (n: number) => `${n} dipilih`,
     unpick: 'Batal pilih',
     askedByYou: 'Atas permintaanmu',
-    draftedInVoice: 'Ditulis dengan gayamu',
-    openEmail: 'Buka email',
-    send: 'Kirim',
-    rewrite: 'Tulis ulang',
     shorterInstruction: 'Buat lebih singkat.',
-    new: 'Baru',
-    skipStale: 'Lewati semua',
-    skipped: (n: number) => `Dilewati: ${n}`,
-    stale: (n: number) => `Lebih dari seminggu: ${n}`,
-    skip: 'Lewati',
   },
   reminders: {
     followUp: 'Tindak lanjut',
@@ -1256,7 +1244,7 @@ export const id: Messages = {
         },
         {
           answer:
-            'Ia menuliskan drafnya untukmu, tetapi tidak pernah mengirim satu pun sendiri. Setiap draf menunggu persetujuanmu di obrolan bot-nya, dan draf yang mirip bisa disetujui sekaligus.',
+            'Ia menuliskannya untukmu, tapi tak pernah mengirim sendiri. Setiap draf menunggu di chat botnya sampai kamu bilang ya, lewat kata atau suara, dan setiap pengiriman butuh ya-nya sendiri.',
           question: 'Bisakah ia membalas email secara otomatis?',
         },
         {
@@ -1309,7 +1297,7 @@ export const id: Messages = {
       noFreePlan: 'Tanpa paket gratis',
       ours: {
         ask: 'Di Pro',
-        home: 'Langsung diperbarui, setujui sekaligus, gratis',
+        home: 'Langsung, dijawab dengan kata-kata, gratis',
         drafts: 'Dengan gayamu, dikirim hanya setelah kamu setujui, di Pro',
         followUps: 'Otomatis, untuk email yang menunggu balasan',
         handOver: 'Agen menuntaskannya sampai tujuan, di Pro',
@@ -1509,7 +1497,7 @@ export const id: Messages = {
           problem: 'Ribuan email yang tak akan pernah dibaca siapa pun.',
         },
         {
-          fix: 'Balasan disusun lebih awal, dengan gayamu dan dalam bahasa mereka. Yang mirip bisa disetujui sekaligus dengan ⇧⏎, dan tetap bisa kamu periksa satu per satu.',
+          fix: 'Balasan ditulis lebih dulu, dengan gayamu dan dalam bahasa mereka. Setiap balasan terkirim saat kamu bilang, lewat kata atau suara.',
           problem: 'Membalas email tengah malam.',
         },
         {
@@ -1582,7 +1570,6 @@ export const id: Messages = {
         lead: 'Ia mengarsipkan yang tak penting, menghentikan langganan yang tak pernah kamu buka, dan menghadang penipuan di depan pintu. Semua yang dilakukannya dicatat beserta alasannya, jadi kamu bisa memeriksanya.',
         title: 'Fewmail membaca setiap email.',
       },
-      remind: 'Ingatkan aku 19 Nov',
       remindPlan: 'Menambahkannya ke tagihanmu dan mengingatkanmu pada 19 Nov.',
       start: 'Mulai gratis dengan Google',
       title: 'Email bukan pekerjaanmu.',
@@ -1592,7 +1579,6 @@ export const id: Messages = {
         slots.count,
         ' belum dibaca di kotak masukmu',
       ]) as Rich<'count'>,
-      willDo: 'Yang akan dilakukan Fewmail',
     },
     nav: {
       assistant: 'Asisten email AI',
@@ -1617,17 +1603,17 @@ export const id: Messages = {
       },
       emphasis: 'setiap jenis email.',
       fewmail: {
-        approve: 'Setujui',
+        yes: 'Ya, buat',
         ask: 'Tagihan dari Hetzner: tandai sudah dibaca',
         botName: 'Tagihan Hetzner',
         digest: (total: number, people: number) =>
           `${total} email dalam sehari terakhir. Kebanyakan newsletter dan notifikasi, dan hanya ${people} dari orang.`,
         proposal:
-          'Ini bot-nya. Setujui, dan ia mulai bekerja dengan email baru.',
+          'Ini botnya: menandai tagihan dari Hetzner sudah dibaca dan bertanya dulu. Bilang ya dan ia mulai dengan email baru.',
       },
       label: 'Bot',
       later: 'Empat hal yang perlu diketahui, tidak ada yang perlu diputuskan.',
-      lead: 'Setiap bot membaca jenis emailnya sendiri begitu tiba dan memberitahumu di obrolannya apa yang sudah ia lakukan dan apa yang menunggumu. Klik satu per satu, atau tekan [ dan ].',
+      lead: 'Setiap bot membaca jenis emailnya sendiri begitu tiba dan memberi tahu di chatnya apa yang ia lakukan dan apa yang menunggumu. Kamu menjawab dengan kata-kata atau suara. Klik satu per satu, atau tekan [ dan ].',
       points: [
         {
           description:
@@ -1641,12 +1627,13 @@ export const id: Messages = {
         },
         {
           description:
-            'Bilang ke Fewmail Bot “tagihan dari Hetzner: tandai sudah dibaca” lalu setujui bot yang dibuatnya. Jeda, ubah, atau hapus bot dengan cara yang sama.',
+            'Bilang ke Fewmail Bot “tagihan dari Hetzner: tandai sudah dibaca” lalu bilang ya ke bot yang dibuatnya. Jeda, ubah, atau hapus dengan cara yang sama.',
           title: 'Buat bot dalam satu kalimat.',
         },
       ],
       quick:
         'Mira dari Growthly adalah cold outreach: orang asing yang menawarkan sesuatu, dan kamu tak pernah menulis padanya.',
+      reply: '1 kirim, 2 ingatkan aku, 3 lewati',
       settled: {
         remind: 'pengingat dipasang',
         send: 'balasan terkirim',

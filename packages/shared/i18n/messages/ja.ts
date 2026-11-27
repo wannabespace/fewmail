@@ -601,23 +601,11 @@ export const ja: Messages = {
   },
   queue: {
     addToCalendar: 'カレンダーに追加',
-    writeReminder: 'リマインドを書く',
-    approve: '承認',
-    delete: '削除',
     pick: '選択',
     picked: (n: number) => `${n}件を選択中`,
     unpick: '選択解除',
     askedByYou: 'あなたの依頼',
-    draftedInVoice: 'あなたらしい文面で下書きしました',
-    openEmail: 'メールを開く',
-    send: '送信',
-    rewrite: '書き直す',
     shorterInstruction: 'もっと短くしてください。',
-    new: '新着',
-    skipStale: 'まとめてスキップ',
-    skipped: (n: number) => `${n}件をスキップ`,
-    stale: (n: number) => `1週間以上前: ${n}件`,
-    skip: 'スキップ',
   },
   reminders: {
     followUp: 'フォローアップ',
@@ -1058,7 +1046,7 @@ export const ja: Messages = {
         },
         {
           answer:
-            '返信を下書きしますが、自分から送信することはありません。下書きはすべて担当ボットのチャットであなたの承認を待ち、似たものはまとめて承認できます。',
+            '返信は代わりに書きますが、自分から送ることはありません。下書きはあなたが言葉か声で「はい」と言うまでボットのチャットで待ち、送信はそれぞれに「はい」が必要です。',
           question: 'メールに自動で返信できますか？',
         },
         {
@@ -1111,7 +1099,7 @@ export const ja: Messages = {
       noFreePlan: '無料プランなし',
       ours: {
         ask: 'Pro で',
-        home: 'リアルタイムで更新、まとめて承認、無料',
+        home: 'リアルタイム、言葉で答える、無料',
         drafts: 'あなたの口調で。送信は承認したときだけ、Pro で',
         followUps: '返信を待っているメールに自動で',
         handOver: 'エージェントが目的まで進める、Pro で',
@@ -1310,7 +1298,7 @@ export const ja: Messages = {
           problem: '誰も読むことのない何千通ものメール。',
         },
         {
-          fix: '返信は前もって、あなたの口調と相手の言語で下書きされます。似た返信は ⇧⏎ でまとめて承認でき、一通ずつ確認もできます。',
+          fix: '返信は前もって、あなたの口調で相手の言語で書かれます。言葉か声であなたが言ったときに、一通ずつ送られます。',
           problem: '真夜中のメール返信。',
         },
         {
@@ -1385,7 +1373,6 @@ export const ja: Messages = {
         lead: 'ノイズはアーカイブし、開かないメルマガは配信停止し、詐欺は入口で止めます。やったことにはすべて理由が書き残されるので、あとから確認できます。',
         title: 'Fewmail が、すべて読みます。',
       },
-      remind: '11月19日にリマインド',
       remindPlan: '請求の一覧に追加して、11月19日にお知らせします。',
       start: 'Google で無料で始める',
       title: 'メールは、あなたの仕事じゃない。',
@@ -1396,7 +1383,6 @@ export const ja: Messages = {
         slots.count,
         ' 件',
       ]) as Rich<'count'>,
-      willDo: 'Fewmail がすること',
     },
     nav: {
       assistant: 'AI メールアシスタント',
@@ -1421,17 +1407,17 @@ export const ja: Messages = {
       },
       emphasis: 'メールの種類ごとに',
       fewmail: {
-        approve: '承認',
+        yes: 'はい、作って',
         ask: 'Hetzner からの請求書は既読にして',
         botName: 'Hetzner の請求書',
         digest: (total: number, people: number) =>
           `過去 1 日のメールは ${total} 通。ほとんどがメルマガと通知で、人からのメールは ${people} 通だけです。`,
         proposal:
-          'ボットができました。承認すると、新着メールから動き始めます。',
+          'ボットができました：Hetzner の請求書を既読にし、先に確認します。「はい」と言えば新しいメールから始めます。',
       },
       label: 'ボット',
       later: '知っておきたいことが 4 つ。判断はいりません。',
-      lead: 'ボットはそれぞれ担当のメールを届いたそばから読み、何をしたか、何があなたを待っているかをチャットで伝えます。クリックして切り替えるか、[ と ] を押してください。',
+      lead: '各ボットは届いた自分の種類のメールを読み、何をしたか、何があなたを待っているかをチャットで伝えます。あなたは言葉か声で答えます。クリックするか [ と ] で切り替えてください。',
       points: [
         {
           description:
@@ -1445,12 +1431,13 @@ export const ja: Messages = {
         },
         {
           description:
-            'Fewmail Bot に「Hetzner からの請求書は既読にして」と伝え、できたボットを承認するだけ。一時停止、変更、削除も同じように頼めます。',
+            'Fewmail Bot に「Hetzner の請求書：既読にして」と伝え、作られたボットに「はい」と言うだけ。一時停止、変更、削除も同じように。',
           title: '一文でひとつ作れます。',
         },
       ],
       quick:
         'Growthly の Mira からは営業メールです。知らない相手からの売り込みで、あなたからは一度も連絡していません。',
+      reply: '1 送って、2 リマインドして、3 スキップ',
       settled: {
         remind: 'リマインダー設定済み',
         send: '返信を送信済み',
