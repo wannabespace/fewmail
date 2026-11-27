@@ -1020,6 +1020,7 @@ export const BotDesk = () => {
                 type="button"
                 aria-current={open === chat || undefined}
                 aria-label={names[chat]}
+                onMouseDown={(event) => event.preventDefault()}
                 onClick={() => show(chat)}
                 className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring flex shrink-0 cursor-pointer items-center gap-2.5 rounded-lg p-1.5 text-left text-sm outline-none sm:w-full sm:px-2"
               >
