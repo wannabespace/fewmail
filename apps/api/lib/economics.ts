@@ -429,15 +429,18 @@ const askCost = () =>
     ASK_ANSWER_OUTPUT_TOKENS
   )
 
-/** A voice message on the web, Telegram or WhatsApp: heard, then answered in the agent's voice too. */
+/** A voice message on the web, Telegram or WhatsApp: heard, then answered in the agent's voice too (that voice is counted with `spokenReplies`). */
 const spokenAnswerCost = (use: Use) =>
   use.voiceSeconds * priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second') +
   Math.min(use.spokenChars, SPEECH_CHARS) *
     priceOf(SPEECH_MODEL, 'input_cost_per_character')
 
-/** One message counted against the plan, the dearer of a chat turn and Ask, typed or spoken to it. */
+/** One message counted against the plan, the dearer of a chat turn and Ask, typed or spoken to it; its answer read aloud is in `spokenReplies`. */
 export const messageCost = (use: Use) =>
-  Math.max(chatCost(use), askCost()) + use.voiceShare * spokenAnswerCost(use)
+  Math.max(chatCost(use), askCost()) +
+  use.voiceShare *
+    use.voiceSeconds *
+    priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second')
 
 /** One day's Reading issue with the agent: each newsletter's own summary, then the issue's. */
 const issueCost = (use: Use) =>
