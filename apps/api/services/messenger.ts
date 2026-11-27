@@ -1,57 +1,40 @@
 import { db } from '@fewmail/db'
 import { botMessages } from '@fewmail/db/schema'
-import {
-  cardPayload,
-  hostOf,
-  parseSkill,
-  readingSpeech,
-  SKILLS,
-  UNDO_SEND_SECONDS,
-} from '@fewmail/shared/agent'
+import { parseSkill, readingSpeech, SKILLS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
-import { approveTitle, messages } from '@fewmail/shared/i18n'
+import { messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
-import { Result } from 'better-result'
 import { isAfter, subDays, subMinutes } from 'date-fns'
-import { eq, lt } from 'drizzle-orm'
+import { and, desc, eq, isNotNull, like, lt } from 'drizzle-orm'
 
 import { env } from '../env'
 import { speak } from '../lib/elevenlabs'
-import { keyedHash } from '../lib/keyed-hash'
 import { transcribe } from '../lib/mistral'
 import { capture } from '../lib/posthog'
-import { approveCard } from './approve'
 import { ConsentChangedError } from './consent-error'
+import { cardItem, decide, openItems, waitingText } from './decide'
 import { savedThisWeek } from './home'
 import { followMessage } from './instructions'
 import { LimitReachedError } from './limit-error'
-import { dismissAction, listQueue, redraftAction, updateDraft } from './mail'
-import { AlreadySentError, cancelMail } from './outbox'
+import type { listQueue } from './mail'
 import { requireBudget } from './plan'
 import { getReadingDay } from './reading'
 import { getSettings } from './settings'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
 
-export interface Button {
-  id: string
-  title: string
-}
-
-/** `actionId` is remembered for the sent message, so replying to it targets that draft. */
+/** `actionId` and `shown` are remembered for the sent message: replying to it targets that draft, and an answer in words binds to the items it put to the user (`decide`). */
 export interface Reply {
   actionId?: string
-  buttons?: Button[]
+  shown?: string[]
   text: string
   /** Also sent as a voice note, spoken from this text and counted against the user's speech; a reply with only a voice has empty `text`. */
   voice?: { text: string; userId: string }
 }
 
-/** What a button press changes: a short notice, the pressed message's new buttons (`[]` removes them) and slower replies after. */
+/** What a typed command (or WhatsApp's template button) answers with. */
 interface Pressed {
-  buttons?: Button[]
-  notice?: string
   replies?: () => Promise<Reply[]>
 }
 
@@ -75,7 +58,6 @@ export interface Chat {
 
 const DRAFT_LIMIT = 3500
 const KEEP_DAYS = 30
-const EDIT_MINUTES = 30
 const EXCHANGE_MINUTES = 30
 
 export const localeFor = async (userId: string): Promise<Locale> => {
@@ -176,46 +158,44 @@ const keyOf = (chat: Chat, suffix: string) =>
 export const remember = async (
   chat: Chat,
   messageId: string,
-  actionId: string | null
+  actionId: string | null,
+  shown?: string[]
 ) => {
   await db
     .delete(botMessages)
     .where(lt(botMessages.createdAt, subDays(new Date(), KEEP_DAYS)))
   const added = await db
     .insert(botMessages)
-    .values({ actionId, key: keyOf(chat, messageId) })
+    .values({ actionId, key: keyOf(chat, messageId), shown })
     .onConflictDoNothing()
     .returning({ key: botMessages.key })
   return added.length > 0
 }
 
-const shownAction = async (chat: Chat, messageId: string) => {
-  const [shown] = await db
-    .select({ actionId: botMessages.actionId })
-    .from(botMessages)
-    .where(eq(botMessages.key, keyOf(chat, messageId)))
-  return shown?.actionId ?? null
-}
-
-const startEdit = (chat: Chat, actionId: string) =>
-  db
-    .insert(botMessages)
-    .values({ actionId, key: keyOf(chat, 'edit') })
-    .onConflictDoUpdate({
-      set: { actionId, createdAt: new Date() },
-      target: botMessages.key,
+/** What the user answers: the bot message they replied to, else the last list the bot put to them in this chat, and when. */
+const answeredIn = async (chat: Chat, replyTo?: string) => {
+  const [row] = await db
+    .select({
+      actionId: botMessages.actionId,
+      createdAt: botMessages.createdAt,
+      shown: botMessages.shown,
     })
-
-/** Edit mode ends with the next message, or after `EDIT_MINUTES` so a forgotten one never swallows a later message. */
-const takeEdit = async (chat: Chat) => {
-  const [edit] = await db
-    .delete(botMessages)
-    .where(eq(botMessages.key, keyOf(chat, 'edit')))
-    .returning()
-  return edit?.actionId &&
-    isAfter(edit.createdAt, subMinutes(new Date(), EDIT_MINUTES))
-    ? edit.actionId
-    : null
+    .from(botMessages)
+    .where(
+      replyTo
+        ? eq(botMessages.key, keyOf(chat, replyTo))
+        : and(
+            like(botMessages.key, keyOf(chat, '%')),
+            isNotNull(botMessages.shown)
+          )
+    )
+    .orderBy(desc(botMessages.createdAt))
+    .limit(1)
+  return {
+    actionId: replyTo ? (row?.actionId ?? null) : null,
+    seenAt: row?.shown ? row.createdAt : undefined,
+    shown: row?.shown ?? undefined,
+  }
 }
 
 const rememberExchange = (
@@ -247,31 +227,17 @@ const clipped = ({ channel }: Chat, t: Messages, draft: string) =>
     ? `${channel.plain(`${draft.slice(0, DRAFT_LIMIT)}…`)}\n${channel.italic(t.telegram.draftClipped)}`
     : channel.plain(draft)
 
-const draftButtons = (t: Messages, actionId: string): Button[] => [
-  { id: `a:${actionId}`, title: t.telegram.send },
-  { id: `e:${actionId}`, title: t.telegram.edit },
-  { id: `d:${actionId}`, title: t.telegram.skip },
-]
-
 const draftReply = (
   chat: Chat,
   t: Messages,
   action: { detail: string | null; id: string }
 ): Reply => ({
   actionId: action.id,
-  buttons: draftButtons(t, action.id),
-  text: `${chat.channel.italic(t.telegram.newDraft)}\n${clipped(chat, t, action.detail ?? '')}`,
+  shown: [`card:${action.id}`],
+  text: `${chat.channel.italic(t.telegram.newDraft)}\n${clipped(chat, t, action.detail ?? '')}\n${chat.channel.plain(`${t.telegram.send}?`)}`,
 })
-
-const queueButton = (t: Messages): Button => ({
-  id: 'queue',
-  title: t.telegram.commands.queue,
-})
-
-export const menuButtons = (t: Messages): Button[] => [queueButton(t)]
 
 export const helpReply = (chat: Chat, t: Messages): Reply => ({
-  buttons: menuButtons(t),
   text: chat.channel.plain(
     [
       `${t.telegram.help}\n`,
@@ -280,19 +246,21 @@ export const helpReply = (chat: Chat, t: Messages): Reply => ({
   ),
 })
 
-/** The agent's answer; when it left cards waiting for a yes, the link to Home where they are. */
-const agentReply = (
+/** The agent's answer; when it left something waiting for a yes, what waits after it, answered here in words like any list. */
+const agentReply = async (
   chat: Chat,
+  userId: string,
   t: Messages,
   { text, waiting }: { text: string; waiting: number }
-): Reply => ({
-  text: fromMarkdown(
-    chat.channel,
-    waiting > 0
-      ? `${text}\n\n${t.agent.decideOnHome}: ${env.WEB_URL}/home`
-      : text
-  ),
-})
+): Promise<Reply> => {
+  const [list] = waiting > 0 ? await queueReplies(chat, userId, t) : []
+  return {
+    shown: list?.shown,
+    text: [fromMarkdown(chat.channel, text), list?.text]
+      .filter(Boolean)
+      .join('\n\n'),
+  }
+}
 
 const senderLine = ({ channel }: Chat, { action, message }: QueueItem) =>
   `${channel.bold(message?.fromName ?? message?.fromEmail ?? 'Fewmail')} · ${channel.plain(message?.subject ?? action.title)}`
@@ -305,24 +273,10 @@ export const itemReply = (
 ): Reply => {
   const { plain } = chat.channel
   const { action, analysis } = item
-  const isReply = action.kind === 'reply'
-  const { link } = cardPayload(action)
+  const open = cardItem(t, item)
   return {
     actionId: action.id,
-    buttons: [
-      {
-        id: `a:${action.id}`,
-        title: isReply ? t.telegram.send : approveTitle(t, action),
-      },
-      ...(isReply && chat.channel.shorter
-        ? [{ id: `r:${action.id}`, title: t.telegram.shorter }]
-        : []),
-      ...(isReply ? [{ id: `e:${action.id}`, title: t.telegram.edit }] : []),
-      ...(action.kind === 'follow_up'
-        ? [{ id: `w:${action.id}`, title: t.queue.writeReminder }]
-        : []),
-      { id: `d:${action.id}`, title: t.telegram.skip },
-    ],
+    shown: [open.key],
     text: [
       urgent ? plain(t.telegram.urgent) : null,
       senderLine(chat, item),
@@ -331,12 +285,7 @@ export const itemReply = (
         ? plain(action.detail ?? action.title)
         : null,
       analysis?.summary ? plain(analysis.summary) : null,
-      isReply && action.detail
-        ? `\n${chat.channel.italic(t.telegram.draft)}\n${clipped(chat, t, action.detail)}`
-        : null,
-      link
-        ? `\n${plain(`${t.actionLink[link.purpose]} · ${hostOf(link.url)}`)}\n${link.url}`
-        : null,
+      fromMarkdown(chat.channel, open.text.split('\n').slice(1).join('\n')),
     ]
       .filter(Boolean)
       .join('\n'),
@@ -364,64 +313,32 @@ export const spokenReading = async (userId: string, day?: string) => {
   return summary ? readingSpeech(summary) : ''
 }
 
-/** WhatsApp shows three buttons at most. */
-const ALIKE_BUTTONS = 3
-
-/** Carried by `all:` (Telegram allows 64 bytes), so it approves exactly the cards shown: one that arrived, left or was redrafted since refuses. */
-const shownOf = (items: QueueItem[]) =>
-  keyedHash(
-    `alike:${items
-      .map(({ action }) => `${action.id}:${action.detail ?? ''}`)
-      .toSorted()
-      .join(',')}`
-  ).slice(0, 16)
-
-/** After the cards, one button per kind with two or more of them: approving them all is still the user's yes. */
-const alikeReply = (chat: Chat, t: Messages, queue: QueueItem[]): Reply[] => {
-  const kinds = [...Map.groupBy(queue, ({ action }) => action.kind)]
-    .filter(([, items]) => items.length > 1)
-    .slice(0, ALIKE_BUTTONS)
-  return kinds.length === 0
-    ? []
-    : [
-        {
-          buttons: kinds.map(([kind, items]) => ({
-            id: `all:${kind}:${shownOf(items)}`,
-            title: `${t.actionKind[kind]} · ${items.length}`,
-          })),
-          text: chat.channel.italic(t.telegram.approveAlike),
-        },
-      ]
-}
-
-const queueReplies = async (chat: Chat, userId: string, t: Messages) => {
-  const queue = await listQueue(userId)
-  return queue.length === 0
-    ? [{ text: chat.channel.plain(t.telegram.nothing) }]
-    : [
-        ...queue.map((item) => itemReply(chat, t, item)),
-        ...alikeReply(chat, t, queue),
-      ]
-}
-
-const sendingReply = (
+/** What waits, every bot's, as one numbered message the user answers in words. */
+const queueReplies = async (
   chat: Chat,
-  t: Messages,
-  item: QueueItem,
-  outboxId: string
-): Reply => ({
-  buttons: [{ id: `u:${outboxId}`, title: t.telegram.undo }],
-  text: `${senderLine(chat, item)}\n${chat.channel.italic(t.telegram.sendingIn(UNDO_SEND_SECONDS))}`,
-})
+  userId: string,
+  t: Messages
+): Promise<Reply[]> => {
+  const items = await openItems(userId, null, t)
+  const text = waitingText(t, items, true)
+  return [
+    text
+      ? {
+          shown: items.filter(({ listed }) => listed).map(({ key }) => key),
+          text: fromMarkdown(chat.channel, text),
+        }
+      : { text: chat.channel.plain(t.telegram.nothing) },
+  ]
+}
 
-/** Buttons and commands: `a:` approve, `all:<kind>:<shown>` approve the kind's cards shown, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `week`. */
+/** Typed commands and WhatsApp's template button: `queue` says what waits, `week` the weekly report. Nothing is decided by a press. */
 export const press = async (
   chat: Chat,
   userId: string,
   pressed: string
 ): Promise<Pressed> => {
   const t = await messagesFor(userId)
-  const [command, id = '', shown] = pressed.split(':')
+  const [command] = pressed.split(':')
   capture(userId, 'bot_pressed', { channel: chat.channel.name, command })
   if (command === 'week') {
     return {
@@ -432,85 +349,7 @@ export const press = async (
     }
   }
   if (command === 'queue') {
-    await takeEdit(chat)
     return { replies: () => queueReplies(chat, userId, t) }
-  }
-  if (command === 'a') {
-    const { outboxId } = await approveCard(userId, id)
-    return outboxId
-      ? {
-          buttons: [{ id: `u:${outboxId}`, title: t.telegram.undo }],
-          notice: t.telegram.sendingIn(UNDO_SEND_SECONDS),
-        }
-      : { buttons: [], notice: t.telegram.done }
-  }
-  if (command === 'all') {
-    const queue = await listQueue(userId)
-    const alike = queue.filter(({ action }) => action.kind === id)
-    if (shownOf(alike) !== shown) {
-      return {
-        buttons: [],
-        notice: t.telegram.queueChanged,
-        replies: () => queueReplies(chat, userId, t),
-      }
-    }
-    const sending: Reply[] = []
-    for (const item of alike) {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- one by one, so each send gets its own undo window
-      const { outboxId } = await approveCard(userId, item.action.id)
-      if (outboxId) {
-        sending.push(sendingReply(chat, t, item, outboxId))
-      }
-    }
-    return {
-      buttons: [],
-      notice: t.today.approvedMany(alike.length),
-      replies: () => Promise.resolve(sending),
-    }
-  }
-  if (command === 'u') {
-    const canceled = await Result.tryPromise(() => cancelMail(userId, id))
-    if (
-      canceled.isErr() &&
-      !(canceled.error.cause instanceof AlreadySentError)
-    ) {
-      throw canceled.error.cause
-    }
-    return {
-      buttons: [],
-      notice: canceled.isOk() ? t.telegram.canceled : t.errors.alreadySent,
-    }
-  }
-  if (command === 'd') {
-    await dismissAction(userId, id)
-    return { buttons: [], notice: t.telegram.skipped }
-  }
-  if (command === 'w') {
-    return {
-      notice: t.telegram.rewriting,
-      replies: async () => [
-        draftReply(chat, t, await redraftAction(userId, id)),
-      ],
-    }
-  }
-  if (command === 'r') {
-    return {
-      notice: t.telegram.rewriting,
-      replies: async () => [
-        draftReply(
-          chat,
-          t,
-          await redraftAction(userId, id, t.queue.shorterInstruction)
-        ),
-      ],
-    }
-  }
-  if (command === 'e') {
-    await startEdit(chat, id)
-    return {
-      replies: () =>
-        Promise.resolve([{ text: chat.channel.plain(t.telegram.editPrompt) }]),
-    }
   }
   return {}
 }
@@ -535,57 +374,57 @@ export const speakFor = async (
   return speak(userId, text, format)
 }
 
-/** A typed or spoken message: the replacement for a draft in edit mode (a `/skill` leaves it and runs), else whatever `followMessage` makes of it; `replyTo` is the bot message it answers. */
+/**
+ * A typed or spoken message: first read against what the bot put to the user (`decide`: the message they replied to,
+ * else the last list in this chat), and what it does not settle goes to `followMessage`; `replyTo` is the bot message it answers.
+ */
 export const follow = async (
   chat: Chat,
   userId: string,
   text: string,
-  replyTo?: string
+  { replyTo, voice = false }: { replyTo?: string; voice?: boolean } = {}
 ): Promise<Reply> => {
   const t = await messagesFor(userId)
-  const { italic, link, plain } = chat.channel
-  const edited = await takeEdit(chat)
-  const editing = parseSkill(text) ? null : edited
-  capture(userId, 'bot_messaged', {
-    channel: chat.channel.name,
-    editing: Boolean(editing),
-  })
-  if (editing) {
-    if (text.startsWith('/')) {
-      return draftReply(
-        chat,
-        t,
-        await redraftAction(userId, editing, text.slice(1))
-      )
-    }
-    await updateDraft(userId, editing, text)
-    return {
-      actionId: editing,
-      buttons: [
-        { id: `a:${editing}`, title: t.telegram.sendThis },
-        { id: `d:${editing}`, title: t.telegram.skip },
-      ],
-      text: `${italic(t.telegram.willSend)}\n${clipped(chat, t, text)}`,
-    }
-  }
-  if (text.startsWith('/') && !parseSkill(text)) {
+  const { link, plain } = chat.channel
+  const skill = parseSkill(text)
+  capture(userId, 'bot_messaged', { channel: chat.channel.name, voice })
+  if (text.startsWith('/') && !skill) {
     return helpReply(chat, t)
   }
-  const targetId = replyTo ? await shownAction(chat, replyTo) : null
-  const { answer, draft, skill } = await followMessage(
+  const answered = await answeredIn(chat, replyTo)
+  const decided = skill
+    ? null
+    : await decide(userId, {
+        bot: null,
+        channel: chat.channel.name,
+        // The messenger already said what it heard.
+        heard: false,
+        seenAt: answered.seenAt,
+        shown: answered.shown,
+        text,
+        voice,
+      })
+  if (decided && !decided.rest) {
+    return { text: fromMarkdown(chat.channel, decided.text) }
+  }
+  const settled = decided
+    ? `${fromMarkdown(chat.channel, decided.text)}\n\n`
+    : ''
+  const followed = await followMessage(
     userId,
     text,
-    targetId,
+    answered.actionId,
     await lastExchange(chat)
   )
-  if (skill) {
-    return agentReply(chat, t, skill)
+  if (followed.skill) {
+    return agentReply(chat, userId, t, followed.skill)
   }
-  if (answer) {
+  if (followed.answer) {
+    const { answer } = followed
     await rememberExchange(chat, { answer: answer.answer, question: text })
     return {
       text: [
-        plain(answer.answer),
+        settled + plain(answer.answer),
         ...(answer.sources.length ? [''] : []),
         ...answer.sources.map((source) =>
           link(
@@ -596,5 +435,8 @@ export const follow = async (
       ].join('\n'),
     }
   }
-  return draft ? draftReply(chat, t, draft) : helpReply(chat, t)
+  if (followed.draft) {
+    return draftReply(chat, t, followed.draft)
+  }
+  return decided ? { text: settled.trim() } : helpReply(chat, t)
 }

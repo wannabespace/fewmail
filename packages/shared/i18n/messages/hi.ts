@@ -48,7 +48,7 @@ export const hi: Messages = {
   },
   byBot: 'एक बॉट से',
   agent: {
-    decideOnHome: 'Fewmail में तय करें',
+    decideOnHome: 'Fewmail Bot की चैट में जवाब दो',
     fromAgent: 'एजेंट पूछ रहा है',
     mcpAsks: (client: string) => `${client} MCP के ज़रिए पूछ रहा है`,
     calendar: (email: string) => `${email} के कैलेंडर में`,

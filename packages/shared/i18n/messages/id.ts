@@ -47,7 +47,7 @@ export const id: Messages = {
     pending: 'menunggumu',
   },
   agent: {
-    decideOnHome: 'Putuskan di Fewmail',
+    decideOnHome: 'Jawab di chat Fewmail Bot',
     fromAgent: 'Agen meminta',
     mcpAsks: (client: string) => `${client} meminta lewat MCP`,
     calendar: (email: string) => `Di kalender ${email}`,

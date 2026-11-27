@@ -4,7 +4,7 @@ import { messages } from '@fewmail/shared/i18n'
 import { LOCALES, matchLocale } from '@fewmail/shared/i18n/locales'
 import { Result } from 'better-result'
 import type { Api, Context } from 'grammy'
-import { Bot, InlineKeyboard, InputFile, webhookCallback } from 'grammy'
+import { Bot, InputFile, webhookCallback } from 'grammy'
 
 import { env } from './env'
 import { canSpeak } from './lib/elevenlabs'
@@ -12,7 +12,7 @@ import { logError } from './lib/log'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
 import { LimitReachedError } from './services/limit-error'
 import type { listQueue } from './services/mail'
-import type { Button, Channel, Reply, Run } from './services/messenger'
+import type { Channel, Reply, Run } from './services/messenger'
 import {
   failureText,
   follow,
@@ -50,11 +50,6 @@ const channel: Channel = {
 
 const chatOf = (id: number | string) => ({ channel, id: String(id) })
 
-const keyboard = (buttons: Button[]) =>
-  InlineKeyboard.from([
-    buttons.map(({ id, title }) => InlineKeyboard.text(title, id)),
-  ])
-
 /** A failed voice never takes the text answer with it. */
 const sendVoice = async (
   api: Api,
@@ -76,7 +71,7 @@ const sendVoice = async (
 const send = async (
   api: Api,
   chatId: number | string,
-  { actionId, buttons, text, voice }: Reply
+  { actionId, shown, text, voice }: Reply
 ) => {
   if (voice) {
     await sendVoice(api, chatId, voice)
@@ -96,10 +91,14 @@ const send = async (
   const sent = await api.sendMessage(chatId, last, {
     link_preview_options: NO_PREVIEW,
     parse_mode: 'HTML',
-    ...(buttons?.length ? { reply_markup: keyboard(buttons) } : {}),
   })
-  if (actionId) {
-    await remember(chatOf(chatId), String(sent.message_id), actionId)
+  if (actionId || shown) {
+    await remember(
+      chatOf(chatId),
+      String(sent.message_id),
+      actionId ?? null,
+      shown
+    )
   }
 }
 
@@ -133,12 +132,10 @@ const followText = async (
   }
   const replyTo = ctx.message?.reply_to_message?.message_id
   await ctx.replyWithChatAction('typing')
-  const reply = await follow(
-    chatOf(ctx.chat.id),
-    userId,
-    text,
-    replyTo ? String(replyTo) : undefined
-  )
+  const reply = await follow(chatOf(ctx.chat.id), userId, text, {
+    replyTo: replyTo ? String(replyTo) : undefined,
+    voice: spoken,
+  })
   await send(ctx.api, ctx.chat.id, {
     ...reply,
     voice: spoken && canSpeak ? { text: reply.text, userId } : undefined,
@@ -206,44 +203,13 @@ const createBot = (token: string) => {
     })
   }
 
-  bot.on('callback_query:data', async (ctx) => {
-    const userId = await requireUser(ctx)
-    if (!userId || !ctx.chat) {
-      await ctx.answerCallbackQuery()
-      return
-    }
-    const chatId = ctx.chat.id
-    // Telegram takes one answer per press: a second one throws.
-    let answered = false
-    const pressed = await Result.tryPromise(async () => {
-      const { buttons, notice, replies } = await press(
-        chatOf(chatId),
-        userId,
-        ctx.callbackQuery.data
-      )
-      answered = true
-      await ctx.answerCallbackQuery(notice)
-      if (buttons) {
-        await ctx.editMessageReplyMarkup(
-          buttons.length > 0 ? { reply_markup: keyboard(buttons) } : undefined
-        )
-      }
-      if (replies) {
-        await sendAll(ctx.api, chatId, await replies())
-      }
+  // A keyboard on a message sent before buttons went: nothing is decided by a press, the user answers in words.
+  bot.on('callback_query:data', (ctx) =>
+    ctx.answerCallbackQuery({
+      show_alert: true,
+      text: messagesForChat(ctx).decide.hint,
     })
-    if (pressed.isErr()) {
-      logError('telegram press', pressed.error.cause)
-      const text = failureText(
-        await localeFor(userId),
-        pressed.error.cause,
-        false
-      )
-      await (answered
-        ? ctx.reply(text)
-        : ctx.answerCallbackQuery({ show_alert: true, text }))
-    }
-  })
+  )
 
   bot.on('message:voice', async (ctx) => {
     const userId = await requireUser(ctx)

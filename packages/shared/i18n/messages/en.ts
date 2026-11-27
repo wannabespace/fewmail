@@ -47,7 +47,7 @@ export const en = {
     pending: 'waiting for you',
   },
   agent: {
-    decideOnHome: 'Decide in Fewmail',
+    decideOnHome: "Answer in Fewmail Bot's chat",
     fromAgent: 'The agent asks',
     mcpAsks: (client: string) => `${client} asks through MCP`,
     calendar: (email: string) => `In the calendar of ${email}`,

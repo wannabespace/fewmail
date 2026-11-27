@@ -48,7 +48,7 @@ export const zh: Messages = {
   },
   byBot: '按机器人',
   agent: {
-    decideOnHome: '在 Fewmail 中决定',
+    decideOnHome: '请在 Fewmail Bot 的聊天中回复',
     fromAgent: '助手请求',
     mcpAsks: (client: string) => `${client}通过 MCP 请求`,
     calendar: (email: string) => `在 ${email} 的日历中`,

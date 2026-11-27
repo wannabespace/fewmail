@@ -15,14 +15,13 @@ import {
 } from './services/integrations'
 import { LimitReachedError } from './services/limit-error'
 import type { listQueue } from './services/mail'
-import type { Button, Channel, Chat, Reply, Run } from './services/messenger'
+import type { Channel, Chat, Reply, Run } from './services/messenger'
 import {
   failureText,
   follow,
   hear,
   itemReply,
   localeFor,
-  menuButtons,
   messagesFor,
   press,
   remember,
@@ -46,8 +45,6 @@ interface Inbound {
 }
 
 const GRAPH = 'https://graph.facebook.com/v23.0'
-const BUTTON_TITLE_LIMIT = 20
-const BODY_LIMIT = 1024
 const TEXT_LIMIT = 4096
 
 const config =
@@ -113,32 +110,6 @@ const say = async (to: string, text: string) => {
   return sent
 }
 
-const clip = (text: string) =>
-  text.length > BUTTON_TITLE_LIMIT
-    ? `${text.slice(0, BUTTON_TITLE_LIMIT - 1)}…`
-    : text
-
-/** WhatsApp allows three reply buttons and a 1024-character body; longer text goes first as its own message. */
-const ask = async (to: string, text: string, buttons: Button[]) => {
-  const fits = text.length <= BODY_LIMIT
-  if (!fits) {
-    await say(to, text)
-  }
-  return post(to, {
-    interactive: {
-      action: {
-        buttons: buttons.map(({ id, title }) => ({
-          reply: { id, title: clip(title) },
-          type: 'reply',
-        })),
-      },
-      body: { text: fits ? text : '⬆️' },
-      type: 'button',
-    },
-    type: 'interactive',
-  })
-}
-
 /** Media upload is multipart, so it skips `graph`'s JSON header. A failed voice never takes the text answer with it. */
 const sendVoice = async (to: string, voice: NonNullable<Reply['voice']>) => {
   const sent = await Result.tryPromise(async () => {
@@ -165,26 +136,21 @@ const sendVoice = async (to: string, voice: NonNullable<Reply['voice']>) => {
   }
 }
 
-const send = async (to: string, { actionId, buttons, text, voice }: Reply) => {
+const send = async (to: string, { actionId, shown, text, voice }: Reply) => {
   if (voice) {
     await sendVoice(to, voice)
   }
   if (!text) {
     return
   }
-  const sent = buttons?.length
-    ? await ask(to, text, buttons)
-    : await say(to, text)
-  if (actionId) {
-    await remember(chatOf(to), sent, actionId)
+  const sent = await say(to, text)
+  if (actionId || shown) {
+    await remember(chatOf(to), sent, actionId ?? null, shown)
   }
 }
 
 const pressButton = async (to: string, userId: string, pressed: string) => {
-  const { buttons, notice, replies } = await press(chatOf(to), userId, pressed)
-  if (notice) {
-    await send(to, { buttons, text: notice })
-  }
+  const { replies } = await press(chatOf(to), userId, pressed)
   for (const reply of (await replies?.()) ?? []) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- replies must arrive in order
     await send(to, reply)
@@ -207,7 +173,7 @@ const handle = async (inbound: Inbound) => {
     const t = await messagesFor(link.userId)
     await (link.taken
       ? say(to, t.whatsapp.phoneTaken)
-      : ask(to, t.whatsapp.connected, menuButtons(t)))
+      : say(to, t.whatsapp.connected))
     return
   }
   const userId = await userIdForPhone(to)
@@ -222,10 +188,11 @@ const handle = async (inbound: Inbound) => {
   }
   const { audio, context } = inbound
   const handled = await Result.tryPromise(async () => {
-    const pressed =
-      inbound.interactive?.button_reply?.id ?? inbound.button?.payload
-    if (pressed) {
-      await pressButton(to, userId, pressed)
+    // Only the approved template's button presses: it fetches the queue or the week, deciding nothing.
+    if (inbound.button) {
+      await pressButton(to, userId, inbound.button.payload)
+    } else if (inbound.interactive) {
+      await say(to, t.decide.hint)
     } else if (audio) {
       await finishPaid(userId, async () => {
         const heard = await hear(userId, () => download(audio.id))
@@ -234,14 +201,20 @@ const handle = async (inbound: Inbound) => {
           return
         }
         await say(to, t.telegram.heard(heard))
-        const reply = await follow(chatOf(to), userId, heard, context?.id)
+        const reply = await follow(chatOf(to), userId, heard, {
+          replyTo: context?.id,
+          voice: true,
+        })
         await send(to, {
           ...reply,
           voice: canSpeak ? { text: reply.text, userId } : undefined,
         })
       })
     } else if (text) {
-      await send(to, await follow(chatOf(to), userId, text, context?.id))
+      await send(
+        to,
+        await follow(chatOf(to), userId, text, { replyTo: context?.id })
+      )
     }
   })
   if (handled.isErr()) {

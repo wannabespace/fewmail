@@ -48,7 +48,7 @@ export const ja: Messages = {
   },
   byBot: 'ボットによる',
   agent: {
-    decideOnHome: 'Fewmail で決める',
+    decideOnHome: 'Fewmail Bot のチャットで返信してください',
     fromAgent: 'エージェントからの確認',
     mcpAsks: (client: string) => `${client}が MCP 経由で依頼しています`,
     calendar: (email: string) => `${email} のカレンダー`,

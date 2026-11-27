@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const es: Messages = {
   agent: {
-    decideOnHome: 'Decide en Fewmail',
+    decideOnHome: 'Responde en el chat de Fewmail Bot',
     fromAgent: 'Lo pide el agente',
     mcpAsks: (client: string) => `${client} pide a través de MCP`,
     calendar: (email: string) => `En el calendario de ${email}`,

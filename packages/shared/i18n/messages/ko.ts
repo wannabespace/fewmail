@@ -48,7 +48,7 @@ export const ko: Messages = {
   },
   byBot: '봇에 따라',
   agent: {
-    decideOnHome: 'Fewmail에서 결정하기',
+    decideOnHome: 'Fewmail Bot 채팅에서 답해 주세요',
     fromAgent: '에이전트가 요청함',
     mcpAsks: (client: string) => `${client}이(가) MCP로 요청합니다`,
     calendar: (email: string) => `${email}의 캘린더`,

@@ -158,7 +158,7 @@ const quote = (text: string) =>
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
 
-const cardItem = (t: Messages, card: QueueItem): OpenItem => {
+export const cardItem = (t: Messages, card: QueueItem): OpenItem => {
   const { action, message } = card
   const { link, tool } = cardPayload(action)
   const who = nameOf(message)
@@ -194,14 +194,21 @@ const cardItem = (t: Messages, card: QueueItem): OpenItem => {
 
 /**
  * What a bot's chat waits on now, in the order it lists them: its cards, its quiet mail to tidy and, in Fewmail's,
- * new senders and suggested bots; then any send still in its undo window, which "cancel" stops.
+ * new senders and suggested bots; then any send still in its undo window, which "cancel" stops. A messenger's chat
+ * (`null`) speaks for every bot.
  */
-export const openItems = async (userId: string, bot: string, t: Messages) => {
+export const openItems = async (
+  userId: string,
+  bot: string | null,
+  t: Messages
+) => {
+  const isFewmail = bot === null || bot === 'fewmail'
+  const isMine = (owner: string) => bot === null || owner === bot
   const [queue, tidy, senders, suggestions, sending] = await Promise.all([
     listQueue(userId),
     listTidy(userId),
-    bot === 'fewmail' ? newSenders(userId) : [],
-    bot === 'fewmail' ? botSuggestions(userId) : [],
+    isFewmail ? newSenders(userId) : [],
+    isFewmail ? botSuggestions(userId) : [],
     db
       .select({ id: outbox.id, to: outbox.to })
       .from(outbox)
@@ -215,7 +222,7 @@ export const openItems = async (userId: string, bot: string, t: Messages) => {
   ])
   const asked = new Set(senders.map(({ fromEmail }) => fromEmail))
   const tidyIds = tidy
-    .filter(({ analysis }) => (analysis.botId ?? 'fewmail') === bot)
+    .filter(({ analysis }) => isMine(analysis.botId ?? 'fewmail'))
     .map(({ message }) => message.id)
   const tidyItem: OpenItem = {
     cue: `tidy ${tidyIds.length} quiet emails as suggested`,
@@ -232,7 +239,7 @@ export const openItems = async (userId: string, bot: string, t: Messages) => {
   }
   return [
     ...queue
-      .filter((card) => botOfCard(card) === bot)
+      .filter((card) => isMine(botOfCard(card)))
       .map((card) => cardItem(t, card)),
     ...(tidyIds.length > 0 ? [tidyItem] : []),
     ...senders.map((sender): OpenItem => ({
@@ -538,6 +545,31 @@ export interface Decided {
   text: string
 }
 
+/** What the bot says it did, computed: what it heard, what is done, what is sending, and what it could not do or understand. */
+const decidedText = (
+  t: Messages,
+  said: {
+    changed: string | null
+    done: string[]
+    failed: string | null
+    heard: string | null
+    oneByOne: string | null
+    sending: string[]
+    unclear: string | null
+  }
+) =>
+  [
+    said.heard === null ? null : t.decide.heard(said.heard),
+    said.done.length > 0 ? t.decide.done(said.done.join('; ')) : null,
+    ...said.sending,
+    said.changed === null ? null : t.decide.changed(said.changed),
+    said.failed === null ? null : t.decide.failed(said.failed),
+    said.oneByOne === null ? null : t.decide.oneByOne(said.oneByOne),
+    said.unclear === null ? null : t.decide.unclear(said.unclear),
+  ]
+    .filter(Boolean)
+    .join('\n')
+
 /** On Free past its answers in words this month: the bot offers the subscription instead of reading the reply. */
 const limitReached = async (
   userId: string,
@@ -604,8 +636,10 @@ const itemsAsShown = (open: OpenItem[], seen?: string[]): Items => {
 export const decide = async (
   userId: string,
   input: {
-    bot: string
+    bot: string | null
     channel: DecideChannel
+    /** Says back what it heard (a voice message): off where the messenger already did. */
+    heard?: boolean
     seenAt?: Date
     shown?: string[]
     text: string
@@ -678,16 +712,14 @@ export const decide = async (
   return {
     outcome,
     rest: rest && outcome === 'done',
-    text: [
-      input.voice ? t.decide.heard(input.text) : null,
-      done.length > 0 ? t.decide.done(done.join('; ')) : null,
-      ...sending,
-      changed.length > 0 ? t.decide.changed(named(changed)) : null,
-      failed.length > 0 ? t.decide.failed(named(failed)) : null,
-      oneByOne.length > 0 ? t.decide.oneByOne(named(oneByOne)) : null,
-      unclear.length > 0 ? t.decide.unclear(named(unclear)) : null,
-    ]
-      .filter(Boolean)
-      .join('\n'),
+    text: decidedText(t, {
+      changed: changed.length > 0 ? named(changed) : null,
+      done,
+      failed: failed.length > 0 ? named(failed) : null,
+      heard: input.voice && input.heard !== false ? input.text : null,
+      oneByOne: oneByOne.length > 0 ? named(oneByOne) : null,
+      sending,
+      unclear: unclear.length > 0 ? named(unclear) : null,
+    }),
   }
 }

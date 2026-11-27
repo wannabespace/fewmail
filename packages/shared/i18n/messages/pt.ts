@@ -47,7 +47,7 @@ export const pt: Messages = {
     pending: 'aguarda você',
   },
   agent: {
-    decideOnHome: 'Decida no Fewmail',
+    decideOnHome: 'Responde no chat do Fewmail Bot',
     fromAgent: 'O agente pede',
     mcpAsks: (client: string) => `${client} pede via MCP`,
     calendar: (email: string) => `Na agenda de ${email}`,

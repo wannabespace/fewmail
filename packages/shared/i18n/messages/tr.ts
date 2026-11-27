@@ -47,7 +47,7 @@ export const tr: Messages = {
     pending: 'seni bekliyor',
   },
   agent: {
-    decideOnHome: 'Fewmail’de karar ver',
+    decideOnHome: 'Fewmail Bot sohbetinde yanıtla',
     fromAgent: 'Ajan soruyor',
     mcpAsks: (client: string) => `${client} MCP üzerinden istiyor`,
     calendar: (email: string) => `${email} takviminde`,

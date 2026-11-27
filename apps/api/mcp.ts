@@ -62,7 +62,7 @@ const waitForYes = async (
     await deliverHomeLink(userId, { headline: from, text: question })
   }
   return {
-    note: 'Nothing happened yet. The user answers this in Fewmail (Home and a notification); the yes carries it out there. Tell them so, and do not call it again.',
+    note: 'Nothing happened yet. The user answers this in words in the chat of Fewmail Bot (on the web, Telegram or WhatsApp, with a notification); their yes carries it out there. Tell them so, and do not call it again.',
     status: 'waiting_for_approval',
   }
 }
