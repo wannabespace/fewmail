@@ -2,20 +2,16 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import { ACTIVE_COMMITMENT_STATUSES } from '@fewmail/shared/agent'
 import type { CommitmentStatus } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
-import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
 import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Agreement01Icon,
   ArrowDownLeft01Icon,
-  Cancel01Icon,
   Clock01Icon,
-  Tick02Icon,
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation } from '@tanstack/react-query'
 import { startOfToday, subDays } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { createStore } from 'seitu'
@@ -29,13 +25,7 @@ import { SenderAvatar } from '~/components/sender-avatar'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
-import {
-  listCollection,
-  queryClient,
-  showUntilSettled,
-  useRanked,
-} from '~/lib/query-client'
-import { toastUndo } from '~/lib/undo'
+import { listCollection, useRanked } from '~/lib/query-client'
 
 type Commitment = RouterOutputs['commitments']['list'][number]
 
@@ -160,13 +150,10 @@ const hintsOf = (t: Messages, row: Commitment | undefined) => {
   if (!row) {
     return [['J / K', t.keys.move], close] as [string, string][]
   }
-  return [
-    ['J / K', t.keys.move],
-    ['⏎', t.keys.open],
-    ['D', row.status === 'fulfilled' ? t.keys.reopen : t.keys.done],
-    ['⌫', row.status === 'cancelled' ? t.keys.reopen : t.keys.forget],
-    close,
-  ] as [string, string][]
+  return [['J / K', t.keys.move], ['⏎', t.keys.open], close] as [
+    string,
+    string,
+  ][]
 }
 
 /** Every promise and last day sorted into the Board's lists; nothing is asked on Free, where there is none, or while the Board is not open. */
@@ -193,7 +180,7 @@ export const useBoard = (isOpen = true) => {
   }
 }
 
-/** What the Board waits on, as any bot's: its sentence, then a tool block per list, like every bot's cards. */
+/** What the Board holds: its sentence, then a list each, to read; a promise is settled in words ("Rozetka paid me back"), which the agent does. */
 export const BoardPane = ({ isActive }: { isActive: boolean }) => {
   const t = useT()
   const dates = useDates()
@@ -205,51 +192,6 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
     boardCursor.set(active)
     return () => boardCursor.set(undefined)
   }, [active])
-
-  const setStatus = useMutation(
-    orpc.commitments.setStatus.mutationOptions({
-      onMutate: ({ id, status }) =>
-        showUntilSettled(() => {
-          if (commitments.has(id)) {
-            commitments.update(id, (row) => {
-              row.history = [
-                ...row.history,
-                { at: new Date(), by: 'user', messageId: null, to: status },
-              ]
-              row.status = status
-            })
-          }
-        }),
-      onSettled: (_, __, ___, settle) =>
-        settle?.(
-          queryClient.invalidateQueries({ queryKey: orpc.commitments.key() })
-        ),
-    })
-  )
-  const move = (
-    row: Commitment | undefined,
-    status: CommitmentStatus,
-    message: string
-  ) => {
-    if (!row) {
-      return
-    }
-    const previous = row.status
-    setStatus.mutate({ id: row.id, status })
-    toastUndo(message, () => setStatus.mutate({ id: row.id, status: previous }))
-  }
-  const toggle = (
-    row: Commitment | undefined,
-    status: CommitmentStatus,
-    message: string
-  ) =>
-    row?.status === status
-      ? move(row, 'open', t.board.reopened)
-      : move(row, status, message)
-  const done = (row?: Commitment) =>
-    toggle(row, 'fulfilled', t.board.markedDone)
-  const forget = (row?: Commitment) =>
-    toggle(row, 'cancelled', t.board.forgotten)
 
   const step = (by: number) => {
     const index = ordered.findIndex(({ id }) => id === cursorId)
@@ -264,13 +206,9 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
   const rowKeys = { enabled: isActive && !!active }
   useHotkey('Enter', () => openRow(active), rowKeys)
   useHotkey('O', () => openRow(active), rowKeys)
-  useHotkey('D', () => done(active), rowKeys)
-  useHotkey('Backspace', () => forget(active), rowKeys)
 
   const rowOf = (row: Commitment, place: RowPlace) => {
     const isCursor = row === active
-    const isDone = row.status === 'fulfilled'
-    const isForgotten = row.status === 'cancelled'
     const sender = senderOf(row)
     return (
       <SettingsRow
@@ -301,24 +239,6 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
             {moneyText(locale, row.amountCents, row.currency)}
           </span>
         )}
-        <IconButton
-          icon={Tick02Icon}
-          label={isDone ? t.board.reopen : t.board.done}
-          aria-pressed={isDone}
-          size="icon-sm"
-          variant="ghost-tint-muted"
-          shortcut={isCursor ? 'D' : undefined}
-          onClick={() => done(row)}
-        />
-        <IconButton
-          icon={Cancel01Icon}
-          label={isForgotten ? t.board.reopen : t.board.forget}
-          aria-pressed={isForgotten}
-          size="icon-sm"
-          variant="ghost-tint-muted"
-          shortcut={isCursor ? '⌫' : undefined}
-          onClick={() => forget(row)}
-        />
       </SettingsRow>
     )
   }

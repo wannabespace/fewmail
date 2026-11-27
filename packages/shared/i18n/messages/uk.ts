@@ -1270,8 +1270,8 @@ export const uk: Messages = {
       effect === 'archive'
         ? `${name}: ${plural('uk', count, { one: (n) => `${n} лист`, few: (n) => `${n} листи`, many: (n) => `${n} листів`, other: (n) => `${n} листа` })} за місяць, і жоден не потребував тебе. Зробити бота, який сам їх архівує?`
         : `${name}: ${plural('uk', count, { one: (n) => `${n} лист`, few: (n) => `${n} листи`, many: (n) => `${n} листів`, other: (n) => `${n} листа` })} за місяць, і жоден не потребував тебе. Зробити бота, який сам позначає їх прочитаними?`,
-    tidy: (n: number) =>
-      plural('uk', n, {
+    tidy: (count: number) =>
+      plural('uk', count, {
         one: (n) =>
           `Прибрати ${n} тихий лист, як я пропоную (в архів або прочитано)?`,
         few: (n) =>
@@ -1283,8 +1283,8 @@ export const uk: Messages = {
       }),
     unclear: (items: string) =>
       `Не зрозумів, про яку справу: ${items}. Напиши її номер.`,
-    waiting: (n: number) =>
-      plural('uk', n, {
+    waiting: (count: number) =>
+      plural('uk', count, {
         one: (n) => `Чекає на тебе ${n} справа:`,
         few: (n) => `Чекають на тебе ${n} справи:`,
         many: (n) => `Чекають на тебе ${n} справ:`,

@@ -38,10 +38,10 @@ declare module '@tanstack/react-router' {
 /** Two minutes of voice: the API refuses more (VOICE_BYTES). */
 const VOICE_MS = 120_000
 
-type Recording = {
+interface Recording {
+  isDiscarded: boolean
   recorder: MediaRecorder
   stream: MediaStream
-  isDiscarded: boolean
 }
 
 /** The mic: a voice message is heard by the API and sent as its words, marked as voice so the answer is spoken back. Free opens the upgrade instead. */
@@ -90,7 +90,9 @@ const useVoice = (onHeard: (text: string) => void) => {
     const current: Recording = { isDiscarded: false, recorder, stream }
     recorder.ondataavailable = (event) => chunks.push(event.data)
     recorder.onstop = () => {
-      stream.getTracks().forEach((track) => track.stop())
+      for (const track of stream.getTracks()) {
+        track.stop()
+      }
       recording.current = null
       if (current.isDiscarded) {
         setState('idle')
@@ -109,8 +111,21 @@ const useVoice = (onHeard: (text: string) => void) => {
       recording.current.recorder.stop()
     }
   }
-  useEffect(() => () => stop(true), [])
-  return { cancel: () => stop(true), send: () => stop(false), start, state }
+  useEffect(
+    () => () => {
+      if (recording.current) {
+        recording.current.isDiscarded = true
+        recording.current.recorder.stop()
+      }
+    },
+    []
+  )
+  return {
+    handleCancel: () => stop(true),
+    handleSend: () => stop(false),
+    handleStart: start,
+    state,
+  }
 }
 
 /** Where the user writes to the open bot: ⏎ sends, ⇧⏎ breaks the line, `/` comes here and esc drops the reply, then leaves. A bot opened with a click (`writeToBot`) comes here at once, never one stepped to with `[ ]`, whose next key would be typed. */
@@ -136,6 +151,17 @@ export const BotComposer = ({
     replyStore.set(null)
   })
   useHotkey('/', () => ref.current?.focus(), { enabled: isActive })
+  useHotkey(
+    'M',
+    () =>
+      voice.state === 'recording' ? voice.handleSend() : voice.handleStart(),
+    {
+      enabled: isActive && voice.state !== 'hearing' && !isSending,
+    }
+  )
+  useHotkey('Escape', voice.handleCancel, {
+    enabled: voice.state === 'recording',
+  })
   const isMobile = useIsMobile()
   const clickedAt = useLocation({
     select: ({ state }) => (state.writeToBot ? state.__TSR_key : undefined),
@@ -213,7 +239,7 @@ export const BotComposer = ({
             <InputGroupButton
               size="icon-sm"
               aria-label={t.bots.cancelRecording}
-              onClick={voice.cancel}
+              onClick={voice.handleCancel}
             >
               <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
             </InputGroupButton>
@@ -228,7 +254,11 @@ export const BotComposer = ({
                   : t.bots.record
               }
               disabled={isSending || voice.state === 'hearing'}
-              onClick={voice.state === 'recording' ? voice.send : voice.start}
+              onClick={
+                voice.state === 'recording'
+                  ? voice.handleSend
+                  : voice.handleStart
+              }
             >
               {voice.state === 'hearing' ? (
                 <Spinner />

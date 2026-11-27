@@ -1291,8 +1291,8 @@ export const fr: Messages = {
       effect === 'archive'
         ? `${name} : ${plural('fr', count, { one: (n) => `${n} e-mail`, other: (n) => `${n} e-mails` })} ce mois-ci, et aucun n’avait besoin de toi. Créer un bot qui les archive tout seul ?`
         : `${name} : ${plural('fr', count, { one: (n) => `${n} e-mail`, other: (n) => `${n} e-mails` })} ce mois-ci, et aucun n’avait besoin de toi. Créer un bot qui les marque comme lus tout seul ?`,
-    tidy: (n: number) =>
-      plural('fr', n, {
+    tidy: (count: number) =>
+      plural('fr', count, {
         one: (n) =>
           `Ranger ${n} e-mail calme comme je le propose (archiver ou marquer comme lu) ?`,
         other: (n) =>
@@ -1300,8 +1300,8 @@ export const fr: Messages = {
       }),
     unclear: (items: string) =>
       `Je n’ai pas compris lequel : ${items}. Écris son numéro.`,
-    waiting: (n: number) =>
-      plural('fr', n, {
+    waiting: (count: number) =>
+      plural('fr', count, {
         one: (n) => `${n} chose t’attend :`,
         other: (n) => `${n} choses t’attendent :`,
       }),

@@ -824,15 +824,15 @@ export const tr: Messages = {
       effect === 'archive'
         ? `${name}: bu ay ${plural('tr', count, { other: (n) => `${n} e-posta` })}, hiçbiri sana gerekmedi. Bunları kendisi arşivleyen bir bot yapayım mı?`
         : `${name}: bu ay ${plural('tr', count, { other: (n) => `${n} e-posta` })}, hiçbiri sana gerekmedi. Bunları kendisi okundu yapan bir bot yapayım mı?`,
-    tidy: (n: number) =>
-      plural('tr', n, {
+    tidy: (count: number) =>
+      plural('tr', count, {
         other: (n) =>
           `${n} sessiz e-postayı önerdiğim gibi toplayayım mı (arşiv ya da okundu)?`,
       }),
     unclear: (items: string) =>
       `Hangisini kastettiğini anlamadım: ${items}. Numarasını yaz.`,
-    waiting: (n: number) =>
-      plural('tr', n, { other: (n) => `Seni bekleyen ${n} iş var:` }),
+    waiting: (count: number) =>
+      plural('tr', count, { other: (n) => `Seni bekleyen ${n} iş var:` }),
     whenDone: (said: string) => `Yapınca “${said}” yaz.`,
   },
   bots: {

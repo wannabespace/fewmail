@@ -1,8 +1,4 @@
-import {
-  isBulk,
-  OUTLIVE_ARCHIVE_KINDS,
-  sendsDraft,
-} from '@fewmail/shared/agent'
+import { isBulk, OUTLIVE_ARCHIVE_KINDS } from '@fewmail/shared/agent'
 import {
   FORWARDED_PREFIX,
   participantsOf,
@@ -104,7 +100,6 @@ import { showUntilSettled } from '~/lib/query-client'
 import { runUndo, UNDO_TOAST_MS } from '~/lib/undo'
 
 import { cidSource, listedAttachments, MessageAttachments } from './attachments'
-import { BotSuggestionCard } from './bot-suggestion'
 import type { Draft } from './compose/compose-context'
 import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
@@ -113,8 +108,6 @@ import type { SnoozePreset } from './compose/schedule'
 import { PickTime } from './compose/send-later'
 import { confirm } from './confirm-dialog'
 import { ExtractedChips, RowTime } from './mail-meta'
-import { CardProposal } from './queue-card'
-import type { QueueItem } from './queue-card'
 import {
   ParticipantAvatars,
   participantNamesOf,
@@ -779,9 +772,6 @@ const ThreadNotices = ({
         <p className="text-muted-foreground text-sm">
           {t.zombie.badge(data.zombieShare)}
         </p>
-      )}
-      {data.botSuggestion && (
-        <BotSuggestionCard suggestion={data.botSuggestion} />
       )}
     </>
   )
@@ -1500,29 +1490,15 @@ const settledActionsOf = (
 const revealComposer = (node: HTMLElement | null) =>
   node?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 
-/** The card Home holds for this thread, its proposal shown under the email. */
-const useThreadCard = (threadId: string) => {
-  const { data: cards } = useLiveQuery((query) =>
-    query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
-  )
-  return cards.find(({ message }) => message?.threadId === threadId)
-}
-
-/** Under the last email: the reply being written, what the agent proposes for it, or a field to start one. */
+/** Under the last email: the reply being written, or a field to start one. What a bot proposes for it is decided in its chat, never here. */
 const ReplyArea = ({
-  card,
   composing,
-  isEditingDraft,
   onComposed,
   onReply,
-  onStopEditingDraft,
 }: {
-  card: QueueItem | undefined
   composing: Draft | null
-  isEditingDraft: boolean
   onComposed: () => void
   onReply: () => void
-  onStopEditingDraft: () => void
 }) => {
   const t = useT()
   if (composing) {
@@ -1530,19 +1506,6 @@ const ReplyArea = ({
       <section ref={revealComposer}>
         <ComposeForm draft={composing} onDone={onComposed} />
       </section>
-    )
-  }
-  if (card) {
-    return (
-      <div ref={isEditingDraft ? revealComposer : undefined}>
-        <CardProposal
-          key={`${card.action.id}-${card.action.detail}`}
-          item={card}
-          isEditing={isEditingDraft}
-          onEdit={onReply}
-          onStopEditing={onStopEditingDraft}
-        />
-      </div>
     )
   }
   return (
@@ -1764,11 +1727,9 @@ export const ThreadView = ({
   const hasAgent = useHasAgent()
   const { data } = useThread(threadId)
   const [composing, setComposing] = useState<Draft | null>(null)
-  const [isEditingDraft, setIsEditingDraft] = useState(false)
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
-  const card = useThreadCard(threadId)
   const { folded, unfold } = useFolding(data)
   const scrollRef = useRef<HTMLDivElement>(null)
   const isLoaded = !!data
@@ -1792,10 +1753,6 @@ export const ThreadView = ({
     onClose()
   }
   const reply = () => {
-    if (card && sendsDraft(card.action)) {
-      setIsEditingDraft(true)
-      return
-    }
     if (latest) {
       setComposing({
         ...EMPTY_DRAFT,
@@ -1815,13 +1772,12 @@ export const ThreadView = ({
       )
     )
 
-  const keys = { enabled: !!target && !composing && !isEditingDraft }
+  const keys = { enabled: !!target && !composing }
   useHotkey('R', reply, keys)
   useHotkey('F', forward, keys)
   useHotkey('E', () => target && sweep.action.mutate(target), keys)
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
-  // A card's S skips it (`CardProposal`), as on Home.
-  useHotkey('S', togglePin, { enabled: keys.enabled && !card })
+  useHotkey('S', togglePin, keys)
   useHotkey('Shift+U', markUnread, keys)
   useHotkey('Backspace', () => target && trash.mutate(target), keys)
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
@@ -2001,14 +1957,11 @@ export const ThreadView = ({
             )}
           </div>
 
-          {(latest || card) && (
+          {latest && (
             <ReplyArea
-              card={card}
               composing={composing}
-              isEditingDraft={isEditingDraft}
               onComposed={() => setComposing(null)}
               onReply={reply}
-              onStopEditingDraft={() => setIsEditingDraft(false)}
             />
           )}
         </div>

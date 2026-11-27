@@ -831,16 +831,16 @@ export const en = {
       effect === 'archive'
         ? `${name} sent ${count} emails this month and none needed you. Make a bot that archives them on its own?`
         : `${name} sent ${count} emails this month and none needed you. Make a bot that marks them read on its own?`,
-    tidy: (n: number) =>
-      plural('en', n, {
+    tidy: (total: number) =>
+      plural('en', total, {
         one: () => 'Tidy one quiet email as I suggest (archive or mark read)?',
         other: (count) =>
           `Tidy ${count} quiet emails as I suggest (archive or mark read)?`,
       }),
     unclear: (items: string) =>
       `I did not get which one you mean: ${items}. Write its number.`,
-    waiting: (n: number) =>
-      plural('en', n, {
+    waiting: (total: number) =>
+      plural('en', total, {
         one: () => 'One thing waits for you:',
         other: (count) => `${count} things wait for you:`,
       }),

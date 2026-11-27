@@ -835,8 +835,8 @@ export const nl: Messages = {
       effect === 'archive'
         ? `${name}: ${plural('nl', count, { one: (n) => `${n} mail`, other: (n) => `${n} mails` })} deze maand en geen ervan had je nodig. Een bot maken die ze zelf archiveert?`
         : `${name}: ${plural('nl', count, { one: (n) => `${n} mail`, other: (n) => `${n} mails` })} deze maand en geen ervan had je nodig. Een bot maken die ze zelf als gelezen markeert?`,
-    tidy: (n: number) =>
-      plural('nl', n, {
+    tidy: (count: number) =>
+      plural('nl', count, {
         one: (n) =>
           `${n} rustige mail opruimen zoals ik voorstel (archiveren of gelezen)?`,
         other: (n) =>
@@ -844,8 +844,8 @@ export const nl: Messages = {
       }),
     unclear: (items: string) =>
       `Ik begreep niet welke je bedoelt: ${items}. Schrijf het nummer.`,
-    waiting: (n: number) =>
-      plural('nl', n, {
+    waiting: (count: number) =>
+      plural('nl', count, {
         one: (n) => `${n} ding wacht op je:`,
         other: (n) => `${n} dingen wachten op je:`,
       }),

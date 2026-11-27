@@ -646,13 +646,13 @@ export const zh: Messages = {
       effect === 'archive'
         ? `${name}：本月 ${plural('zh', count, { other: (n) => `${n} 封邮件` })}，没有一封需要你。要建一个自动归档它们的机器人吗？`
         : `${name}：本月 ${plural('zh', count, { other: (n) => `${n} 封邮件` })}，没有一封需要你。要建一个自动标为已读的机器人吗？`,
-    tidy: (n: number) =>
-      plural('zh', n, {
+    tidy: (count: number) =>
+      plural('zh', count, {
         other: (n) => `按我的建议整理 ${n} 封安静的邮件（归档或标为已读）？`,
       }),
     unclear: (items: string) => `没明白你指哪一项：${items}。请写它的编号。`,
-    waiting: (n: number) =>
-      plural('zh', n, { other: (n) => `有 ${n} 件事在等你：` }),
+    waiting: (count: number) =>
+      plural('zh', count, { other: (n) => `有 ${n} 件事在等你：` }),
     whenDone: (said: string) => `做完后写“${said}”。`,
   },
   bots: {

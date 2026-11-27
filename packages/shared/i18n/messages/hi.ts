@@ -665,14 +665,14 @@ export const hi: Messages = {
       effect === 'archive'
         ? `${name}: इस महीने ${plural('hi', count, { other: (n) => `${n} ईमेल` })}, और किसी को तुम्हारी ज़रूरत नहीं थी। एक बॉट बनाऊँ जो इन्हें खुद आर्काइव करे?`
         : `${name}: इस महीने ${plural('hi', count, { other: (n) => `${n} ईमेल` })}, और किसी को तुम्हारी ज़रूरत नहीं थी। एक बॉट बनाऊँ जो इन्हें खुद पढ़े हुए करे?`,
-    tidy: (n: number) =>
-      plural('hi', n, {
+    tidy: (count: number) =>
+      plural('hi', count, {
         other: (n) => `${n} शांत ईमेल मेरे सुझाव के अनुसार समेट दूँ (आर्काइव या पढ़ा हुआ)?`,
       }),
     unclear: (items: string) =>
       `समझ नहीं आया कि कौन सा: ${items}। उसका नंबर लिखो।`,
-    waiting: (n: number) =>
-      plural('hi', n, { other: (n) => `${n} काम तुम्हारा इंतज़ार कर रहे हैं:` }),
+    waiting: (count: number) =>
+      plural('hi', count, { other: (n) => `${n} काम तुम्हारा इंतज़ार कर रहे हैं:` }),
     whenDone: (said: string) => `कर लेने पर “${said}” लिखो।`,
   },
   bots: {

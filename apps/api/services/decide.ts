@@ -11,6 +11,7 @@ import type { ActionKind, ConsentToolName } from '@fewmail/shared/agent'
 import { approveTitle, messages as dictionaries } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
+import type { Locale } from '@fewmail/shared/i18n/locales'
 import { choice } from '@typesafe-ai/sdk'
 import { Result } from 'better-result'
 import { and, eq, gt, gte, sql } from 'drizzle-orm'
@@ -181,11 +182,12 @@ const cardItem = (t: Messages, card: QueueItem): OpenItem => {
       .join('\n'),
     threadId: message?.threadId ?? action.threadId,
     updatedAt: action.updatedAt,
-    verbs: isReply
-      ? ['approve', 'skip', 'shorter', 'rewrite']
-      : action.kind === 'follow_up'
-        ? ['approve', 'skip', 'rewrite']
-        : ['approve', 'skip'],
+    verbs: [
+      'approve',
+      'skip',
+      ...(isReply ? ['shorter' as const] : []),
+      ...(isReply || action.kind === 'follow_up' ? ['rewrite' as const] : []),
+    ],
     who,
   }
 }
@@ -307,27 +309,27 @@ export const waitingOf = async (userId: string, bot: string) => {
         )
       ),
   ])
-  const listed = items.filter(({ listed }) => listed)
+  const shown = items.filter(({ listed }) => listed)
   return {
     at: new Date(),
-    items: listed.map(({ key, text, threadId }) => ({ key, text, threadId })),
+    items: shown.map(({ key, text, threadId }) => ({ key, text, threadId })),
     text: waitingText(t, items, (answered?.count ?? 0) < HINTED_ANSWERS),
   }
 }
 
 /** The bot's message about what waits, numbered when there is more than one; computed, so it costs nothing. */
 export const waitingText = (t: Messages, items: OpenItem[], hint: boolean) => {
-  const listed = items.filter(({ listed }) => listed)
-  const [only] = listed
+  const shown = items.filter(({ listed }) => listed)
+  const [only] = shown
   if (!only) {
     return null
   }
-  if (listed.length === 1) {
+  if (shown.length === 1) {
     return only.text
   }
   return [
-    t.decide.waiting(listed.length),
-    ...listed.map((item, index) => `${index + 1}. ${item.text}`),
+    t.decide.waiting(shown.length),
+    ...shown.map((item, index) => `${index + 1}. ${item.text}`),
     hint ? t.decide.hint : null,
   ]
     .filter(Boolean)
@@ -349,7 +351,7 @@ export interface Answer {
 type Items = (OpenItem | null)[]
 
 const stepOf = (item: OpenItem) =>
-  `${item.ref.type}:${item.ref.type === 'card' ? item.ref.kind : ''}:${item.verbs.join()}`
+  `${item.ref.type}:${item.ref.type === 'card' ? item.ref.kind : ''}:${item.verbs.join(',')}`
 
 /**
  * The binding rules, apart from the reader so they can be tested: a verb binds only at its odds; a bare yes binds only
@@ -527,11 +529,70 @@ export type DecisionOutcome =
   | 'one_by_one'
   | 'unclear'
 
+type DecideChannel = 'telegram' | 'web' | 'whatsapp'
+
 export interface Decided {
   outcome: DecisionOutcome
   /** The message also asks something else: the agent answers it after. */
   rest: boolean
   text: string
+}
+
+/** On Free past its answers in words this month: the bot offers the subscription instead of reading the reply. */
+const limitReached = async (
+  userId: string,
+  locale: Locale,
+  input: { channel: DecideChannel; voice: boolean }
+): Promise<Decided | null> => {
+  if (
+    hasAgent(await getPlanInfo(userId)) ||
+    (await decidedThisMonth(userId)) < FREE_DECISIONS
+  ) {
+    return null
+  }
+  capture(userId, 'bot_decided', {
+    channel: input.channel,
+    count: 0,
+    kinds: '',
+    outcome: 'limit',
+    via: input.voice ? 'voice' : 'words',
+  })
+  return {
+    outcome: 'limit',
+    rest: false,
+    text: dictionaries[locale].decide.limit(
+      FREE_DECISIONS,
+      formatResetDay(locale, usageResetsAt())
+    ),
+  }
+}
+
+const outcomeOf = (counts: {
+  changed: number
+  oneByOne: number
+  unclear: number
+}): DecisionOutcome => {
+  if (counts.unclear > 0) {
+    return 'unclear'
+  }
+  if (counts.oneByOne > 0) {
+    return 'one_by_one'
+  }
+  return counts.changed > 0 ? 'changed' : 'done'
+}
+
+/** The list as the user saw it (`shown`, in its order), then the chat's other open items, which a name still reaches. */
+const itemsAsShown = (open: OpenItem[], seen?: string[]): Items => {
+  const byKey = new Map(open.map((item) => [item.key, item]))
+  const shown = (
+    seen ?? open.filter(({ listed }) => listed).map(({ key }) => key)
+  ).slice(0, READ_ITEMS)
+  return [
+    ...shown.map((key) => byKey.get(key) ?? null),
+    ...open
+      .filter(({ key }) => !shown.includes(key))
+      .map((item) => ({ ...item, listed: false })),
+  ]
 }
 
 /**
@@ -544,7 +605,7 @@ export const decide = async (
   userId: string,
   input: {
     bot: string
-    channel: 'telegram' | 'web' | 'whatsapp'
+    channel: DecideChannel
     seenAt?: Date
     shown?: string[]
     text: string
@@ -554,40 +615,13 @@ export const decide = async (
   const settings = await getSettings(userId)
   const locale = settings?.language ?? 'en'
   const t = dictionaries[locale]
-  const open = await openItems(userId, input.bot, t)
-  const byKey = new Map(open.map((item) => [item.key, item]))
-  const shown = (
-    input.shown ?? open.filter(({ listed }) => listed).map(({ key }) => key)
-  ).slice(0, READ_ITEMS)
-  const items: Items = [
-    ...shown.map((key) => byKey.get(key) ?? null),
-    ...open
-      .filter(({ key }) => !shown.includes(key))
-      .map((item) => ({ ...item, listed: false })),
-  ]
+  const items = itemsAsShown(await openItems(userId, input.bot, t), input.shown)
   if (!items.some(Boolean)) {
     return null
   }
-  const via = input.voice ? 'voice' : 'words'
-  if (
-    !hasAgent(await getPlanInfo(userId)) &&
-    (await decidedThisMonth(userId)) >= FREE_DECISIONS
-  ) {
-    capture(userId, 'bot_decided', {
-      channel: input.channel,
-      count: 0,
-      kinds: '',
-      outcome: 'limit',
-      via,
-    })
-    return {
-      outcome: 'limit',
-      rest: false,
-      text: t.decide.limit(
-        FREE_DECISIONS,
-        formatResetDay(locale, usageResetsAt())
-      ),
-    }
+  const limit = await limitReached(userId, locale, input)
+  if (limit) {
+    return limit
   }
   const { bound, oneByOne, rest, unclear } = bindAnswer(
     items,
@@ -623,14 +657,11 @@ export const decide = async (
     }
   }
   const named = (list: OpenItem[]) => list.map(label).join(', ')
-  const outcome: DecisionOutcome =
-    unclear.length > 0
-      ? 'unclear'
-      : oneByOne.length > 0
-        ? 'one_by_one'
-        : changed.length + failed.length > 0
-          ? 'changed'
-          : 'done'
+  const outcome = outcomeOf({
+    changed: changed.length + failed.length,
+    oneByOne: oneByOne.length,
+    unclear: unclear.length,
+  })
   capture(userId, 'bot_decided', {
     channel: input.channel,
     count: bound.length,
@@ -642,7 +673,7 @@ export const decide = async (
       ),
     ].join(','),
     outcome,
-    via,
+    via: input.voice ? 'voice' : 'words',
   })
   return {
     outcome,

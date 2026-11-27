@@ -6,7 +6,7 @@ import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
 import { capture } from '../lib/posthog'
-import { runConsent } from './agent-run'
+import { runConsent } from './consent-run'
 import { approveAction } from './mail'
 import { NotFoundError } from './mail-errors'
 import { getSettings } from './settings'

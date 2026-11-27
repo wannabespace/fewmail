@@ -832,15 +832,15 @@ export const id: Messages = {
       effect === 'archive'
         ? `${name}: ${plural('id', count, { other: (n) => `${n} email` })} bulan ini dan tak satu pun butuh kamu. Buat bot yang mengarsipkannya sendiri?`
         : `${name}: ${plural('id', count, { other: (n) => `${n} email` })} bulan ini dan tak satu pun butuh kamu. Buat bot yang menandainya sudah dibaca sendiri?`,
-    tidy: (n: number) =>
-      plural('id', n, {
+    tidy: (count: number) =>
+      plural('id', count, {
         other: (n) =>
           `Rapikan ${n} email tenang seperti saranku (arsip atau tandai dibaca)?`,
       }),
     unclear: (items: string) =>
       `Aku tidak paham yang mana: ${items}. Tulis nomornya.`,
-    waiting: (n: number) =>
-      plural('id', n, { other: (n) => `${n} hal menunggumu:` }),
+    waiting: (count: number) =>
+      plural('id', count, { other: (n) => `${n} hal menunggumu:` }),
     whenDone: (said: string) => `Tulis “${said}” setelah kamu melakukannya.`,
   },
   bots: {

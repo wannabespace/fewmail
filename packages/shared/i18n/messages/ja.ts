@@ -659,15 +659,15 @@ export const ja: Messages = {
       effect === 'archive'
         ? `${name}: 今月${plural('ja', count, { other: (n) => `${n}通` })}、どれもあなたを必要としませんでした。自動でアーカイブするボットを作りますか?`
         : `${name}: 今月${plural('ja', count, { other: (n) => `${n}通` })}、どれもあなたを必要としませんでした。自動で既読にするボットを作りますか?`,
-    tidy: (n: number) =>
-      plural('ja', n, {
+    tidy: (count: number) =>
+      plural('ja', count, {
         other: (n) =>
           `静かなメール${n}通を提案どおりに片付けますか(アーカイブまたは既読)?`,
       }),
     unclear: (items: string) =>
       `どれのことか分かりませんでした: ${items}。番号を書いてください。`,
-    waiting: (n: number) =>
-      plural('ja', n, { other: (n) => `${n}件があなたを待っています:` }),
+    waiting: (count: number) =>
+      plural('ja', count, { other: (n) => `${n}件があなたを待っています:` }),
     whenDone: (said: string) => `済んだら「${said}」と書いてください。`,
   },
   bots: {

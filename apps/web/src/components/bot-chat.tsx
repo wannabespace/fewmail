@@ -70,10 +70,10 @@ import { toast } from 'sonner'
 
 import { cardsLine, digestHeadline, isBoardBot } from '~/components/bot-list'
 import type { HomeBot } from '~/components/bot-list'
+import { cardHeadlineOf, whoOf } from '~/components/card-words'
 import { ConsentDetails } from '~/components/consent-details'
 import { expandRow } from '~/components/expand-row'
 import { ListenButton, speakAloud } from '~/components/listen-button'
-import { cardHeadlineOf, whoOf } from '~/components/queue-card'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { botChats, useWaitingIds } from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
@@ -1095,11 +1095,11 @@ const speakAnswer = async (bot: string, since: Date) => {
 export const useAskBot = () => {
   const [asking, setAsking] = useState<Asking | null>(null)
   const hasAgent = useHasAgent()
-  const sentAt = useRef(new Date())
+  const sentAt = useRef(0)
   const ask = useMutation({
     mutationFn: (message: Ask) => {
       posthog.capture('bot_asked', { voice: !!message.voice })
-      sentAt.current = new Date()
+      sentAt.current = Date.now()
       setAsking({ ...message, answer: '', at: new Date(), tools: [] })
       return streamAnswer(message, (step) =>
         setAsking((current) => current && stepInto(current, step))
@@ -1109,7 +1109,7 @@ export const useAskBot = () => {
       await refreshBots()
       setAsking(null)
       if (message.voice && hasAgent) {
-        await speakAnswer(message.bot, sentAt.current)
+        await speakAnswer(message.bot, new Date(sentAt.current))
       }
     },
   })

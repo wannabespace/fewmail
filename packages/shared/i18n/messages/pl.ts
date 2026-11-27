@@ -856,8 +856,8 @@ export const pl: Messages = {
       effect === 'archive'
         ? `${name}: ${plural('pl', count, { one: (n) => `${n} mail`, few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} w tym miesiącu i żaden cię nie potrzebował. Zrobić bota, który sam je archiwizuje?`
         : `${name}: ${plural('pl', count, { one: (n) => `${n} mail`, few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} w tym miesiącu i żaden cię nie potrzebował. Zrobić bota, który sam oznacza je jako przeczytane?`,
-    tidy: (n: number) =>
-      plural('pl', n, {
+    tidy: (count: number) =>
+      plural('pl', count, {
         one: (n) =>
           `Uporządkować ${n} cichy mail, jak proponuję (archiwum lub przeczytane)?`,
         few: (n) =>
@@ -869,8 +869,8 @@ export const pl: Messages = {
       }),
     unclear: (items: string) =>
       `Nie zrozumiałem, o którą sprawę chodzi: ${items}. Napisz jej numer.`,
-    waiting: (n: number) =>
-      plural('pl', n, {
+    waiting: (count: number) =>
+      plural('pl', count, {
         one: (n) => `Czeka na ciebie ${n} sprawa:`,
         few: (n) => `Czekają na ciebie ${n} sprawy:`,
         many: (n) => `Czeka na ciebie ${n} spraw:`,

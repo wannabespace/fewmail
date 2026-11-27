@@ -660,15 +660,15 @@ export const ko: Messages = {
       effect === 'archive'
         ? `${name}: 이번 달 ${plural('ko', count, { other: (n) => `${n}통` })}, 모두 당신이 필요 없었어요. 알아서 보관하는 봇을 만들까요?`
         : `${name}: 이번 달 ${plural('ko', count, { other: (n) => `${n}통` })}, 모두 당신이 필요 없었어요. 알아서 읽음 표시하는 봇을 만들까요?`,
-    tidy: (n: number) =>
-      plural('ko', n, {
+    tidy: (count: number) =>
+      plural('ko', count, {
         other: (n) =>
           `조용한 메일 ${n}통을 제안대로 정리할까요(보관 또는 읽음)?`,
       }),
     unclear: (items: string) =>
       `어느 것인지 모르겠어요: ${items}. 번호를 써 주세요.`,
-    waiting: (n: number) =>
-      plural('ko', n, { other: (n) => `${n}건이 기다리고 있어요:` }),
+    waiting: (count: number) =>
+      plural('ko', count, { other: (n) => `${n}건이 기다리고 있어요:` }),
     whenDone: (said: string) => `하고 나면 “${said}”라고 써 주세요.`,
   },
   bots: {

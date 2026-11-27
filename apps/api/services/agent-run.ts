@@ -1,5 +1,3 @@
-import { db } from '@fewmail/db'
-import { actions, analyses, messages } from '@fewmail/db/schema'
 import type { bots } from '@fewmail/db/schema'
 import {
   BOARD_EFFECT,
@@ -10,13 +8,9 @@ import type { BotReaction, ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, hasToolCall, stepCountIs, streamText, tool } from 'ai'
-import { addDays, subDays } from 'date-fns'
-import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
-import { keyedHash } from '../lib/keyed-hash'
-import { announceChange } from '../lib/live'
 import { agentTools, toolAccess } from './agent-tools'
 import {
   addBotPost,
@@ -27,15 +21,12 @@ import {
 } from './bot-chat'
 import type { BotEntry } from './bot-chat'
 import { listBots } from './bots'
-import { listEvents } from './calendar'
-import { ConsentChangedError } from './consent-error'
+import { proposeConsent } from './consent-run'
 import { decide } from './decide'
 import { NotFoundError } from './mail-errors'
-import type { Transaction } from './patterns'
 import { getPlanInfo, hasAgent, hasBudget, requireBudget } from './plan'
 import { getSettings } from './settings'
 import { skillPrompt } from './skills'
-import { ownMessage } from './stored-mail'
 
 type Bot = typeof bots.$inferSelect
 
@@ -100,217 +91,6 @@ const clock = (settings: AgentSettings) => {
   return `Now: ${now} (${timezone}).`
 }
 
-type ToolInput = Record<string, unknown>
-
-const EVENTS_AROUND = (now: Date) => ({
-  from: subDays(now, 30).toISOString(),
-  to: addDays(now, 365).toISOString(),
-})
-
-/** The reads the card finds its email, card or event in; without them the user would say yes blind. */
-const consentReads = async (
-  userId: string,
-  name: ConsentToolName,
-  input: ToolInput
-): Promise<
-  { input: ToolInput; name: keyof ReturnType<typeof agentTools> }[]
-> => {
-  if (typeof input.messageId === 'string') {
-    const { threadId } = await ownMessage(userId, input.messageId)
-    return [{ input: { threadId }, name: 'read_thread' }]
-  }
-  if (
-    name === 'approve_action' ||
-    name === 'dismiss_action' ||
-    name === 'tidy_mail'
-  ) {
-    return [{ input: {}, name: 'get_today' }]
-  }
-  if (
-    name === 'create_event' ||
-    name === 'update_event' ||
-    name === 'delete_event'
-  ) {
-    return [{ input: EVENTS_AROUND(new Date()), name: 'list_events' }]
-  }
-  if (name === 'update_bot') {
-    return [{ input: {}, name: 'list_bots' }]
-  }
-  return []
-}
-
-/**
- * What a yes covers beyond the call's own input, read when it was asked: the draft an approval sends, the thread a
- * move touches, what Tidy would do to each email, and the event a change rewrites. Null when
- * the input says it all (a new email, a bot).
- */
-const consentState = async (
-  userId: string,
-  name: ConsentToolName,
-  input: ToolInput
-): Promise<unknown> => {
-  if (
-    (name === 'approve_action' || name === 'dismiss_action') &&
-    typeof input.actionId === 'string'
-  ) {
-    const [action] = await db
-      .select({
-        detail: actions.detail,
-        kind: actions.kind,
-        messageId: actions.messageId,
-        status: actions.status,
-      })
-      .from(actions)
-      .where(and(eq(actions.id, input.actionId), eq(actions.userId, userId)))
-    return action ?? null
-  }
-  if (typeof input.messageId === 'string') {
-    const { mailboxId, threadId } = await ownMessage(userId, input.messageId)
-    return { mailboxId, threadId }
-  }
-  if (name === 'tidy_mail' && Array.isArray(input.messageIds)) {
-    const suggested = await db
-      .select({ id: analyses.messageId, suggested: analyses.suggestedAction })
-      .from(analyses)
-      .innerJoin(messages, eq(messages.id, analyses.messageId))
-      .where(
-        and(
-          eq(messages.userId, userId),
-          inArray(analyses.messageId, input.messageIds as string[])
-        )
-      )
-    return suggested.toSorted((a, b) => a.id.localeCompare(b.id))
-  }
-  if (name === 'update_event' || name === 'delete_event') {
-    const around = EVENTS_AROUND(new Date())
-    const { events } = await listEvents(userId, {
-      from: new Date(around.from),
-      to: new Date(around.to),
-    })
-    return (
-      events.find(
-        ({ id, mailboxId }) => id === input.id && mailboxId === input.mailboxId
-      ) ?? null
-    )
-  }
-  return null
-}
-
-/** What the card shows (`context`) and what its yes is bound to (`state`), read together. */
-const consentSnapshot = async (
-  userId: string,
-  name: ConsentToolName,
-  input: ToolInput
-) => {
-  const tools = agentTools(userId)
-  const reads = await consentReads(userId, name, input)
-  const [context, state] = await Promise.all([
-    Promise.all(reads.map((read) => tools[read.name].run(read.input as never))),
-    consentState(userId, name, input),
-  ])
-  return { context, state }
-}
-
-/** The same request again (an MCP client retrying a call) is the card already waiting, or one yes would run it twice. */
-const isWaiting = async (
-  tx: Transaction,
-  userId: string,
-  name: ConsentToolName,
-  asked: string
-) => {
-  const pending = await tx
-    .select({ payload: actions.payload })
-    .from(actions)
-    .where(
-      and(
-        eq(actions.userId, userId),
-        eq(actions.kind, 'consent'),
-        eq(actions.status, 'pending')
-      )
-    )
-  return pending.some(
-    ({ payload }) =>
-      payload?.tool === name && JSON.stringify(payload.input) === asked
-  )
-}
-
-/**
- * A consent tool never runs on the agent's or an MCP client's word: it waits as a `consent` card on Home carrying the
- * tool, its input and what the reads found (`context`), so the card shows exactly what the yes does; `runConsent` does it.
- */
-export const proposeConsent = async (
-  userId: string,
-  {
-    bot,
-    from,
-    input,
-    name,
-  }: {
-    /** The chat that asked: its card waits there. Fewmail's, a messenger's and an MCP client's carry none. */
-    bot?: string
-    from: string
-    input: ToolInput
-    name: ConsentToolName
-  }
-) => {
-  const settings = await getSettings(userId)
-  const t = dictionaries[settings?.language ?? 'en']
-  const { context, state } = await consentSnapshot(userId, name, input)
-  const asked = JSON.stringify(input)
-  // Two identical calls at the same moment (a client retrying in parallel) must queue here, or both see no card and add one each.
-  const id = await db.transaction(async (tx) => {
-    await tx.execute(
-      sql`select pg_advisory_xact_lock(hashtextextended(${keyedHash(`consent:${userId}:${name}:${asked}`)}, 0))`
-    )
-    if (await isWaiting(tx, userId, name, asked)) {
-      return null
-    }
-    const [card] = await tx
-      .insert(actions)
-      .values({
-        autonomous: false,
-        botId: bot && bot !== 'fewmail' ? bot : null,
-        kind: 'consent',
-        messageId: typeof input.messageId === 'string' ? input.messageId : null,
-        payload: { context, input, state, tool: name },
-        reason: from,
-        status: 'pending',
-        title: t.agent.confirm[name],
-        userId,
-      })
-      .returning({ id: actions.id })
-    return card?.id ?? null
-  })
-  if (id) {
-    await announceChange(userId, ['actions', 'today'])
-  }
-  return { id, isNew: !!id, question: t.agent.confirm[name] }
-}
-
-/**
- * Runs the tool only when what the yes covered is still what the card showed: a draft edited, a thread moved or an
- * event changed since makes the card show the new state and ask again (`ConsentChangedError`).
- */
-export const runConsent = async (
-  userId: string,
-  actionId: string,
-  payload: Record<string, unknown> | null
-) => {
-  const name = payload?.tool as ConsentToolName
-  const input = (payload?.input ?? {}) as ToolInput
-  const now = await consentState(userId, name, input)
-  if (JSON.stringify(now) !== JSON.stringify(payload?.state)) {
-    const snapshot = await consentSnapshot(userId, name, input)
-    await db
-      .update(actions)
-      .set({ payload: { ...payload, ...snapshot } })
-      .where(eq(actions.id, actionId))
-    await announceChange(userId, ['actions', 'today'])
-    throw new ConsentChangedError('The card changed since it was asked')
-  }
-  return agentTools(userId)[name].run(input as never)
-}
-
 const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
 
 /** The agent's tools for one request: what reads and writes runs, every consent becomes a card waiting in the chat that asked (`asked` collects them). */
@@ -335,7 +115,7 @@ const toolsFor = (
             const { id } = await proposeConsent(userId, {
               bot,
               from,
-              input: input as ToolInput,
+              input: input as Record<string, unknown>,
               name: name as ConsentToolName,
             })
             if (id) {
@@ -498,6 +278,74 @@ const keepMessage = async (
 }
 
 /**
+ * The agent's answer as it streams: each tool it calls and each piece of its text, and at the end what it wrote and used.
+ * @yields {BotStep} Each tool call, reaction and piece of the answer.
+ */
+const answerSteps = async function* answerSteps(
+  stream: ReturnType<typeof streamText>['fullStream']
+) {
+  let answer = ''
+  let hasReacted = false
+  const used: string[] = []
+  for await (const part of stream) {
+    if (part.type === 'tool-call' && part.toolName === 'react') {
+      hasReacted = true
+      yield {
+        reaction: (part.input as { reaction: BotReaction }).reaction,
+        type: 'reaction',
+      } satisfies BotStep
+    } else if (part.type === 'tool-call') {
+      used.push(part.toolName)
+      yield { tool: part.toolName, type: 'tool' } satisfies BotStep
+    }
+    if (part.type === 'text-delta') {
+      answer += part.text
+      yield { text: part.text, type: 'text' } satisfies BotStep
+    }
+  }
+  return { answer, hasReacted, used }
+}
+
+/** Before any agent turn: an answer to what the bot asked is settled by the reader, never by the agent, and kept as its post. */
+const settleFirst = async (
+  userId: string,
+  bot: string,
+  text: string,
+  { seen, voice }: { seen?: { at: Date; keys: string[] }; voice: boolean }
+) => {
+  const decided = await decide(userId, {
+    bot,
+    channel: 'web',
+    seenAt: seen?.at,
+    shown: seen?.keys,
+    text,
+    voice,
+  })
+  if (decided) {
+    await addBotPost(userId, {
+      bot,
+      kind: decided.outcome === 'limit' ? 'limit' : 'decided',
+      text: decided.text,
+    })
+  }
+  return decided
+}
+
+/** The agent answers only what the reader left: the user's last message carries what was already settled. */
+const withSettled = <T extends { content: unknown }>(
+  chat: T[],
+  settled: string
+) =>
+  chat.map((message, index) =>
+    index === chat.length - 1
+      ? {
+          ...message,
+          content: `${String(message.content)}\n\n(You already settled part of this message and told the user: "${settled}". Answer only the rest.)`,
+        }
+      : message
+  )
+
+/**
  * A message to one of Home's bots: kept in its chat with the answer, which streams as it is written. Without the agent
  * or past the allowance the bot says why instead of answering, and nothing is spent.
  * @yields {BotStep} Each tool the agent calls and each piece of the answer, as they happen.
@@ -533,21 +381,8 @@ export const askBot = async function* askBot(
     text,
     voice,
   })
-  // Before any agent turn: an answer to what the bot asked is settled by the reader, never by the agent.
-  const decided = await decide(userId, {
-    bot,
-    channel: 'web',
-    seenAt: seen?.at,
-    shown: seen?.keys,
-    text,
-    voice,
-  })
+  const decided = await settleFirst(userId, bot, text, { seen, voice })
   if (decided) {
-    await addBotPost(userId, {
-      bot,
-      kind: decided.outcome === 'limit' ? 'limit' : 'decided',
-      text: decided.text,
-    })
     yield { decided: decided.text, type: 'decided' } satisfies BotStep
     if (!decided.rest) {
       return
@@ -568,16 +403,7 @@ export const askBot = async function* askBot(
       botScope(bot, ownBot),
       await reportsOf(userId, bot)
     ),
-    messages: decided
-      ? chat.map((message, index) =>
-          index === chat.length - 1
-            ? {
-                ...message,
-                content: `${message.content}\n\n(You already settled part of this message and told the user: "${decided.text}". Answer only the rest.)`,
-              }
-            : message
-        )
-      : chat,
+    messages: decided ? withSettled(chat, decided.text) : chat,
     model: models.writer,
     providerOptions: CACHE_PREFIX,
     stopWhen: [stepCountIs(MAX_STEPS), hasToolCall('react')],
@@ -596,25 +422,7 @@ export const askBot = async function* askBot(
       }),
     },
   })
-  let answer = ''
-  let hasReacted = false
-  const used: string[] = []
-  for await (const part of result.fullStream) {
-    if (part.type === 'tool-call' && part.toolName === 'react') {
-      hasReacted = true
-      yield {
-        reaction: (part.input as { reaction: BotReaction }).reaction,
-        type: 'reaction',
-      } satisfies BotStep
-    } else if (part.type === 'tool-call') {
-      used.push(part.toolName)
-      yield { tool: part.toolName, type: 'tool' } satisfies BotStep
-    }
-    if (part.type === 'text-delta') {
-      answer += part.text
-      yield { text: part.text, type: 'text' } satisfies BotStep
-    }
-  }
+  const { answer, hasReacted, used } = yield* answerSteps(result.fullStream)
   if (hasReacted && !answer.trim() && asked.length === 0 && used.length === 0) {
     return
   }
